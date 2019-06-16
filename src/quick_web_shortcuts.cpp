@@ -49,7 +49,8 @@ void QuickWebShortcuts::matchSessionFinished() {
                 }
             }
         }
-        if (filteredHistory.size() == configGroup.parent().parent().group("General").readEntry("history").size()) {
+        if (filteredHistory.size() ==
+            KSharedConfig::openConfig("krunnerrc")->group("General").readEntry("history").size()) {
             return;
         }
         QFile f(QString(getenv("HOME")) + "/.config/krunnerrc");
@@ -64,6 +65,7 @@ void QuickWebShortcuts::matchSessionFinished() {
                     s.append("history=" + filteredHistory + "\n");
                 }
             }
+            f.resize(0);
             f.write(s.toLocal8Bit());
             f.close();
         }
@@ -127,7 +129,6 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
         QString searchUrl = payload.split("engine|")[1];
         configGroup.writeEntry("url", searchUrl);
         configGroup.sync();
-        reloadConfiguration();
     }
 }
 

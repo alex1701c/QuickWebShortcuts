@@ -21,6 +21,7 @@
 
 #include "ui_quick_web_shortcuts_config.h"
 #include <KCModule>
+#include <KConfigCore/KConfigGroup>
 
 
 class QuickWebShortcutsConfigForm : public QWidget, public Ui::QuickWebShortcutsConfigUi
@@ -37,6 +38,7 @@ class QuickWebShortcutsConfig : public KCModule
 
 public:
     explicit QuickWebShortcutsConfig(QWidget* parent = nullptr, const QVariantList& args = QVariantList());
+    KConfigGroup config;
     
 public Q_SLOTS:
     void save() override;

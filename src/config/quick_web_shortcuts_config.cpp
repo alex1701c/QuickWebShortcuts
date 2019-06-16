@@ -37,21 +37,33 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     m_ui = new QuickWebShortcutsConfigForm(this);
     auto *layout = new QGridLayout(this);
     layout->addWidget(m_ui, 0, 0);
-    m_ui->searchEngines->addItem("Google : https://www.google.com/search?q=");
-    m_ui->searchEngines->addItem("DuckDuckGo : https://duckduckgo.com/?q=");
-    m_ui->searchEngines->addItem("Stackoverflow : https://stackoverflow.com/search?q=");
-    m_ui->searchEngines->addItem("Bing : https://www.bing.com/search?q=");
-    m_ui->searchEngines->addItem("Github : https://github.com/search?q=");
-    m_ui->searchEngines->addItem("Youtube : https://www.youtube.com/results?search_query=");
+    config = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
+    m_ui->searchEngines->addItem("Google", "https://www.google.com/search?q=");
+    m_ui->searchEngines->addItem("DuckDuckGo", "https://duckduckgo.com/?q=");
+    m_ui->searchEngines->addItem("Stackoverflow", "https://stackoverflow.com/search?q=");
+    m_ui->searchEngines->addItem("Bing", "https://www.bing.com/search?q=");
+    m_ui->searchEngines->addItem("Github", "https://github.com/search?q=");
+    m_ui->searchEngines->addItem("Youtube", "https://www.youtube.com/results?search_query=");
+    KConfigGroup kse = config.group("CustomSearchEngines");
+    for (const QString &key:kse.keyList()) {
+        m_ui->searchEngines->addItem(key, kse.readEntry(key));
+    }
     load();
 }
 
 void QuickWebShortcutsConfig::load() {
     KCModule::load();
-
-    KSharedConfig::Ptr cfg = KSharedConfig::openConfig(QStringLiteral("krunnerrc"));
-    KConfigGroup grp = cfg->group("Runners");
-    grp = KConfigGroup(&grp, "Translator");
+    QString historyOption = config.readEntry("clean_history", "all");
+    if (historyOption == "all") {
+        m_ui->historyAll->setChecked(true);
+    } else if (historyOption == "quick") {
+        m_ui->historyQuick->setChecked(true);
+    } else {
+        m_ui->historyNotClear->setChecked(true);
+    }
+    m_ui->searchEngines->setCurrentIndex(
+            m_ui->searchEngines->findData(config.readEntry("url", "https://www.google.com/search?q="))
+    );
 
     emit changed(false);
 }
