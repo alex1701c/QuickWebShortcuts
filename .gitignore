@@ -1,0 +1,8 @@
+/build
+/.idea
+/.vscode
+/cmake-build-debug
+src/config/ui_quick_web_shortcuts_config.h
+*.swap
+src/*.swap
+/src/CMakeFiles/
