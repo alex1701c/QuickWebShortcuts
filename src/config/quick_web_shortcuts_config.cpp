@@ -38,6 +38,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     auto *layout = new QGridLayout(this);
     layout->addWidget(m_ui, 0, 0);
     config = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
+    m_ui->searchEngines->setDuplicatesEnabled(false);
     m_ui->searchEngines->addItem("Google", "https://www.google.com/search?q=");
     m_ui->searchEngines->addItem("DuckDuckGo", "https://duckduckgo.com/?q=");
     m_ui->searchEngines->addItem("Stackoverflow", "https://stackoverflow.com/search?q=");
@@ -46,6 +47,10 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     m_ui->searchEngines->addItem("Youtube", "https://www.youtube.com/results?search_query=");
     KConfigGroup kse = config.group("CustomSearchEngines");
     for (const QString &key:kse.keyList()) {
+        int dublicate = m_ui->searchEngines->findText(key);
+        if (dublicate != -1) {
+            m_ui->searchEngines->removeItem(dublicate);
+        }
         m_ui->searchEngines->addItem(key, kse.readEntry(key));
     }
 
@@ -82,7 +87,6 @@ void QuickWebShortcutsConfig::load() {
         QString text = m_ui->searchEngines->currentText().append(" (current)");
         m_ui->searchEngines->setItemText(current, text);
     }*/
-    changed();
     m_ui->searchEngines->setFocus();
     emit changed(false);
 }
@@ -102,8 +106,25 @@ void QuickWebShortcutsConfig::extractNameFromURL() {
 void QuickWebShortcutsConfig::save() {
 
     KCModule::save();
-    //TODO Detect changes if existing search engines are edited
-    config.writeEntry("url", m_ui->searchEngines->itemData(m_ui->searchEngines->currentIndex()));
+
+    for (int i = 0; i < m_ui->searchEngines->count(); i++) {
+        QString text = m_ui->searchEngines->itemText(i);
+        QString data = m_ui->searchEngines->itemData(i).toString();
+
+        if (text.contains(": ")) {
+            auto split = text.split(": ");
+            data = split.last();
+            config.group("CustomSearchEngines").writeEntry(split.first(), split.last());
+            if (text == m_ui->searchEngines->currentText()) {
+                config.writeEntry("url", split.last());
+            }
+        } else {
+            if (text == m_ui->searchEngines->currentText()) {
+                config.writeEntry("url", data);
+            }
+        }
+    }
+
     QString history;
     if (m_ui->historyAll->isChecked()) {
         history = "all";
@@ -119,7 +140,33 @@ void QuickWebShortcutsConfig::save() {
 
 void QuickWebShortcutsConfig::defaults() {
     m_ui->historyAll->setChecked(true);
+    while (m_ui->searchEngines->currentIndex() != -1) {
+        m_ui->searchEngines->removeItem(m_ui->searchEngines->currentIndex());
+    }
+    // Delete all changed default entries, keep custom, refresh combo box with default + custom
+    auto keys = config.group("CustomSearchEngines").keyList();
+    QStringList defaults = {"Google", "DuckDuckGo", "Stackoverflow", "Bing", "Github", "Youtube"};
+    for (const auto &key : keys) {
+        if (defaults.contains(key)) {
+            config.group("CustomSearchEngines").deleteEntry(key);
+        }
+    }
+
+    m_ui->searchEngines->addItem("Google", "https://www.google.com/search?q=");
+    m_ui->searchEngines->addItem("DuckDuckGo", "https://duckduckgo.com/?q=");
+    m_ui->searchEngines->addItem("Stackoverflow", "https://stackoverflow.com/search?q=");
+    m_ui->searchEngines->addItem("Bing", "https://www.bing.com/search?q=");
+    m_ui->searchEngines->addItem("Github", "https://github.com/search?q=");
+    m_ui->searchEngines->addItem("Youtube", "https://www.youtube.com/results?search_query=");
+
+    KConfigGroup kse = config.group("CustomSearchEngines");
+    for (const QString &key:kse.keyList()) {
+        m_ui->searchEngines->addItem(key, kse.readEntry(key));
+    }
+
+    m_ui->searchEnginesEditable->setChecked(false);
     m_ui->searchEngines->setCurrentIndex(m_ui->searchEngines->findData("https://www.google.com/search?q="));
+
     emit changed(true);
 }
 
@@ -128,7 +175,6 @@ void QuickWebShortcutsConfig::enableEditingOfExisting() {
     searchEnginesEdited = true;
     m_ui->searchEngines->setEditable(enabled);
     for (int i = 0; i < m_ui->searchEngines->count(); i++) {
-        qDebug() << m_ui->searchEngines->itemText(i) << "\n";
         if (enabled) {
             if (!m_ui->searchEngines->itemText(i).contains(": ")) {
                 m_ui->searchEngines->setItemText(i, m_ui->searchEngines->itemText(i) + ": " +

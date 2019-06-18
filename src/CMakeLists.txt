@@ -1,6 +1,6 @@
 add_definitions(-DTRANSLATION_DOMAIN=\"plasma_runner_org.kde.quickwebshortcuts\")
 
-set(quickwebshortcuts_SRCS quick_web_shortcuts.h quick_web_shortcuts.cpp)
+set(quickwebshortcuts_SRCS quick_web_shortcuts.h quick_web_shortcuts.cpp SearchEngines.cpp SearchEngines.h)
 
 add_library(krunner_quickwebshortcuts MODULE ${quickwebshortcuts_SRCS})
 target_link_libraries(krunner_quickwebshortcuts KF5::Runner KF5::I18n)
