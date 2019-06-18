@@ -15,6 +15,16 @@
    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * DONE Read custom search engines for Krunner settings(inside runner)
+ * TODO Extract Name from URL ?
+ * TODO Allow to add a search Engine from inside krunner
+ * TODO Handle event for add search enginge in GUI
+ * TODO Handle save in GUI
+ * TODO Handle Defaults in GUI
+ * DONE: Mark current in Gui select
+ *
+ */
 #include "quick_web_shortcuts.h"
 #include <KLocalizedString>
 #include <QtGui/QtGui>
@@ -33,6 +43,10 @@ QuickWebShortcuts::~QuickWebShortcuts() = default;
 
 void QuickWebShortcuts::reloadConfiguration() {
     configGroup = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
+    KConfigGroup kse = configGroup.group("CustomSearchEngines");
+    for (const QString &key:kse.keyList()) {
+        searchEngines.insert(key, kse.readEntry(key));
+    }
 }
 
 

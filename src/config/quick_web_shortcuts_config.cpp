@@ -48,6 +48,13 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     for (const QString &key:kse.keyList()) {
         m_ui->searchEngines->addItem(key, kse.readEntry(key));
     }
+
+    connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(m_ui->searchEngineName, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(changed()));
+    connect(m_ui->groupBoxHistory, SIGNAL(currentTextChanged(QString)), this, SLOT(changed()));
+    connect(m_ui->historyAll, SIGNAL(stateChanged(int)), this, SLOT(changed()));
+    m_ui->groupBoxHistory->che
     load();
 }
 
@@ -61,10 +68,15 @@ void QuickWebShortcutsConfig::load() {
     } else {
         m_ui->historyNotClear->setChecked(true);
     }
-    m_ui->searchEngines->setCurrentIndex(
-            m_ui->searchEngines->findData(config.readEntry("url", "https://www.google.com/search?q="))
-    );
+    int current = m_ui->searchEngines->findData(config.readEntry("url", "https://www.google.com/search?q="));
+    m_ui->searchEngines->setCurrentIndex(current);
 
+    /*if (!m_ui->searchEngines->currentText().endsWith(" (current)")) {
+        QString text = m_ui->searchEngines->currentText().append(" (current)");
+        m_ui->searchEngines->setItemText(current, text);
+    }*/
+    changed();
+    m_ui->searchEngines->setFocus();
     emit changed(false);
 }
 
