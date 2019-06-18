@@ -50,6 +50,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     }
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(comboBoxEditTextChanged()));
     connect(m_ui->searchEngineName, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(changed()));
     connect(m_ui->historyAll, SIGNAL(clicked(bool)), this, SLOT(changed()));
@@ -58,6 +59,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
     connect(m_ui->searchEnginesEditable, SIGNAL(clicked(bool)), this, SLOT(enableEditingOfExisting()));
+    connect(m_ui->addSearchEngine, SIGNAL(clicked(bool)), this, SLOT(addSearchEngine()));
 
     load();
 
@@ -126,14 +128,41 @@ void QuickWebShortcutsConfig::enableEditingOfExisting() {
     searchEnginesEdited = true;
     m_ui->searchEngines->setEditable(enabled);
     for (int i = 0; i < m_ui->searchEngines->count(); i++) {
+        qDebug() << m_ui->searchEngines->itemText(i) << "\n";
         if (enabled) {
-            if (m_ui->searchEngines->itemText(i).endsWith(m_ui->searchEngines->itemData(i).toString())) {
-                return;
+            if (!m_ui->searchEngines->itemText(i).contains(": ")) {
+                m_ui->searchEngines->setItemText(i, m_ui->searchEngines->itemText(i) + ": " +
+                                                    m_ui->searchEngines->itemData(i).toString());
             }
-            m_ui->searchEngines->setItemText(i, m_ui->searchEngines->itemText(i) + ": " +
-                                                m_ui->searchEngines->itemData(i).toString());
+        } else {
+            if (m_ui->searchEngines->itemText(i).endsWith(": " + m_ui->searchEngines->itemData(i).toString())) {
+                QStringList res = m_ui->searchEngines->itemText(i).split(": ");
+                if (res.last() == m_ui->searchEngines->itemData(i)) {
+                    m_ui->searchEngines->setItemText(i, res.first());
+                }
+            }
         }
     }
+}
+
+void QuickWebShortcutsConfig::addSearchEngine() {
+    QString name = m_ui->searchEngineName->text();
+    QString url = m_ui->searchEngineURL->text();
+    if (!name.isEmpty() && !url.isEmpty()) {
+        config.group("CustomSearchEngines").writeEntry(name, url);
+        m_ui->searchEngineName->setText("");
+        m_ui->searchEngineURL->setText("");
+        if (!m_ui->searchEnginesEditable->isChecked()) {
+            m_ui->searchEngines->addItem(name, url);
+        } else {
+            m_ui->searchEngines->addItem(name + ": " + url, url);
+        }
+    }
+}
+
+void QuickWebShortcutsConfig::comboBoxEditTextChanged() {
+
+    m_ui->searchEngines->setItemText(m_ui->searchEngines->currentIndex(), m_ui->searchEngines->currentText());
 }
 
 #include "quick_web_shortcuts_config.moc"

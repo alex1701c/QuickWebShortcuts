@@ -53,6 +53,10 @@ public Q_SLOTS:
 
     void enableEditingOfExisting();
 
+    void addSearchEngine();
+
+    void comboBoxEditTextChanged();
+
 private:
     QuickWebShortcutsConfigForm *m_ui;
 };
