@@ -17,11 +17,11 @@
 
 /*
  * DONE Read custom search engines for Krunner settings(inside runner)
- * TODO Extract Name from URL ?
+ * DONE Extract Name from URL ?
  * TODO Allow to add a search Engine from inside krunner
  * TODO Handle event for add search enginge in GUI
- * TODO Handle save in GUI
- * TODO Handle Defaults in GUI
+ * DONE Handle save in GUI
+ * DONE Handle Defaults in GUI
  * DONE: Mark current in Gui select
  *
  */

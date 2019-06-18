@@ -94,11 +94,27 @@ void QuickWebShortcutsConfig::extractNameFromURL() {
 }
 
 void QuickWebShortcutsConfig::save() {
+
+    KCModule::save();
+
+    config.writeEntry("url", m_ui->searchEngines->itemData(m_ui->searchEngines->currentIndex()));
+    QString history;
+    if (m_ui->historyAll->isChecked()) {
+        history = "all";
+    } else if (m_ui->historyQuick->isChecked()) {
+        history = "quick";
+    } else {
+        history = "false";
+    }
+    config.writeEntry("clean_history", history);
+    config.sync();
     emit changed(false);
 }
 
 void QuickWebShortcutsConfig::defaults() {
-    emit changed(false);
+    m_ui->historyAll->setChecked(true);
+    m_ui->searchEngines->setCurrentIndex(m_ui->searchEngines->findData("https://www.google.com/search?q="));
+    emit changed(true);
 }
 
 #include "quick_web_shortcuts_config.moc"
