@@ -20,6 +20,8 @@
  * DONE Extract Name from URL ?
  * TODO Allow to add a search Engine from inside krunner
  * TODO Handle event for add search enginge in GUI
+ * TODO Make Items in ComboBox editable
+ * TODO Extract Search Engine config to file
  * DONE Handle save in GUI
  * DONE Handle Defaults in GUI
  * DONE: Mark current in Gui select

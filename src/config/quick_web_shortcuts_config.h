@@ -39,6 +39,8 @@ public:
 
     KConfigGroup config;
 
+    bool searchEnginesEdited = false;
+
 public Q_SLOTS:
 
     void save() override;
@@ -47,8 +49,9 @@ public Q_SLOTS:
 
     void defaults() override;
 
-
     void extractNameFromURL();
+
+    void enableEditingOfExisting();
 
 private:
     QuickWebShortcutsConfigForm *m_ui;

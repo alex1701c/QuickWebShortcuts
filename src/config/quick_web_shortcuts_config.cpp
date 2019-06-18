@@ -50,13 +50,17 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     }
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
     connect(m_ui->searchEngineName, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(changed()));
     connect(m_ui->historyAll, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->historyQuick, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->historyNotClear, SIGNAL(clicked(bool)), this, SLOT(changed()));
+
+    connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
+    connect(m_ui->searchEnginesEditable, SIGNAL(clicked(bool)), this, SLOT(enableEditingOfExisting()));
+
     load();
+
 }
 
 void QuickWebShortcutsConfig::load() {
@@ -96,7 +100,7 @@ void QuickWebShortcutsConfig::extractNameFromURL() {
 void QuickWebShortcutsConfig::save() {
 
     KCModule::save();
-
+    //TODO Detect changes if existing search engines are edited
     config.writeEntry("url", m_ui->searchEngines->itemData(m_ui->searchEngines->currentIndex()));
     QString history;
     if (m_ui->historyAll->isChecked()) {
@@ -115,6 +119,21 @@ void QuickWebShortcutsConfig::defaults() {
     m_ui->historyAll->setChecked(true);
     m_ui->searchEngines->setCurrentIndex(m_ui->searchEngines->findData("https://www.google.com/search?q="));
     emit changed(true);
+}
+
+void QuickWebShortcutsConfig::enableEditingOfExisting() {
+    bool enabled = m_ui->searchEnginesEditable->isChecked();
+    searchEnginesEdited = true;
+    m_ui->searchEngines->setEditable(enabled);
+    for (int i = 0; i < m_ui->searchEngines->count(); i++) {
+        if (enabled) {
+            if (m_ui->searchEngines->itemText(i).endsWith(m_ui->searchEngines->itemData(i).toString())) {
+                return;
+            }
+            m_ui->searchEngines->setItemText(i, m_ui->searchEngines->itemText(i) + ": " +
+                                                m_ui->searchEngines->itemData(i).toString());
+        }
+    }
 }
 
 #include "quick_web_shortcuts_config.moc"
