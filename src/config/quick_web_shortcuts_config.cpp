@@ -50,11 +50,12 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     }
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
     connect(m_ui->searchEngineName, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(changed()));
-    connect(m_ui->groupBoxHistory, SIGNAL(currentTextChanged(QString)), this, SLOT(changed()));
-    connect(m_ui->historyAll, SIGNAL(stateChanged(int)), this, SLOT(changed()));
-    m_ui->groupBoxHistory->che
+    connect(m_ui->historyAll, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->historyQuick, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->historyNotClear, SIGNAL(clicked(bool)), this, SLOT(changed()));
     load();
 }
 
@@ -80,7 +81,23 @@ void QuickWebShortcutsConfig::load() {
     emit changed(false);
 }
 
+
+void QuickWebShortcutsConfig::extractNameFromURL() {
+    if (m_ui->searchEngineURL->text().contains(QRegExp(R"(^(?:https?://)?(?:[\w]+\.)(?:\.?[\w]{2,})+)"))) {
+        QRegExp exp(R"(^(?:https?://)?([\w]+)\.(?:\.?[\w]{2,})+)");
+        exp.indexIn(m_ui->searchEngineURL->text());
+        QString res = exp.capturedTexts().last();
+        res[0] = res[0].toUpper();
+        m_ui->searchEngineName->setText(res);
+        m_ui->searchEngineName->setEnabled(true);
+    }
+}
+
 void QuickWebShortcutsConfig::save() {
+    emit changed(false);
+}
+
+void QuickWebShortcutsConfig::defaults() {
     emit changed(false);
 }
 

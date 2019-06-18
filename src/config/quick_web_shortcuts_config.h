@@ -24,28 +24,34 @@
 #include <KConfigCore/KConfigGroup>
 
 
-class QuickWebShortcutsConfigForm : public QWidget, public Ui::QuickWebShortcutsConfigUi
-{
-    Q_OBJECT
+class QuickWebShortcutsConfigForm : public QWidget, public Ui::QuickWebShortcutsConfigUi {
+Q_OBJECT
 
 public:
-    explicit QuickWebShortcutsConfigForm(QWidget* parent);
+    explicit QuickWebShortcutsConfigForm(QWidget *parent);
 };
 
-class QuickWebShortcutsConfig : public KCModule
-{
-    Q_OBJECT
+class QuickWebShortcutsConfig : public KCModule {
+Q_OBJECT
 
 public:
-    explicit QuickWebShortcutsConfig(QWidget* parent = nullptr, const QVariantList& args = QVariantList());
+    explicit QuickWebShortcutsConfig(QWidget *parent = nullptr, const QVariantList &args = QVariantList());
+
     KConfigGroup config;
-    
+
 public Q_SLOTS:
+
     void save() override;
+
     void load() override;
 
+    void defaults() override;
+
+
+    void extractNameFromURL();
+
 private:
-    QuickWebShortcutsConfigForm* m_ui;
+    QuickWebShortcutsConfigForm *m_ui;
 };
 
 #endif
