@@ -9,7 +9,7 @@ The easiest way to install is:
 Or you can do it manually:
 
 ```
-git clone https://github.com/alex1701c/QuickWebShortcuts  
+git clone https://github.com/alex1701c/QuickWebShortcuts.git  
 cd QuickWebShortcuts/
 mkdir build
 cd build
