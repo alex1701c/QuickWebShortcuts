@@ -52,6 +52,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
             m_ui->searchEngines->addItem(item.first, item.second);
         }
     }
+    m_ui->deleteButton->setVisible(false);
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(comboBoxEditTextChanged()));
@@ -62,6 +63,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->historyNotClear, SIGNAL(clicked(bool)), this, SLOT(changed()));
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
+    connect(m_ui->deleteButton, SIGNAL(clicked(bool)), this, SLOT(deleteCurrentItem()));
     connect(m_ui->searchEnginesEditable, SIGNAL(clicked(bool)), this, SLOT(enableEditingOfExisting()));
     connect(m_ui->addSearchEngine, SIGNAL(clicked(bool)), this, SLOT(addSearchEngine()));
 
@@ -161,6 +163,7 @@ void QuickWebShortcutsConfig::defaults() {
 
 void QuickWebShortcutsConfig::enableEditingOfExisting() {
     bool enabled = m_ui->searchEnginesEditable->isChecked();
+    m_ui->deleteButton->setVisible(enabled);
     searchEnginesEdited = true;
     m_ui->searchEngines->setEditable(enabled);
     for (int i = 0; i < m_ui->searchEngines->count(); i++) {
@@ -196,8 +199,28 @@ void QuickWebShortcutsConfig::addSearchEngine() {
 }
 
 void QuickWebShortcutsConfig::comboBoxEditTextChanged() {
-
+    bool deletable = true;
+    for (const auto &key:SearchEngines::getDefaultSearchEngineNames()) {
+        if (m_ui->searchEngines->currentText().startsWith(key)) {
+            deletable = false;
+            break;
+        }
+    }
+    m_ui->deleteButton->setEnabled(deletable);
     m_ui->searchEngines->setItemText(m_ui->searchEngines->currentIndex(), m_ui->searchEngines->currentText());
+}
+
+void QuickWebShortcutsConfig::deleteCurrentItem() {
+    QString text = m_ui->searchEngines->currentText();
+    QString name = text;
+    if (text.contains(": ")) {
+        auto split = text.split(": ");
+        name = split.first().trimmed();
+    }
+
+    qInfo() << name;
+    config.group("CustomSearchEngines").deleteEntry(name);
+    m_ui->searchEngines->removeItem(m_ui->searchEngines->currentIndex());
 }
 
 #include "quick_web_shortcuts_config.moc"

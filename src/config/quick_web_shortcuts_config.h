@@ -57,6 +57,8 @@ public Q_SLOTS:
 
     void comboBoxEditTextChanged();
 
+    void deleteCurrentItem();
+
 private:
     QuickWebShortcutsConfigForm *m_ui;
 };

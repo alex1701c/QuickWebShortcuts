@@ -11,6 +11,12 @@
     <height>580</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>300</width>
+    <height>0</height>
+   </size>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="glosbe">
@@ -172,6 +178,17 @@
              </property>
              <property name="insertPolicy">
               <enum>QComboBox::NoInsert</enum>
+             </property>
+            </widget>
+           </item>
+           <item alignment="Qt::AlignLeft">
+            <widget class="QPushButton" name="deleteButton">
+             <property name="text">
+              <string>Delete Item</string>
+             </property>
+             <property name="icon">
+              <iconset theme="delete">
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
