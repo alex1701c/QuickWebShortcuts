@@ -17,6 +17,7 @@
  *****************************************************************************/
 
 #include "quick_web_shortcuts_config.h"
+#include "../SearchEngines.h"
 #include <KSharedConfig>
 #include <KPluginFactory>
 #include <krunner/abstractrunner.h>
@@ -38,20 +39,18 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     auto *layout = new QGridLayout(this);
     layout->addWidget(m_ui, 0, 0);
     config = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
-    m_ui->searchEngines->setDuplicatesEnabled(false);
-    m_ui->searchEngines->addItem("Google", "https://www.google.com/search?q=");
-    m_ui->searchEngines->addItem("DuckDuckGo", "https://duckduckgo.com/?q=");
-    m_ui->searchEngines->addItem("Stackoverflow", "https://stackoverflow.com/search?q=");
-    m_ui->searchEngines->addItem("Bing", "https://www.bing.com/search?q=");
-    m_ui->searchEngines->addItem("Github", "https://github.com/search?q=");
-    m_ui->searchEngines->addItem("Youtube", "https://www.youtube.com/results?search_query=");
-    KConfigGroup kse = config.group("CustomSearchEngines");
-    for (const QString &key:kse.keyList()) {
-        int dublicate = m_ui->searchEngines->findText(key);
-        if (dublicate != -1) {
-            m_ui->searchEngines->removeItem(dublicate);
+
+    for (const auto &item : SearchEngines::getDefaultSearchEngines().toStdMap()) {
+        m_ui->searchEngines->addItem(item.first, item.second);
+    }
+    for (const auto &item : SearchEngines::getCustomSearchEngines().toStdMap()) {
+        int duplicate = m_ui->searchEngines->findText(item.first);
+        if (duplicate != -1) {
+            m_ui->searchEngines->setItemText(duplicate, item.first);
+            m_ui->searchEngines->setItemData(duplicate, item.second);
+        } else {
+            m_ui->searchEngines->addItem(item.first, item.second);
         }
-        m_ui->searchEngines->addItem(key, kse.readEntry(key));
     }
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(changed()));
@@ -82,11 +81,6 @@ void QuickWebShortcutsConfig::load() {
     }
     int current = m_ui->searchEngines->findData(config.readEntry("url", "https://www.google.com/search?q="));
     m_ui->searchEngines->setCurrentIndex(current);
-
-    /*if (!m_ui->searchEngines->currentText().endsWith(" (current)")) {
-        QString text = m_ui->searchEngines->currentText().append(" (current)");
-        m_ui->searchEngines->setItemText(current, text);
-    }*/
     m_ui->searchEngines->setFocus();
     emit changed(false);
 }
@@ -145,23 +139,18 @@ void QuickWebShortcutsConfig::defaults() {
     }
     // Delete all changed default entries, keep custom, refresh combo box with default + custom
     auto keys = config.group("CustomSearchEngines").keyList();
-    QStringList defaults = {"Google", "DuckDuckGo", "Stackoverflow", "Bing", "Github", "Youtube"};
+    QStringList defaults = SearchEngines::getDefaultSearchEngineNames();
     for (const auto &key : keys) {
         if (defaults.contains(key)) {
             config.group("CustomSearchEngines").deleteEntry(key);
         }
     }
 
-    m_ui->searchEngines->addItem("Google", "https://www.google.com/search?q=");
-    m_ui->searchEngines->addItem("DuckDuckGo", "https://duckduckgo.com/?q=");
-    m_ui->searchEngines->addItem("Stackoverflow", "https://stackoverflow.com/search?q=");
-    m_ui->searchEngines->addItem("Bing", "https://www.bing.com/search?q=");
-    m_ui->searchEngines->addItem("Github", "https://github.com/search?q=");
-    m_ui->searchEngines->addItem("Youtube", "https://www.youtube.com/results?search_query=");
-
-    KConfigGroup kse = config.group("CustomSearchEngines");
-    for (const QString &key:kse.keyList()) {
-        m_ui->searchEngines->addItem(key, kse.readEntry(key));
+    for (const auto &item : SearchEngines::getDefaultSearchEngines().toStdMap()) {
+        m_ui->searchEngines->addItem(item.first, item.second);
+    }
+    for (const auto &item : SearchEngines::getCustomSearchEngines().toStdMap()) {
+        m_ui->searchEngines->addItem(item.first, item.second);
     }
 
     m_ui->searchEnginesEditable->setChecked(false);

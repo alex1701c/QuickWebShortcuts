@@ -32,6 +32,7 @@
 #include <QtGui/QtGui>
 #include <KSharedConfig>
 #include <iostream>
+#include "SearchEngines.h"
 
 QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
         : Plasma::AbstractRunner(parent, args) {
@@ -45,10 +46,7 @@ QuickWebShortcuts::~QuickWebShortcuts() = default;
 
 void QuickWebShortcuts::reloadConfiguration() {
     configGroup = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
-    KConfigGroup kse = configGroup.group("CustomSearchEngines");
-    for (const QString &key:kse.keyList()) {
-        searchEngines.insert(key, kse.readEntry(key));
-    }
+    SearchEngines::getCustomSearchEngines(searchEngines);
 }
 
 
@@ -89,12 +87,7 @@ void QuickWebShortcuts::matchSessionFinished() {
 }
 
 void QuickWebShortcuts::init() {
-    searchEngines.insert("Google", "https://www.google.com/search?q=");
-    searchEngines.insert("DuckDuckGo", "https://duckduckgo.com/?q=");
-    searchEngines.insert("Stackoverflow", "https://stackoverflow.com/search?q=");
-    searchEngines.insert("Bing", "https://www.bing.com/search?q=");
-    searchEngines.insert("Github", "https://github.com/search?q=");
-    searchEngines.insert("Youtube", "https://www.youtube.com/results?search_query=");
+    SearchEngines::getDefaultSearchEngines(searchEngines);
     reloadConfiguration();
     connect(this, SIGNAL(teardown()), this, SLOT(matchSessionFinished()));
 }
@@ -105,7 +98,6 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         return;
 
     QList<Plasma::QueryMatch> matches;
-
     if (term.startsWith(':')) {
         term = term.mid(1);
         QString text = "Search for " + term;
