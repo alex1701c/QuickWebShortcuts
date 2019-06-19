@@ -130,7 +130,6 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
 void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) {
     Q_UNUSED(context)
     QString payload = match.data().toString();
-    std::cout << payload.toStdString() << std::endl;
     if (payload.startsWith("http")) {
         system(qPrintable("$(xdg-open " + match.data().toString() + ") 2>&1 &"));
     } else if (payload.startsWith("engine|")) {

@@ -218,7 +218,6 @@ void QuickWebShortcutsConfig::deleteCurrentItem() {
         name = split.first().trimmed();
     }
 
-    qInfo() << name;
     config.group("CustomSearchEngines").deleteEntry(name);
     m_ui->searchEngines->removeItem(m_ui->searchEngines->currentIndex());
 }

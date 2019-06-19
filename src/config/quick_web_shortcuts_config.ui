@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author>David Baumr</author>
+ <author>Alex</author>
  <class>QuickWebShortcutsConfigUi</class>
  <widget class="QWidget" name="QuickWebShortcutsConfigUi">
   <property name="geometry">
