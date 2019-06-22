@@ -90,7 +90,7 @@ void QuickWebShortcutsConfig::load() {
 
 void QuickWebShortcutsConfig::extractNameFromURL() {
     if (m_ui->searchEngineURL->text().contains(QRegExp(R"(^(?:https?://)?(?:[\w]+\.)(?:\.?[\w]{2,})+)"))) {
-        QRegExp exp(R"(^(?:https?://)?([\w]+)\.(?:\.?[\w]{2,})+)");
+        QRegExp exp(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)");
         exp.indexIn(m_ui->searchEngineURL->text());
         QString res = exp.capturedTexts().last();
         res[0] = res[0].toUpper();

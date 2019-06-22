@@ -14,19 +14,6 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-/*
- * DONE Delete functionality for manually added search engines
- * DONE Handle defaults inside GUI
- * DONE Extract Search Engine config to file
- * DONE Read custom search engines for Krunner settings(inside runner)
- * DONE Extract Name from URL ?
- * DONE Handle event for add search engine in GUI
- * DONE Make Items in ComboBox editable
- * DONE Handle save in GUI
- * DONE Handle Defaults in GUI
- * DONE: Mark current in Gui
- */
 #include "quick_web_shortcuts.h"
 #include <KLocalizedString>
 #include <QtGui/QtGui>
