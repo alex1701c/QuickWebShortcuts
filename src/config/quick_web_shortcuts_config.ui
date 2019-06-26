@@ -57,6 +57,13 @@
             <number>15</number>
            </property>
            <item>
+            <widget class="QCheckBox" name="showSearchEngineName">
+             <property name="text">
+              <string>Show Name Of Search Engine</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Add A New Search Engine</string>
@@ -133,7 +140,7 @@
              <item>
               <widget class="QLabel" name="searchEnginesLabel">
                <property name="text">
-                <string>Select Search engine  </string>
+                <string>Select Search Engine  </string>
                </property>
               </widget>
              </item>
@@ -188,7 +195,8 @@
              </property>
              <property name="icon">
               <iconset theme="delete">
-               <normaloff>.</normaloff>.</iconset>
+               <normaloff/>
+              </iconset>
              </property>
             </widget>
            </item>

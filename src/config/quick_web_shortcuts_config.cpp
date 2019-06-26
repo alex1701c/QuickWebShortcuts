@@ -38,10 +38,17 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     m_ui = new QuickWebShortcutsConfigForm(this);
     auto *layout = new QGridLayout(this);
     layout->addWidget(m_ui, 0, 0);
+
     config = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
+    icons = SearchEngines::getIcons();
 
     for (const auto &item : SearchEngines::getDefaultSearchEngines().toStdMap()) {
         m_ui->searchEngines->addItem(item.first, item.second);
+        if (icons.contains(item.first)) {
+            m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon(icons.value(item.first)));
+        } else {
+            m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon::fromTheme("globe"));
+        }
     }
     for (const auto &item : SearchEngines::getCustomSearchEngines().toStdMap()) {
         int duplicate = m_ui->searchEngines->findText(item.first);
@@ -50,9 +57,15 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
             m_ui->searchEngines->setItemData(duplicate, item.second);
         } else {
             m_ui->searchEngines->addItem(item.first, item.second);
+            if (icons.contains(item.first)) {
+                m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon(icons.value(item.first)));
+            } else {
+                m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon::fromTheme("globe"));
+            }
         }
     }
     m_ui->deleteButton->setVisible(false);
+    m_ui->showSearchEngineName->setChecked(config.readEntry("show_name", "false") == "true");
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(comboBoxEditTextChanged()));
@@ -61,6 +74,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->historyAll, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->historyQuick, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->historyNotClear, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->showSearchEngineName, SIGNAL(clicked(bool)), this, SLOT(changed()));
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
     connect(m_ui->deleteButton, SIGNAL(clicked(bool)), this, SLOT(deleteCurrentItem()));
@@ -89,7 +103,7 @@ void QuickWebShortcutsConfig::load() {
 
 
 void QuickWebShortcutsConfig::extractNameFromURL() {
-    if (m_ui->searchEngineURL->text().contains(QRegExp(R"(^(?:https?://)?(?:[\w]+\.)(?:\.?[\w]{2,})+)"))) {
+    if (m_ui->searchEngineURL->text().contains(QRegExp(R"(^(?:https?://)?(www\.)?(?:[\w-]+\.)(?:\.?[\w]{2,})+)"))) {
         QRegExp exp(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)");
         exp.indexIn(m_ui->searchEngineURL->text());
         QString res = exp.capturedTexts().last();
@@ -130,6 +144,7 @@ void QuickWebShortcutsConfig::save() {
         history = "false";
     }
     config.writeEntry("clean_history", history);
+    config.writeEntry("show_name", m_ui->showSearchEngineName->isChecked() ? "true" : "false");
     config.sync();
     emit changed(false);
 }
@@ -150,12 +165,17 @@ void QuickWebShortcutsConfig::defaults() {
 
     for (const auto &item : SearchEngines::getDefaultSearchEngines().toStdMap()) {
         m_ui->searchEngines->addItem(item.first, item.second);
+        m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon(icons.value(item.first)));
     }
     for (const auto &item : SearchEngines::getCustomSearchEngines().toStdMap()) {
         m_ui->searchEngines->addItem(item.first, item.second);
+        m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon::fromTheme("globe"));
     }
 
+    m_ui->showSearchEngineName->setChecked(false);
+    m_ui->deleteButton->setVisible(false);
     m_ui->searchEnginesEditable->setChecked(false);
+    m_ui->searchEngines->setEditable(false);
     m_ui->searchEngines->setCurrentIndex(m_ui->searchEngines->findData("https://www.google.com/search?q="));
 
     emit changed(true);
@@ -164,7 +184,6 @@ void QuickWebShortcutsConfig::defaults() {
 void QuickWebShortcutsConfig::enableEditingOfExisting() {
     bool enabled = m_ui->searchEnginesEditable->isChecked();
     m_ui->deleteButton->setVisible(enabled);
-    searchEnginesEdited = true;
     m_ui->searchEngines->setEditable(enabled);
     for (int i = 0; i < m_ui->searchEngines->count(); i++) {
         if (enabled) {
@@ -201,7 +220,7 @@ void QuickWebShortcutsConfig::addSearchEngine() {
 void QuickWebShortcutsConfig::comboBoxEditTextChanged() {
     bool deletable = true;
     for (const auto &key:SearchEngines::getDefaultSearchEngineNames()) {
-        if (m_ui->searchEngines->currentText().startsWith(key)) {
+        if (m_ui->searchEngines->currentText().split(":").first() == key) {
             deletable = false;
             break;
         }

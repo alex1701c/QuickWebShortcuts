@@ -31,13 +31,21 @@ public:
 
     KConfigGroup configGroup;
 
-     QMap<QString, QString> searchEngines;
+    QMap<QString, QString> icons;
 
-    Plasma::QueryMatch createMatch(const QString& text, const QString& data);
+    QMap<QString, QString> searchEngines;
+
+    QString searchEngine;
+
+    bool wasActive = false;
+
+    Plasma::QueryMatch createMatch(const QString &text, const QString &data, const QString &iconKey = "");
 
 protected Q_SLOTS:
 
     void init() override;
+
+    void prepareForMatchSession();
 
     void matchSessionFinished();
 

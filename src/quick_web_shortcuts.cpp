@@ -31,14 +31,33 @@ QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
 
 QuickWebShortcuts::~QuickWebShortcuts() = default;
 
+void QuickWebShortcuts::init() {
+    SearchEngines::getDefaultSearchEngines(searchEngines);
+    reloadConfiguration();
+    icons = SearchEngines::getIcons();
+
+    connect(this, SIGNAL(prepare()), this, SLOT(prepareForMatchSession()));
+    connect(this, SIGNAL(teardown()), this, SLOT(matchSessionFinished()));
+}
+
+
+void QuickWebShortcuts::prepareForMatchSession() {
+    for (auto &key:searchEngines.keys()) {
+        if (searchEngines.value(key) == configGroup.readEntry("url", "https://www.google.com/search?q=")) {
+            searchEngine = key;
+        }
+    }
+}
+
 void QuickWebShortcuts::reloadConfiguration() {
     configGroup = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
     SearchEngines::getCustomSearchEngines(searchEngines);
 }
 
-
 void QuickWebShortcuts::matchSessionFinished() {
+    if (!wasActive) return;
     if (configGroup.readEntry("clean_history") != "false") {
+        wasActive = false;
         QString history = configGroup.parent().parent().group("General").readEntry("history");
         QString filteredHistory = "";
         if (configGroup.readEntry("clean_history") == "all") {
@@ -73,12 +92,6 @@ void QuickWebShortcuts::matchSessionFinished() {
     }
 }
 
-void QuickWebShortcuts::init() {
-    SearchEngines::getDefaultSearchEngines(searchEngines);
-    reloadConfiguration();
-    connect(this, SIGNAL(teardown()), this, SLOT(matchSessionFinished()));
-}
-
 void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     QString term = context.query();
     if (!context.isValid())
@@ -87,7 +100,8 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     QList<Plasma::QueryMatch> matches;
     if (term.startsWith(':')) {
         term = term.mid(1);
-        QString text = "Search for " + term;
+        QString name = configGroup.readEntry("show_name", "false") == "true" ? " " + searchEngine : "";
+        QString text = "Search" + name + " for " + term;
         QString data = configGroup.readEntry("url", "https://www.google.com/search?q=") + QUrl::toPercentEncoding(term);
         matches.append(createMatch(text, data));
     }
@@ -99,13 +113,14 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         } else {
             data = term;
         }
-        matches.append(createMatch(text, data));
+        matches.append(createMatch(text, data, "globe"));
     }
     if (term.startsWith("quickwebshortcuts set") || term.startsWith("qws set")) {
         QString part = term.section("set", 1);
         for (const auto &entry : searchEngines.toStdMap()) {
             if (part.isEmpty() || entry.first.toLower().startsWith(part.trimmed().toLower())) {
-                matches.append(createMatch("Use " + entry.first + " as search engine", "engine|" + entry.second));
+                matches.append(
+                        createMatch("Use " + entry.first + " as search engine", "engine|" + entry.second, entry.first));
             }
         }
     }
@@ -117,6 +132,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
 void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) {
     Q_UNUSED(context)
     QString payload = match.data().toString();
+    wasActive = true;
     if (payload.startsWith("http")) {
         system(qPrintable("$(xdg-open " + match.data().toString() + ") 2>&1 &"));
     } else if (payload.startsWith("engine|")) {
@@ -126,9 +142,13 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
     }
 }
 
-Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QString &data) {
+Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QString &data, const QString &iconKey) {
     Plasma::QueryMatch match(this);
-    match.setIconName("globe");
+    if (iconKey.isEmpty()) {
+        match.setIconName(icons.value(searchEngine, "globe"));
+    } else {
+        match.setIconName(icons.value(iconKey, "globe"));
+    }
     match.setText(text);
     match.setData(data);
     return match;

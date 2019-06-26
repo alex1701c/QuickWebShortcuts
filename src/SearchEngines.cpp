@@ -36,4 +36,15 @@ QList<QString> SearchEngines::getDefaultSearchEngineNames() {
     return QList<QString>{"Google", "DuckDuckGo", "Stackoverflow", "Bing", "Github", "Youtube"};
 }
 
+QMap<QString, QString> SearchEngines::getIcons() {
+    QMap<QString, QString> map;
+    map.insert("Bing", "/usr/share/icons/bing.svg");
+    map.insert("Google", "/usr/share/icons/google.svg");
+    map.insert("DuckDuckGo", "/usr/share/icons/duckduckgo.svg");
+    map.insert("Stackoverflow", "/usr/share/icons/stackoverflow.svg");
+    map.insert("Github", "/usr/share/icons/github.svg");
+    map.insert("Youtube", "/usr/share/icons/youtube.svg");
+    return map;
+}
+
 

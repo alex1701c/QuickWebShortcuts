@@ -39,7 +39,7 @@ public:
 
     KConfigGroup config;
 
-    bool searchEnginesEdited = false;
+    QMap<QString, QString> icons;
 
 public Q_SLOTS:
 
