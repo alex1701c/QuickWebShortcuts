@@ -37,8 +37,6 @@ public:
 
     QString searchEngine;
 
-    bool wasActive = false;
-
     Plasma::QueryMatch createMatch(const QString &text, const QString &data, const QString &iconKey = "");
 
 protected Q_SLOTS:

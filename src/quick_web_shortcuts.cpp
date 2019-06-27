@@ -1,5 +1,5 @@
 /*
-   Copyright %{CURRENT_YEAR} by %{AUTHOR} <%{EMAIL}>
+   Copyright 2019 by Alex <alexkp12355@gmail.com>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -55,9 +55,7 @@ void QuickWebShortcuts::reloadConfiguration() {
 }
 
 void QuickWebShortcuts::matchSessionFinished() {
-    if (!wasActive) return;
     if (configGroup.readEntry("clean_history") != "false") {
-        wasActive = false;
         QString history = configGroup.parent().parent().group("General").readEntry("history");
         QString filteredHistory = "";
         if (configGroup.readEntry("clean_history") == "all") {
@@ -132,7 +130,6 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
 void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) {
     Q_UNUSED(context)
     QString payload = match.data().toString();
-    wasActive = true;
     if (payload.startsWith("http")) {
         system(qPrintable("$(xdg-open " + match.data().toString() + ") 2>&1 &"));
     } else if (payload.startsWith("engine|")) {
