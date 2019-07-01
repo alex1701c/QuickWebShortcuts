@@ -18,3 +18,29 @@ make
 sudo make install
 ```
 Restart krunner to load the runner (in a terminal type: `kquitapp5 krunner;kstart5 krunner` )
+
+This plugin allows you to use search engines inside Krunner. But instead of specifying the search
+engine every time can set one you want to use. The default is Google. If you type ":example query" it will open your 
+browser with the google search results for "example query". The default options are Bing, DuckDuckGo,
+Github, Google, Stackoverflow and Youtube. But you can add custom ones: The query gets appended to the provided url. 
+For instance "https://www.amazon.com/s?k=" is valid.
+
+
+Additionally you can use this plugin to open search results in private/incognito mode. 
+This feature gets activated by typing "::example query".
+It has been tested with Firefox, Chromium, Google Chrome and Epiphany
+
+## Screenshots
+
+#### Simple search
+![Simple search](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/simple_search.png)
+
+#### Change search engine in runner
+![Change search engine in runner](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/change_searchengine_inside_runner.png)
+
+#### Add search engine
+![Add search engine](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/dialog_add_searchengine.png)
+
+#### Edit search engine
+![Edit search engine](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/dialog_edit_searchengines.png)
+

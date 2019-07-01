@@ -31,13 +31,15 @@ public:
 
     KConfigGroup configGroup;
 
+    QString privateBrowser;
+
     QMap<QString, QString> icons;
 
     QMap<QString, QString> searchEngines;
 
     QString searchEngine;
 
-    Plasma::QueryMatch createMatch(const QString &text, const QString &data, const QString &iconKey = "");
+    Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, const QString &iconKey = "");
 
 protected Q_SLOTS:
 
