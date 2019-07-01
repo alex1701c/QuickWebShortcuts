@@ -43,6 +43,9 @@ void QuickWebShortcuts::init() {
             privateBrowser = browserConfig->group(group).readEntry("Exec");
         }
     }
+    if (privateBrowser.isEmpty()) {
+        privateBrowser = "firefox --private-window";
+    }
     reloadConfiguration();
     icons = SearchEngines::getIcons();
 

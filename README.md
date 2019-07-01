@@ -28,7 +28,8 @@ For instance "https://www.amazon.com/s?k=" is valid.
 
 Additionally you can use this plugin to open search results in private/incognito mode. 
 This feature gets activated by typing "::example query".
-It has been tested with Firefox, Chromium, Google Chrome and Epiphany
+It has been tested with Firefox, Chromium, Google Chrome and Epiphany,
+but you have to select one of these as your default browser, otherwise firefox is used.
 
 ## Screenshots
 
