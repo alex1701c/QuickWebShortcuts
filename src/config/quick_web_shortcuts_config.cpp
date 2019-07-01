@@ -215,6 +215,7 @@ void QuickWebShortcutsConfig::addSearchEngine() {
             m_ui->searchEngines->addItem(name + ": " + url, url);
         }
     }
+    m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon::fromTheme("globe"));
 }
 
 void QuickWebShortcutsConfig::comboBoxEditTextChanged() {

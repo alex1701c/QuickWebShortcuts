@@ -28,13 +28,16 @@ For instance "https://www.amazon.com/s?k=" is valid.
 
 Additionally you can use this plugin to open search results in private/incognito mode. 
 This feature gets activated by typing "::example query".
-It has been tested with Firefox, Chromium, Google Chrome and Epiphany,
-but you have to select one of these as your default browser, otherwise firefox is used.
+It has been tested with Firefox, Chromium, Google Chrome and Epiphany.
+But you have to manually select one of these as your default browser, otherwise firefox is used as default.
 
 ## Screenshots
 
 #### Simple search
 ![Simple search](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/simple_search.png)
+
+#### Search in private window
+![Search in private window](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/private_window_search.png)
 
 #### Change search engine in runner
 ![Change search engine in runner](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/change_searchengine_inside_runner.png)
