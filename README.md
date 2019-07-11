@@ -34,17 +34,17 @@ But you have to manually select one of these as your default browser, otherwise 
 ## Screenshots
 
 #### Simple search
-![Simple search](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/simple_search.png)
+![Simple search](https://raw.githubusercontent.com/alex1701c/Screenshots/master/QuickWebShortcuts/simple_search.png)
 
 #### Search in private window
-![Search in private window](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/private_window_search.png)
+![Search in private window](https://raw.githubusercontent.com/alex1701c/Screenshots/master/QuickWebShortcuts/private_window_search.png)
 
 #### Change search engine in runner
-![Change search engine in runner](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/change_searchengine_inside_runner.png)
+![Change search engine in runner](https://raw.githubusercontent.com/alex1701c/Screenshots/master/QuickWebShortcuts/change_searchengine_inside_runner.png)
 
 #### Add search engine
-![Add search engine](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/dialog_add_searchengine.png)
+![Add search engine](https://raw.githubusercontent.com/alex1701c/Screenshots/master/QuickWebShortcuts/dialog_add_searchengine.png)
 
 #### Edit search engine
-![Edit search engine](https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/screenshots/dialog_edit_searchengines.png)
+![Edit search engine](https://raw.githubusercontent.com/alex1701c/Screenshots/master/QuickWebShortcuts/dialog_edit_searchengines.png)
 

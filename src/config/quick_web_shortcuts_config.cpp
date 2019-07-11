@@ -1,21 +1,3 @@
-/******************************************************************************
- *  Copyright (C) 2019 by Alex <alexkp12355@gmail.com>                        *
- *                                                                            *
- *  This library is free software; you can redistribute it and/or modify      *
- *  it under the terms of the GNU Lesser General Public License as published  *
- *  by the Free Software Foundation; either version 2 of the License or (at   *
- *  your option) any later version.                                           *
- *                                                                            *
- *  This library is distributed in the hope that it will be useful,           *
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU         *
- *  Library General Public License for more details.                          *
- *                                                                            *
- *  You should have received a copy of the GNU Lesser General Public License  *
- *  along with this library; see the file COPYING.LIB.                        *
- *  If not, see <http://www.gnu.org/licenses/>.                               *
- *****************************************************************************/
-
 #include "quick_web_shortcuts_config.h"
 #include "../SearchEngines.h"
 #include <KSharedConfig>
@@ -66,6 +48,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     }
     m_ui->deleteButton->setVisible(false);
     m_ui->showSearchEngineName->setChecked(config.readEntry("show_name", "false") == "true");
+    m_ui->openURLS->setChecked(config.readEntry("open_urls", "true") == "true");
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(comboBoxEditTextChanged()));
@@ -75,6 +58,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->historyQuick, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->historyNotClear, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->showSearchEngineName, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->openURLS, SIGNAL(clicked(bool)), this, SLOT(changed()));
 
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
     connect(m_ui->deleteButton, SIGNAL(clicked(bool)), this, SLOT(deleteCurrentItem()));
@@ -86,7 +70,6 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
 }
 
 void QuickWebShortcutsConfig::load() {
-    KCModule::load();
     QString historyOption = config.readEntry("clean_history", "all");
     if (historyOption == "all") {
         m_ui->historyAll->setChecked(true);
@@ -114,9 +97,6 @@ void QuickWebShortcutsConfig::extractNameFromURL() {
 }
 
 void QuickWebShortcutsConfig::save() {
-
-    KCModule::save();
-
     for (int i = 0; i < m_ui->searchEngines->count(); i++) {
         QString text = m_ui->searchEngines->itemText(i);
         QString data = m_ui->searchEngines->itemData(i).toString();
@@ -145,6 +125,7 @@ void QuickWebShortcutsConfig::save() {
     }
     config.writeEntry("clean_history", history);
     config.writeEntry("show_name", m_ui->showSearchEngineName->isChecked() ? "true" : "false");
+    config.writeEntry("open_urls", m_ui->openURLS->isChecked() ? "true" : "false");
     config.sync();
     emit changed(false);
 }
@@ -172,6 +153,7 @@ void QuickWebShortcutsConfig::defaults() {
         m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon::fromTheme("globe"));
     }
 
+    m_ui->openURLS->setChecked(true);
     m_ui->showSearchEngineName->setChecked(false);
     m_ui->deleteButton->setVisible(false);
     m_ui->searchEnginesEditable->setChecked(false);

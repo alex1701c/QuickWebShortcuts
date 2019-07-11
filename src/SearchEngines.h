@@ -1,6 +1,3 @@
-//
-// Created by alex on 18.06.19.
-//
 #include <QMap>
 
 #ifndef QUICKWEBSHORTCUTS_SEARCHENGINES_H

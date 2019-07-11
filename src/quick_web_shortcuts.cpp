@@ -1,19 +1,3 @@
-/*
-   Copyright 2019 by Alex <alexkp12355@gmail.com>
-
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library.  If not, see <http://www.gnu.org/licenses/>.
-*/
 #include "quick_web_shortcuts.h"
 #include <KLocalizedString>
 #include <QtGui/QtGui>
@@ -126,8 +110,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         QString url = configGroup.readEntry("url", "https://www.google.com/search?q=") + QUrl::toPercentEncoding(term);
         data.insert("url", url);
         matches.append(createMatch(text, data));
-    } else if (term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
-        qInfo() << "URL";
+    } else if (configGroup.readEntry("open_urls", "true") == "true" && term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
         QString text = "Go To  " + term;
         QString url;
         if (!term.startsWith("http")) {

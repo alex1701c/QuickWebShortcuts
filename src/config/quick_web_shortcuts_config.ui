@@ -64,6 +64,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="openURLS">
+             <property name="text">
+              <string>Open URLs</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Add A New Search Engine</string>
@@ -195,8 +202,7 @@
              </property>
              <property name="icon">
               <iconset theme="delete">
-               <normaloff/>
-              </iconset>
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>
