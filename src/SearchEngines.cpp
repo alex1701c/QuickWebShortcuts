@@ -33,7 +33,7 @@ QMap<QString, QString> SearchEngines::getCustomSearchEngines() {
 }
 
 QList<QString> SearchEngines::getDefaultSearchEngineNames() {
-    return QList<QString>{"Google", "DuckDuckGo", "Stackoverflow", "Bing", "Github", "Youtube"};
+    return {"Google", "DuckDuckGo", "Stackoverflow", "Bing", "Github", "Youtube"};
 }
 
 QMap<QString, QString> SearchEngines::getIcons() {

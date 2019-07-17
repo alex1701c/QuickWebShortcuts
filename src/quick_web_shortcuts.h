@@ -23,7 +23,7 @@ public:
 
     QString searchEngine;
 
-    Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, const QString &iconKey = "");
+    Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, const QString &icon = "");
 
 protected Q_SLOTS:
 
