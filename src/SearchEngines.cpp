@@ -38,6 +38,7 @@ QList<QString> SearchEngines::getDefaultSearchEngineNames() {
 
 QMap<QString, QString> SearchEngines::getIcons() {
     return {
+            {"globe",         "globe"},
             {"Bing",          "/usr/share/icons/bing.svg"},
             {"Google",        "/usr/share/icons/google.svg"},
             {"DuckDuckGo",    "/usr/share/icons/duckduckgo.svg"},

@@ -135,8 +135,7 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
     QMap<QString, QVariant> payload = match.data().toMap();
 
     if (payload.count("url")) {
-        system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " " +
-                          payload.value("url").toString() + ") > /dev/null 2&>1 &"));
+        system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " " + payload.value("url").toString() + ") &"));
     } else {
         configGroup.writeEntry("url", payload.value("engine").toString());
     }
