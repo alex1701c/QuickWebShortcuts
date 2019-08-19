@@ -4,7 +4,7 @@ set(quickwebshortcuts_SRCS quick_web_shortcuts.h quick_web_shortcuts.cpp
         SearchEngines.h SearchEngines.cpp)
 
 add_library(krunner_quickwebshortcuts MODULE ${quickwebshortcuts_SRCS})
-target_link_libraries(krunner_quickwebshortcuts KF5::Runner KF5::I18n)
+target_link_libraries(krunner_quickwebshortcuts KF5::Runner)
 
 
 set(kcm_krunner_quickwebshortcuts_SRCS
@@ -22,7 +22,6 @@ target_link_libraries(kcm_krunner_quickwebshortcuts
         KF5::ConfigCore
         KF5::I18n
         KF5::ConfigWidgets
-        KF5::Runner
         )
 
 add_dependencies(krunner_quickwebshortcuts kcm_krunner_quickwebshortcuts)

@@ -2,11 +2,7 @@
 #include "../SearchEngines.h"
 #include <KSharedConfig>
 #include <KPluginFactory>
-#include <krunner/abstractrunner.h>
 #include <QtDebug>
-#include <QtWidgets/QGridLayout>
-#include <iostream>
-#include <QtWidgets/QComboBox>
 
 K_PLUGIN_FACTORY(QuickWebShortcutsConfigFactory,
                  registerPlugin<QuickWebShortcutsConfig>("kcm_krunner_quickwebshortcuts");)

@@ -11,8 +11,8 @@ This feature gets activated by typing "::example query".
 It has been tested with Firefox, Chromium, Google Chrome and Epiphany.
 But you have to manually select one of these as your default browser, otherwise Firefox is used as default.
 
-This project also has a minimal branch. This branch is smaller and more efficient but it has no config dialog
-and the settings have to be configured in the src/Config.h file. After changing the settings you have to recompile the project. 
+This project also has a minimal branch, which is smaller and more efficient but it has no config dialog.
+Because of that the settings have to be configured in the src/Config.h file. After changing the settings you have to recompile the project.   
 The master branch (default) is recommended for most users.
 
 ### Build Instructions

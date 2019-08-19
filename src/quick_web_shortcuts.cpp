@@ -1,5 +1,4 @@
 #include "quick_web_shortcuts.h"
-#include <KLocalizedString>
 #include <QtGui/QtGui>
 #include <KSharedConfig>
 #include <iostream>
