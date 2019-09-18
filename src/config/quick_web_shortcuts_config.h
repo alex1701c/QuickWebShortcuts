@@ -41,6 +41,8 @@ public Q_SLOTS:
 
     void deleteCurrentItem();
 
+    void validateSearchSuggestions();
+
 private:
     QuickWebShortcutsConfigForm *m_ui;
 };
