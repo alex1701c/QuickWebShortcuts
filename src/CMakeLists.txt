@@ -11,7 +11,7 @@ set(kcm_krunner_quickwebshortcuts_SRCS
         config/quick_web_shortcuts_config.cpp
         SearchEngines.h
         SearchEngines.cpp
-        )
+        searchproviders/SearchSuggestionData.h)
 
 ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/quick_web_shortcuts_config.ui)
 add_library(kcm_krunner_quickwebshortcuts MODULE ${kcm_krunner_quickwebshortcuts_SRCS})

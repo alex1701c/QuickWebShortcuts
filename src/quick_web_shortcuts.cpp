@@ -46,9 +46,18 @@ void QuickWebShortcuts::reloadConfiguration() {
             break;
         }
     }
+    if (currentIcon.isNull()) currentIcon = QIcon::fromTheme("globe");
     openUrls = configGroup.readEntry("open_urls", "true") == "true";
     searchEngineDisplayName = configGroup.readEntry("show_name", "false") == "true" ? " " + searchEngine : "";
     privateBrowserMode = privateBrowser.contains("private") ? "private window" : "incognito mode";
+    minimumLetterCount = configGroup.readEntry("minimum_letter_count", "3").toInt();
+
+    maxSuggestionResults = configGroup.readEntry("max_search_results", "10").toInt();
+    bingMarket = configGroup.readEntry("bing_locale", "en-us");
+
+    searchSuggestionChoice = configGroup.readEntry("search_suggestions", "disabled");
+    searchSuggestions = searchSuggestionChoice != "disabled";
+    privateWindowSearchSuggestions = configGroup.readEntry("private_window_search_suggestions") == "true";
 }
 
 void QuickWebShortcuts::matchSessionFinished() {
@@ -100,16 +109,19 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         data.insert("url", url);
         QString text = "Search" + searchEngineDisplayName + " for " + term + " in " + privateBrowserMode;
         context.addMatch(createMatch(text, data));
+        // if (searchSuggestions && privateWindowSearchSuggestions) launchSearchSuggestions(context, term, privateBrowser);
     } else if (term.startsWith(':')) {
         term = term.mid(1);
         QString text = "Search" + searchEngineDisplayName + " for " + term;
         data.insert("url", searchEngineBaseUrl + QUrl::toPercentEncoding(term));
         context.addMatch(createMatch(text, data));
-        QEventLoop loop;
-        Bing bing(this, context, searchEngineBaseUrl,
-                  term, icons.value(searchEngine));
-        connect(&bing, SIGNAL(finished()), &loop, SLOT(quit()));
-        loop.exec();
+        if (searchSuggestions && searchSuggestionChoice == "bing") {
+            if (term.size() < minimumLetterCount) return;
+            QEventLoop loop;
+            Bing bing(this, context, searchEngineBaseUrl, term, currentIcon, maxSuggestionResults, bingMarket);
+            connect(&bing, SIGNAL(finished()), &loop, SLOT(quit()));
+            loop.exec();
+        }
     } else if (openUrls && term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
         QString text = "Go To  " + term;
         data.insert("url", !term.startsWith("http") ? "http://" + term : term);
@@ -132,6 +144,8 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
 
     if (payload.count("url")) {
         system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " " + payload.value("url").toString() + ") &"));
+        qInfo() << "Opening url: " << "$(" + payload.value("browser", "xdg-open").toString()
+                                      + " " + payload.value("url").toString() + ") &";
     } else {
         configGroup.writeEntry("url", payload.value("engine").toString());
     }

@@ -13,7 +13,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>550</width>
+    <width>570</width>
     <height>0</height>
    </size>
   </property>
@@ -29,7 +29,7 @@
         <x>0</x>
         <y>0</y>
         <width>633</width>
-        <height>764</height>
+        <height>802</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -231,6 +231,9 @@
             <layout class="QVBoxLayout" name="verticalLayout_6">
              <item>
               <widget class="QRadioButton" name="googleRadioButton">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Use Google search suggestions (not available yet)</string>
                </property>
@@ -244,7 +247,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QComboBox" name="bingLocaleSelectComboBox"/>
+             </item>
+             <item>
               <widget class="QRadioButton" name="duckDuckGoRadioButton">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Use DuckDuckGo links ( directly to targeted website) (not available yet)</string>
                </property>

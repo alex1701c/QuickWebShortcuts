@@ -2,6 +2,7 @@
 #define QUICKWEBSHORTCUTS_H
 
 #include <KRunner/AbstractRunner>
+#include <searchproviders/SearchSuggestionData.h>
 
 class QuickWebShortcuts : public Plasma::AbstractRunner {
 Q_OBJECT
@@ -12,8 +13,10 @@ public:
     void reloadConfiguration() override;
 
     KConfigGroup configGroup;
-    bool openUrls;
-    QString privateBrowser, privateBrowserMode, searchEngine, searchEngineBaseUrl, searchEngineDisplayName;
+    bool openUrls, searchSuggestions, privateWindowSearchSuggestions;
+    int minimumLetterCount, maxSuggestionResults;
+    QString privateBrowser, privateBrowserMode, searchEngine, searchEngineBaseUrl, searchEngineDisplayName, searchSuggestionChoice;
+    QString bingMarket;
     QIcon currentIcon;
     QMap<QString, QIcon> icons;
 

@@ -17,11 +17,6 @@ public:
             : m_runner(mRunner), m_context(mContext), m_searchEngine(std::move(mSearchEngine)),
               m_query(std::move(mQuery)), m_icon(std::move(mIcon)), m_maxResults(mMaxResults), m_market(std::move(mMarket)) {
 
-        if (m_query.isEmpty()) {
-            emit finished();
-            return;
-        }
-
         m_manager = new QNetworkAccessManager(this);
         QUrlQuery queryParameters;
         queryParameters.addQueryItem("query", m_query);
@@ -33,6 +28,7 @@ public:
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
         m_manager->get(request);
+
         connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
 
     }
@@ -40,6 +36,11 @@ public:
 private Q_SLOTS:
 
     void parseResponse(QNetworkReply *reply) {
+        if (!m_context.isValid()) {
+            emit finished();
+            return;
+        }
+        qInfo() << "recieved response for: " << m_query;
         const auto suggestionsObject = QJsonDocument::fromJson(reply->readAll());
         if (suggestionsObject.isArray()) {
             const auto rootArray = suggestionsObject.array();
@@ -51,7 +52,10 @@ private Q_SLOTS:
                     Plasma::QueryMatch match(m_runner);
                     match.setIcon(m_icon);
                     match.setText("Search for: " + suggestion);
-                    match.setData(m_searchEngine + QUrl::toPercentEncoding(suggestion));
+
+                    QMap<QString, QVariant> data;
+                    data.insert("url", m_searchEngine + QUrl::toPercentEncoding(suggestion));
+                    match.setData(data);
                     m_context.addMatch(match);
                 }
             }

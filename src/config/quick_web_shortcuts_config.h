@@ -31,6 +31,8 @@ public Q_SLOTS:
 
     void defaults() override;
 
+    void insertLocaleSelectData();
+
     void extractNameFromURL();
 
     void enableEditingOfExisting();
