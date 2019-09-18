@@ -13,8 +13,6 @@ QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
     setPriority(HighestPriority);
 }
 
-QuickWebShortcuts::~QuickWebShortcuts() = default;
-
 void QuickWebShortcuts::init() {
     SearchEngines::getDefaultSearchEngines(searchEngines);
     configGroup = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
@@ -32,19 +30,25 @@ void QuickWebShortcuts::init() {
         privateBrowser = "firefox --private-window";
     }
     reloadConfiguration();
-    icons = SearchEngines::getIcons();
 
     connect(this, SIGNAL(teardown()), this, SLOT(matchSessionFinished()));
 }
 
 void QuickWebShortcuts::reloadConfiguration() {
+    icons = SearchEngines::getIcons();
     SearchEngines::getCustomSearchEngines(searchEngines);
+    searchEngineBaseUrl = configGroup.readEntry("url");
+    if (searchEngineBaseUrl.isEmpty()) searchEngineBaseUrl = "https://www.google.com/search?q=";
     for (auto &key:searchEngines.keys()) {
-        if (searchEngines.value(key) == configGroup.readEntry("url", "https://www.google.com/search?q=")) {
+        if (searchEngines.value(key) == searchEngineBaseUrl) {
             searchEngine = key;
+            currentIcon = icons.value(key);
             break;
         }
     }
+    openUrls = configGroup.readEntry("open_urls", "true") == "true";
+    searchEngineDisplayName = configGroup.readEntry("show_name", "false") == "true" ? " " + searchEngine : "";
+    privateBrowserMode = privateBrowser.contains("private") ? "private window" : "incognito mode";
 }
 
 void QuickWebShortcuts::matchSessionFinished() {
@@ -89,44 +93,36 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     QList<Plasma::QueryMatch> matches;
     QMap<QString, QVariant> data;
 
-
     if (term.startsWith("::")) {
-        QString name = configGroup.readEntry("show_name", "false") == "true" ? " " + searchEngine : "";
         term = term.mid(2);
         data.insert("browser", privateBrowser);
-        QString url = configGroup.readEntry("url", "https://www.google.com/search?q=") + QUrl::toPercentEncoding(term);
+        QString url = searchEngineBaseUrl + QUrl::toPercentEncoding(term);
         data.insert("url", url);
-        const QString mode = privateBrowser.contains("private") ? "private window" : "incognito mode";
-        QString text = "Search" + name + " for " + term + " in " + mode;
-        matches.append(createMatch(text, data));
+        QString text = "Search" + searchEngineDisplayName + " for " + term + " in " + privateBrowserMode;
+        context.addMatch(createMatch(text, data));
     } else if (term.startsWith(':')) {
-        QString name = configGroup.readEntry("show_name", "false") == "true" ? " " + searchEngine : "";
         term = term.mid(1);
-        QString text = "Search" + name + " for " + term;
-        QString url = configGroup.readEntry("url", "https://www.google.com/search?q=") + QUrl::toPercentEncoding(term);
-        data.insert("url", url);
-        matches.append(createMatch(text, data));
+        QString text = "Search" + searchEngineDisplayName + " for " + term;
+        data.insert("url", searchEngineBaseUrl + QUrl::toPercentEncoding(term));
+        context.addMatch(createMatch(text, data));
         QEventLoop loop;
-        Bing bing(this, context, configGroup.readEntry("url", "https://www.google.com/search?q="),
+        Bing bing(this, context, searchEngineBaseUrl,
                   term, icons.value(searchEngine));
         connect(&bing, SIGNAL(finished()), &loop, SLOT(quit()));
         loop.exec();
-    } else if (configGroup.readEntry("open_urls", "true") == "true" && term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
+    } else if (openUrls && term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
         QString text = "Go To  " + term;
         data.insert("url", !term.startsWith("http") ? "http://" + term : term);
-        matches.append(createMatch(text, data, "globe"));
+        context.addMatch(createMatch(text, data, "globe"));
     } else if (term.startsWith("qws set") || term.startsWith("quickwebshortcuts set")) {
-        QString part = term.section("set", 1);
+        const QString part = term.section("set", 1);
         for (const auto &entry : searchEngines.toStdMap()) {
             if (part.isEmpty() || entry.first.toLower().startsWith(part.trimmed().toLower())) {
                 data.insert("engine", entry.second);
-                matches.append(createMatch("Use " + entry.first + " as search engine", data, entry.first));
+                context.addMatch(createMatch("Use " + entry.first + " as search engine", data, entry.first));
             }
         }
     }
-
-    context.addMatches(matches);
-
 }
 
 void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) {
@@ -143,7 +139,7 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
 
 Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMap<QString, QVariant> &data, const QString &icon) {
     Plasma::QueryMatch match(this);
-    match.setIcon(icons.value(icon, icons.value(searchEngine)));
+    match.setIcon(icon.isEmpty() ? currentIcon : icons.value(icon, QIcon::fromTheme("globe")));
     match.setText(text);
     match.setData(data);
     return match;

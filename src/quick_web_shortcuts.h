@@ -9,19 +9,15 @@ Q_OBJECT
 public:
     QuickWebShortcuts(QObject *parent, const QVariantList &args);
 
-    ~QuickWebShortcuts() override;
-
     void reloadConfiguration() override;
 
     KConfigGroup configGroup;
-
-    QString privateBrowser;
-
+    bool openUrls;
+    QString privateBrowser, privateBrowserMode, searchEngine, searchEngineBaseUrl, searchEngineDisplayName;
+    QIcon currentIcon;
     QMap<QString, QIcon> icons;
 
     QMap<QString, QString> searchEngines;
-
-    QString searchEngine;
 
     Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, const QString &icon = "");
 

@@ -17,6 +17,11 @@ public:
             : m_runner(mRunner), m_context(mContext), m_searchEngine(std::move(mSearchEngine)),
               m_query(std::move(mQuery)), m_icon(std::move(mIcon)), m_maxResults(mMaxResults), m_market(std::move(mMarket)) {
 
+        if (m_query.isEmpty()) {
+            emit finished();
+            return;
+        }
+
         m_manager = new QNetworkAccessManager(this);
         QUrlQuery queryParameters;
         queryParameters.addQueryItem("query", m_query);
