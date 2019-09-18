@@ -23,9 +23,9 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     for (const auto &item : SearchEngines::getDefaultSearchEngines().toStdMap()) {
         m_ui->searchEngines->addItem(item.first, item.second);
         if (icons.contains(item.first)) {
-            m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon(icons.value(item.first)));
+            m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value(item.first));
         } else {
-            m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon::fromTheme("globe"));
+            m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value("globe"));
         }
     }
     for (const auto &item : SearchEngines::getCustomSearchEngines().toStdMap()) {
@@ -36,9 +36,9 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
         } else {
             m_ui->searchEngines->addItem(item.first, item.second);
             if (icons.contains(item.first)) {
-                m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon(icons.value(item.first)));
+                m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value(item.first));
             } else {
-                m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon::fromTheme("globe"));
+                m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value("globe"));
             }
         }
     }
@@ -60,9 +60,6 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->deleteButton, SIGNAL(clicked(bool)), this, SLOT(deleteCurrentItem()));
     connect(m_ui->searchEnginesEditable, SIGNAL(clicked(bool)), this, SLOT(enableEditingOfExisting()));
     connect(m_ui->addSearchEngine, SIGNAL(clicked(bool)), this, SLOT(addSearchEngine()));
-
-    load();
-
 }
 
 void QuickWebShortcutsConfig::load() {
@@ -142,11 +139,11 @@ void QuickWebShortcutsConfig::defaults() {
 
     for (const auto &item : SearchEngines::getDefaultSearchEngines().toStdMap()) {
         m_ui->searchEngines->addItem(item.first, item.second);
-        m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon(icons.value(item.first)));
+        m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value(item.first));
     }
     for (const auto &item : SearchEngines::getCustomSearchEngines().toStdMap()) {
         m_ui->searchEngines->addItem(item.first, item.second);
-        m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon::fromTheme("globe"));
+        m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value("globe"));
     }
 
     m_ui->openURLS->setChecked(true);
@@ -193,7 +190,7 @@ void QuickWebShortcutsConfig::addSearchEngine() {
             m_ui->searchEngines->addItem(name + ": " + url, url);
         }
     }
-    m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, QIcon::fromTheme("globe"));
+    m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value("globe"));
 }
 
 void QuickWebShortcutsConfig::comboBoxEditTextChanged() {

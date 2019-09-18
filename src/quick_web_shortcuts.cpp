@@ -3,6 +3,7 @@
 #include <KSharedConfig>
 #include <iostream>
 #include "SearchEngines.h"
+#include <searchproviders/Bing.h>
 
 QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
         : Plasma::AbstractRunner(parent, args) {
@@ -33,22 +34,17 @@ void QuickWebShortcuts::init() {
     reloadConfiguration();
     icons = SearchEngines::getIcons();
 
-    connect(this, SIGNAL(prepare()), this, SLOT(prepareForMatchSession()));
     connect(this, SIGNAL(teardown()), this, SLOT(matchSessionFinished()));
 }
 
-
-void QuickWebShortcuts::prepareForMatchSession() {
+void QuickWebShortcuts::reloadConfiguration() {
+    SearchEngines::getCustomSearchEngines(searchEngines);
     for (auto &key:searchEngines.keys()) {
         if (searchEngines.value(key) == configGroup.readEntry("url", "https://www.google.com/search?q=")) {
             searchEngine = key;
             break;
         }
     }
-}
-
-void QuickWebShortcuts::reloadConfiguration() {
-    SearchEngines::getCustomSearchEngines(searchEngines);
 }
 
 void QuickWebShortcuts::matchSessionFinished() {
@@ -110,6 +106,11 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         QString url = configGroup.readEntry("url", "https://www.google.com/search?q=") + QUrl::toPercentEncoding(term);
         data.insert("url", url);
         matches.append(createMatch(text, data));
+        QEventLoop loop;
+        Bing bing(this, context, configGroup.readEntry("url", "https://www.google.com/search?q="),
+                  term, icons.value(searchEngine));
+        connect(&bing, SIGNAL(finished()), &loop, SLOT(quit()));
+        loop.exec();
     } else if (configGroup.readEntry("open_urls", "true") == "true" && term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
         QString text = "Go To  " + term;
         data.insert("url", !term.startsWith("http") ? "http://" + term : term);
@@ -142,7 +143,7 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
 
 Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMap<QString, QVariant> &data, const QString &icon) {
     Plasma::QueryMatch match(this);
-    match.setIconName(icons.value(icon, icons.value(searchEngine, "globe")));
+    match.setIcon(icons.value(icon, icons.value(searchEngine)));
     match.setText(text);
     match.setData(data);
     return match;

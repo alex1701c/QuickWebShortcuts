@@ -36,14 +36,14 @@ QList<QString> SearchEngines::getDefaultSearchEngineNames() {
     return {"Google", "DuckDuckGo", "Stackoverflow", "Bing", "Github", "Youtube"};
 }
 
-QMap<QString, QString> SearchEngines::getIcons() {
+QMap<QString, QIcon> SearchEngines::getIcons() {
     return {
-            {"globe",         "globe"},
-            {"Bing",          "/usr/share/icons/bing.svg"},
-            {"Google",        "/usr/share/icons/google.svg"},
-            {"DuckDuckGo",    "/usr/share/icons/duckduckgo.svg"},
-            {"Stackoverflow", "/usr/share/icons/stackoverflow.svg"},
-            {"Github",        "/usr/share/icons/github.svg"},
-            {"Youtube",       "/usr/share/icons/youtube.svg"},
+            {"globe",         QIcon::fromTheme("globe")},
+            {"Bing",          QIcon("/usr/share/icons/bing.svg")},
+            {"Google",        QIcon("/usr/share/icons/google.svg")},
+            {"DuckDuckGo",    QIcon("/usr/share/icons/duckduckgo.svg")},
+            {"Stackoverflow", QIcon("/usr/share/icons/stackoverflow.svg")},
+            {"Github",        QIcon("/usr/share/icons/github.svg")},
+            {"Youtube",       QIcon("/usr/share/icons/youtube.svg")},
     };
 }

@@ -21,7 +21,7 @@ public:
 
     KConfigGroup config;
 
-    QMap<QString, QString> icons;
+    QMap<QString, QIcon> icons;
 
 public Q_SLOTS:
 

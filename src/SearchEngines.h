@@ -20,7 +20,7 @@ public:
 
     static QList<QString> getDefaultSearchEngineNames();
 
-    static QMap<QString,QString> getIcons();
+    static QMap<QString,QIcon> getIcons();
 };
 
 

@@ -17,7 +17,7 @@ public:
 
     QString privateBrowser;
 
-    QMap<QString, QString> icons;
+    QMap<QString, QIcon> icons;
 
     QMap<QString, QString> searchEngines;
 
@@ -28,8 +28,6 @@ public:
 protected Q_SLOTS:
 
     void init() override;
-
-    void prepareForMatchSession();
 
     void matchSessionFinished();
 
