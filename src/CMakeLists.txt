@@ -1,6 +1,6 @@
 add_definitions(-DTRANSLATION_DOMAIN=\"plasma_runner_org.kde.quickwebshortcuts\")
 
-set(quickwebshortcuts_SRCS quick_web_shortcuts.h quick_web_shortcuts.cpp searchproviders/Bing.h
+set(quickwebshortcuts_SRCS quick_web_shortcuts.h quick_web_shortcuts.cpp searchproviders/Bing.h searchproviders/RequiredData.h
         SearchEngines.h SearchEngines.cpp)
 
 add_library(krunner_quickwebshortcuts MODULE ${quickwebshortcuts_SRCS})
@@ -11,7 +11,7 @@ set(kcm_krunner_quickwebshortcuts_SRCS
         config/quick_web_shortcuts_config.cpp
         SearchEngines.h
         SearchEngines.cpp
-        searchproviders/SearchSuggestionData.h)
+        searchproviders/RequiredData.h)
 
 ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/quick_web_shortcuts_config.ui)
 add_library(kcm_krunner_quickwebshortcuts MODULE ${kcm_krunner_quickwebshortcuts_SRCS})

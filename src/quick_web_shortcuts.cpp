@@ -58,6 +58,13 @@ void QuickWebShortcuts::reloadConfiguration() {
     searchSuggestionChoice = configGroup.readEntry("search_suggestions", "disabled");
     searchSuggestions = searchSuggestionChoice != "disabled";
     privateWindowSearchSuggestions = configGroup.readEntry("private_window_search_suggestions") == "true";
+
+    // RequiredData is for all search providers required and does not need to be updated
+    // outside of the reloadConfiguration method
+    requiredData.searchEngine = searchEngineBaseUrl;
+    requiredData.icon = currentIcon;
+    requiredData.runner = this;
+    requiredData.maxResults = maxSuggestionResults;
 }
 
 void QuickWebShortcuts::matchSessionFinished() {
@@ -96,8 +103,9 @@ void QuickWebShortcuts::matchSessionFinished() {
 }
 
 void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
-    QString term = context.query();
     if (!context.isValid()) return;
+    // Remove escape character
+    QString term = QString(context.query()).replace(QString::fromWCharArray(L"\u001B"), " ");
 
     QList<Plasma::QueryMatch> matches;
     QMap<QString, QVariant> data;
@@ -109,18 +117,20 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         data.insert("url", url);
         QString text = "Search" + searchEngineDisplayName + " for " + term + " in " + privateBrowserMode;
         context.addMatch(createMatch(text, data));
-        // if (searchSuggestions && privateWindowSearchSuggestions) launchSearchSuggestions(context, term, privateBrowser);
+        if (searchSuggestions && privateWindowSearchSuggestions) {
+            if (searchSuggestionChoice == "bing") {
+                bingSearchSuggest(context, term, privateBrowser);
+            }
+        }
     } else if (term.startsWith(':')) {
         term = term.mid(1);
         QString text = "Search" + searchEngineDisplayName + " for " + term;
         data.insert("url", searchEngineBaseUrl + QUrl::toPercentEncoding(term));
         context.addMatch(createMatch(text, data));
-        if (searchSuggestions && searchSuggestionChoice == "bing") {
-            if (term.size() < minimumLetterCount) return;
-            QEventLoop loop;
-            Bing bing(this, context, searchEngineBaseUrl, term, currentIcon, maxSuggestionResults, bingMarket);
-            connect(&bing, SIGNAL(finished()), &loop, SLOT(quit()));
-            loop.exec();
+        if (searchSuggestions) {
+            if (searchSuggestionChoice == "bing") {
+                bingSearchSuggest(context, term);
+            }
         }
     } else if (openUrls && term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
         QString text = "Go To  " + term;
@@ -157,6 +167,14 @@ Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMa
     match.setText(text);
     match.setData(data);
     return match;
+}
+
+void QuickWebShortcuts::bingSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
+    if (term.size() < minimumLetterCount) return;
+    QEventLoop loop;
+    Bing bing(context, term, requiredData, bingMarket, browser);
+    connect(&bing, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
 }
 
 K_EXPORT_PLASMA_RUNNER(quick_web_shortcuts, QuickWebShortcuts)

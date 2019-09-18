@@ -2,7 +2,7 @@
 #define QUICKWEBSHORTCUTS_H
 
 #include <KRunner/AbstractRunner>
-#include <searchproviders/SearchSuggestionData.h>
+#include <searchproviders/RequiredData.h>
 
 class QuickWebShortcuts : public Plasma::AbstractRunner {
 Q_OBJECT
@@ -20,9 +20,12 @@ public:
     QIcon currentIcon;
     QMap<QString, QIcon> icons;
 
+    RequiredData requiredData;
     QMap<QString, QString> searchEngines;
 
     Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, const QString &icon = "");
+
+    void bingSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
 
 protected Q_SLOTS:
 
