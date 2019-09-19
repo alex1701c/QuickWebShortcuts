@@ -29,7 +29,7 @@
         <x>0</x>
         <y>0</y>
         <width>633</width>
-        <height>802</height>
+        <height>840</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -232,12 +232,15 @@
              <item>
               <widget class="QRadioButton" name="googleRadioButton">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="text">
-                <string>Use Google search suggestions (not available yet)</string>
+                <string>Use Google search suggestions</string>
                </property>
               </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="googleLanguageComboBox"/>
              </item>
              <item>
               <widget class="QRadioButton" name="bingRadioButton">
@@ -311,7 +314,7 @@
             <property name="checkable">
              <bool>false</bool>
             </property>
-            <layout class="QFormLayout" name="formLayout_2">
+            <layout class="QGridLayout" name="gridLayout_3">
              <item row="0" column="0">
               <layout class="QVBoxLayout" name="verticalLayout_2">
                <property name="sizeConstraint">

@@ -4,6 +4,7 @@
 #include <iostream>
 #include "SearchEngines.h"
 #include <searchproviders/Bing.h>
+#include <searchproviders/Google.h>
 
 QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
         : Plasma::AbstractRunner(parent, args) {
@@ -54,6 +55,7 @@ void QuickWebShortcuts::reloadConfiguration() {
 
     maxSuggestionResults = configGroup.readEntry("max_search_results", "10").toInt();
     bingMarket = configGroup.readEntry("bing_locale", "en-us");
+    googleLocale = configGroup.readEntry("google_locale", "en");
 
     searchSuggestionChoice = configGroup.readEntry("search_suggestions", "disabled");
     searchSuggestions = searchSuggestionChoice != "disabled";
@@ -120,6 +122,8 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         if (searchSuggestions && privateWindowSearchSuggestions) {
             if (searchSuggestionChoice == "bing") {
                 bingSearchSuggest(context, term, privateBrowser);
+            } else if (searchSuggestionChoice == "google") {
+                googleSearchSuggest(context, term, privateBrowser);
             }
         }
     } else if (term.startsWith(':')) {
@@ -130,6 +134,8 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         if (searchSuggestions) {
             if (searchSuggestionChoice == "bing") {
                 bingSearchSuggest(context, term);
+            } else if (searchSuggestionChoice == "google") {
+                googleSearchSuggest(context, term);
             }
         }
     } else if (openUrls && term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
@@ -166,6 +172,7 @@ Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMa
     match.setIcon(icon.isEmpty() ? currentIcon : icons.value(icon, QIcon::fromTheme("globe")));
     match.setText(text);
     match.setData(data);
+    match.setRelevance(1);
     return match;
 }
 
@@ -174,6 +181,14 @@ void QuickWebShortcuts::bingSearchSuggest(Plasma::RunnerContext &context, const 
     QEventLoop loop;
     Bing bing(context, term, requiredData, bingMarket, browser);
     connect(&bing, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+}
+
+void QuickWebShortcuts::googleSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
+    if (term.size() < minimumLetterCount) return;
+    QEventLoop loop;
+    Google google(context, term, requiredData, googleLocale, browser);
+    connect(&google, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
 }
 

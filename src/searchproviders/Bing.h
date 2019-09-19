@@ -48,7 +48,6 @@ public Q_SLOTS:
             emit finished();
             return;
         }
-        qInfo() << "recieved response for: " << query;
         const auto suggestionsObject = QJsonDocument::fromJson(reply->readAll());
         if (suggestionsObject.isArray()) {
             const auto rootArray = suggestionsObject.array();

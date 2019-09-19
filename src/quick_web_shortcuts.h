@@ -16,7 +16,7 @@ public:
     bool openUrls, searchSuggestions, privateWindowSearchSuggestions;
     int minimumLetterCount, maxSuggestionResults;
     QString privateBrowser, privateBrowserMode, searchEngine, searchEngineBaseUrl, searchEngineDisplayName, searchSuggestionChoice;
-    QString bingMarket;
+    QString bingMarket, googleLocale;
     QIcon currentIcon;
     QMap<QString, QIcon> icons;
 
@@ -26,6 +26,8 @@ public:
     Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, const QString &icon = "");
 
     void bingSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
+
+    void googleSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
 
 protected Q_SLOTS:
 

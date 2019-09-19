@@ -43,6 +43,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->privateWindowCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->minimumLetterCountSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changed()));
     connect(m_ui->bingLocaleSelectComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
+    connect(m_ui->googleLanguageComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
     // Clear History GroupBox
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
     connect(m_ui->deleteButton, SIGNAL(clicked(bool)), this, SLOT(deleteCurrentItem()));
@@ -99,7 +100,8 @@ void QuickWebShortcutsConfig::load() {
     insertLocaleSelectData();
     m_ui->bingLocaleSelectComboBox->setCurrentIndex(m_ui->bingLocaleSelectComboBox->findData(
             config.readEntry("bing_locale", "en-us")));
-    m_ui->bingLocaleSelectComboBox->setHidden(searchSuggestionOption != "bing");
+    m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData(
+            config.readEntry("google_locale", "en")));
     validateSearchSuggestions();
 
     // Clear History settings
@@ -165,6 +167,8 @@ void QuickWebShortcutsConfig::save() {
     config.writeEntry("minimum_letter_count", m_ui->minimumLetterCountSpinBox->value());
     config.writeEntry("bing_locale", m_ui->bingLocaleSelectComboBox->itemData(
             m_ui->bingLocaleSelectComboBox->currentIndex()));
+    config.writeEntry("google_locale", m_ui->googleLanguageComboBox->itemData(
+            m_ui->googleLanguageComboBox->currentIndex()));
 
     QString history;
     if (m_ui->historyAll->isChecked()) {
@@ -213,6 +217,7 @@ void QuickWebShortcutsConfig::defaults() {
     m_ui->disableRadioButton->setChecked(true);
     m_ui->minimumLetterCountSpinBox->setValue(3);
     m_ui->bingLocaleSelectComboBox->setCurrentIndex(m_ui->bingLocaleSelectComboBox->findData("en-us"));
+    m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData("en"));
 
     emit changed(true);
 }
@@ -284,6 +289,7 @@ void QuickWebShortcutsConfig::validateSearchSuggestions() {
     m_ui->minimumLetterCountSpinBox->setDisabled(disabled);
     if (disabled) m_ui->privateWindowCheckBox->setChecked(false);
     m_ui->bingLocaleSelectComboBox->setHidden(!m_ui->bingRadioButton->isChecked());
+    m_ui->googleLanguageComboBox->setHidden(!m_ui->googleRadioButton->isChecked());
 }
 
 void QuickWebShortcutsConfig::insertLocaleSelectData() {
@@ -329,6 +335,157 @@ void QuickWebShortcutsConfig::insertLocaleSelectData() {
     m_ui->bingLocaleSelectComboBox->addItem("zh-cn (Chinese)", "zh-cn");
     m_ui->bingLocaleSelectComboBox->addItem("zh-hk (Traditional Chinese-Hong Kong SAR)", "zh-hk");
     m_ui->bingLocaleSelectComboBox->addItem("zh-tw (Traditional Chinese-Taiwan)", "zh-tw");
+
+    // https://sites.google.com/site/tomihasa/google-language-codes
+    m_ui->googleLanguageComboBox->addItem("Afrikaans", "af");
+    m_ui->googleLanguageComboBox->addItem("Akan", "ak");
+    m_ui->googleLanguageComboBox->addItem("Albanian", "sq");
+    m_ui->googleLanguageComboBox->addItem("Amharic", "am");
+    m_ui->googleLanguageComboBox->addItem("Arabic", "ar");
+    m_ui->googleLanguageComboBox->addItem("Armenian", "hy");
+    m_ui->googleLanguageComboBox->addItem("Azerbaijani", "az");
+    m_ui->googleLanguageComboBox->addItem("Basque", "eu");
+    m_ui->googleLanguageComboBox->addItem("Belarusian", "be");
+    m_ui->googleLanguageComboBox->addItem("Bemba", "bem");
+    m_ui->googleLanguageComboBox->addItem("Bengali", "bn");
+    m_ui->googleLanguageComboBox->addItem("Bihari", "bh");
+    m_ui->googleLanguageComboBox->addItem("Bork, bork, bork!", "xx-bork");
+    m_ui->googleLanguageComboBox->addItem("Bosnian", "bs");
+    m_ui->googleLanguageComboBox->addItem("Breton", "br");
+    m_ui->googleLanguageComboBox->addItem("Bulgarian", "bg");
+    m_ui->googleLanguageComboBox->addItem("Cambodian", "km");
+    m_ui->googleLanguageComboBox->addItem("Catalan", "ca");
+    m_ui->googleLanguageComboBox->addItem("Cherokee", "chr");
+    m_ui->googleLanguageComboBox->addItem("Chichewa", "ny");
+    m_ui->googleLanguageComboBox->addItem("Chinese (Simplified)", "zh-CN");
+    m_ui->googleLanguageComboBox->addItem("Chinese (Traditional)", "zh-TW");
+    m_ui->googleLanguageComboBox->addItem("Corsican", "co");
+    m_ui->googleLanguageComboBox->addItem("Croatian", "hr");
+    m_ui->googleLanguageComboBox->addItem("Czech", "cs");
+    m_ui->googleLanguageComboBox->addItem("Danish", "da");
+    m_ui->googleLanguageComboBox->addItem("Dutch", "nl");
+    m_ui->googleLanguageComboBox->addItem("Elmer Fudd", "xx-elmer");
+    m_ui->googleLanguageComboBox->addItem("English", "en");
+    m_ui->googleLanguageComboBox->addItem("Esperanto", "eo");
+    m_ui->googleLanguageComboBox->addItem("Estonian", "et");
+    m_ui->googleLanguageComboBox->addItem("Ewe", "ee");
+    m_ui->googleLanguageComboBox->addItem("Faroese", "fo");
+    m_ui->googleLanguageComboBox->addItem("Filipino", "tl");
+    m_ui->googleLanguageComboBox->addItem("Finnish", "fi");
+    m_ui->googleLanguageComboBox->addItem("French", "fr");
+    m_ui->googleLanguageComboBox->addItem("Frisian", "fy");
+    m_ui->googleLanguageComboBox->addItem("Ga", "gaa");
+    m_ui->googleLanguageComboBox->addItem("Galician", "gl");
+    m_ui->googleLanguageComboBox->addItem("Georgian", "ka");
+    m_ui->googleLanguageComboBox->addItem("German", "de");
+    m_ui->googleLanguageComboBox->addItem("Greek", "el");
+    m_ui->googleLanguageComboBox->addItem("Guarani", "gn");
+    m_ui->googleLanguageComboBox->addItem("Gujarati", "gu");
+    m_ui->googleLanguageComboBox->addItem("Hacker", "xx-hacker");
+    m_ui->googleLanguageComboBox->addItem("Haitian Creole", "ht");
+    m_ui->googleLanguageComboBox->addItem("Hausa", "ha");
+    m_ui->googleLanguageComboBox->addItem("Hawaiian", "haw");
+    m_ui->googleLanguageComboBox->addItem("Hebrew", "iw");
+    m_ui->googleLanguageComboBox->addItem("Hindi", "hi");
+    m_ui->googleLanguageComboBox->addItem("Hungarian", "hu");
+    m_ui->googleLanguageComboBox->addItem("Icelandic", "is");
+    m_ui->googleLanguageComboBox->addItem("Igbo", "ig");
+    m_ui->googleLanguageComboBox->addItem("Indonesian", "id");
+    m_ui->googleLanguageComboBox->addItem("Interlingua", "ia");
+    m_ui->googleLanguageComboBox->addItem("Irish", "ga");
+    m_ui->googleLanguageComboBox->addItem("Italian", "it");
+    m_ui->googleLanguageComboBox->addItem("Japanese", "ja");
+    m_ui->googleLanguageComboBox->addItem("Javanese", "jw");
+    m_ui->googleLanguageComboBox->addItem("Kannada", "kn");
+    m_ui->googleLanguageComboBox->addItem("Kazakh", "kk");
+    m_ui->googleLanguageComboBox->addItem("Kinyarwanda", "rw");
+    m_ui->googleLanguageComboBox->addItem("Kirundi", "rn");
+    m_ui->googleLanguageComboBox->addItem("Klingon", "xx-klingon");
+    m_ui->googleLanguageComboBox->addItem("Kongo", "kg");
+    m_ui->googleLanguageComboBox->addItem("Korean", "ko");
+    m_ui->googleLanguageComboBox->addItem("Krio (Sierra Leone)", "kri");
+    m_ui->googleLanguageComboBox->addItem("Kurdish", "ku");
+    m_ui->googleLanguageComboBox->addItem("Kurdish (Soranî)", "ckb");
+    m_ui->googleLanguageComboBox->addItem("Kyrgyz", "ky");
+    m_ui->googleLanguageComboBox->addItem("Laothian", "lo");
+    m_ui->googleLanguageComboBox->addItem("Latin", "la");
+    m_ui->googleLanguageComboBox->addItem("Latvian", "lv");
+    m_ui->googleLanguageComboBox->addItem("Lingala", "ln");
+    m_ui->googleLanguageComboBox->addItem("Lithuanian", "lt");
+    m_ui->googleLanguageComboBox->addItem("Lozi", "loz");
+    m_ui->googleLanguageComboBox->addItem("Luganda", "lg");
+    m_ui->googleLanguageComboBox->addItem("Luo", "ach");
+    m_ui->googleLanguageComboBox->addItem("Macedonian", "mk");
+    m_ui->googleLanguageComboBox->addItem("Malagasy", "mg");
+    m_ui->googleLanguageComboBox->addItem("Malay", "ms");
+    m_ui->googleLanguageComboBox->addItem("Malayalam", "ml");
+    m_ui->googleLanguageComboBox->addItem("Maltese", "mt");
+    m_ui->googleLanguageComboBox->addItem("Maori", "mi");
+    m_ui->googleLanguageComboBox->addItem("Marathi", "mr");
+    m_ui->googleLanguageComboBox->addItem("Mauritian Creole", "mfe");
+    m_ui->googleLanguageComboBox->addItem("Moldavian", "mo");
+    m_ui->googleLanguageComboBox->addItem("Mongolian", "mn");
+    m_ui->googleLanguageComboBox->addItem("Montenegrin", "sr-ME");
+    m_ui->googleLanguageComboBox->addItem("Nepali", "ne");
+    m_ui->googleLanguageComboBox->addItem("Nigerian Pidgin", "pcm");
+    m_ui->googleLanguageComboBox->addItem("Northern Sotho", "nso");
+    m_ui->googleLanguageComboBox->addItem("Norwegian", "no");
+    m_ui->googleLanguageComboBox->addItem("Norwegian (Nynorsk)", "nn");
+    m_ui->googleLanguageComboBox->addItem("Occitan", "oc");
+    m_ui->googleLanguageComboBox->addItem("Oriya", "or");
+    m_ui->googleLanguageComboBox->addItem("Oromo", "om");
+    m_ui->googleLanguageComboBox->addItem("Pashto", "ps");
+    m_ui->googleLanguageComboBox->addItem("Persian", "fa");
+    m_ui->googleLanguageComboBox->addItem("Pirate", "xx-pirate");
+    m_ui->googleLanguageComboBox->addItem("Polish", "pl");
+    m_ui->googleLanguageComboBox->addItem("Portuguese (Brazil)", "pt-BR");
+    m_ui->googleLanguageComboBox->addItem("Portuguese (Portugal)", "pt-PT");
+    m_ui->googleLanguageComboBox->addItem("Punjabi", "pa");
+    m_ui->googleLanguageComboBox->addItem("Quechua", "qu");
+    m_ui->googleLanguageComboBox->addItem("Romanian", "ro");
+    m_ui->googleLanguageComboBox->addItem("Romansh", "rm");
+    m_ui->googleLanguageComboBox->addItem("Runyakitara", "nyn");
+    m_ui->googleLanguageComboBox->addItem("Russian", "ru");
+    m_ui->googleLanguageComboBox->addItem("Scots Gaelic", "gd");
+    m_ui->googleLanguageComboBox->addItem("Serbian", "sr");
+    m_ui->googleLanguageComboBox->addItem("Serbo-Croatian", "sh");
+    m_ui->googleLanguageComboBox->addItem("Sesotho", "st");
+    m_ui->googleLanguageComboBox->addItem("Setswana", "tn");
+    m_ui->googleLanguageComboBox->addItem("Seychellois Creole", "crs");
+    m_ui->googleLanguageComboBox->addItem("Shona", "sn");
+    m_ui->googleLanguageComboBox->addItem("Sindhi", "sd");
+    m_ui->googleLanguageComboBox->addItem("Sinhalese", "si");
+    m_ui->googleLanguageComboBox->addItem("Slovak", "sk");
+    m_ui->googleLanguageComboBox->addItem("Slovenian", "sl");
+    m_ui->googleLanguageComboBox->addItem("Somali", "so");
+    m_ui->googleLanguageComboBox->addItem("Spanish", "es");
+    m_ui->googleLanguageComboBox->addItem("Spanish (Latin American)", "es-419");
+    m_ui->googleLanguageComboBox->addItem("Sundanese", "su");
+    m_ui->googleLanguageComboBox->addItem("Swahili", "sw");
+    m_ui->googleLanguageComboBox->addItem("Swedish", "sv");
+    m_ui->googleLanguageComboBox->addItem("Tajik", "tg");
+    m_ui->googleLanguageComboBox->addItem("Tamil", "ta");
+    m_ui->googleLanguageComboBox->addItem("Tatar", "tt");
+    m_ui->googleLanguageComboBox->addItem("Telugu", "te");
+    m_ui->googleLanguageComboBox->addItem("Thai", "th");
+    m_ui->googleLanguageComboBox->addItem("Tigrinya", "ti");
+    m_ui->googleLanguageComboBox->addItem("Tonga", "to");
+    m_ui->googleLanguageComboBox->addItem("Tshiluba", "lua");
+    m_ui->googleLanguageComboBox->addItem("Tumbuka", "tum");
+    m_ui->googleLanguageComboBox->addItem("Turkish", "tr");
+    m_ui->googleLanguageComboBox->addItem("Turkmen", "tk");
+    m_ui->googleLanguageComboBox->addItem("Twi", "tw");
+    m_ui->googleLanguageComboBox->addItem("Uighur", "ug");
+    m_ui->googleLanguageComboBox->addItem("Ukrainian", "uk");
+    m_ui->googleLanguageComboBox->addItem("Urdu", "ur");
+    m_ui->googleLanguageComboBox->addItem("Uzbek", "uz");
+    m_ui->googleLanguageComboBox->addItem("Vietnamese", "vi");
+    m_ui->googleLanguageComboBox->addItem("Welsh", "cy");
+    m_ui->googleLanguageComboBox->addItem("Wolof", "wo");
+    m_ui->googleLanguageComboBox->addItem("Xhosa", "xh");
+    m_ui->googleLanguageComboBox->addItem("Yiddish", "yi");
+    m_ui->googleLanguageComboBox->addItem("Yoruba", "yo");
+    m_ui->googleLanguageComboBox->addItem("Zulu", "zu");
 }
 
 #include "quick_web_shortcuts_config.moc"
