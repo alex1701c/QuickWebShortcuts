@@ -42,8 +42,10 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->disableRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateSearchSuggestions()));
     connect(m_ui->privateWindowCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->minimumLetterCountSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changed()));
+    connect(m_ui->maxSearchSuggestionsSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changed()));
     connect(m_ui->bingLocaleSelectComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
     connect(m_ui->googleLanguageComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
+    connect(m_ui->duckDuckGoLanguageComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
     // Clear History GroupBox
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
     connect(m_ui->deleteButton, SIGNAL(clicked(bool)), this, SLOT(deleteCurrentItem()));
@@ -97,11 +99,14 @@ void QuickWebShortcutsConfig::load() {
     }
     m_ui->privateWindowCheckBox->setChecked(config.readEntry("private_window_search_suggestions", "false") == "true");
     m_ui->minimumLetterCountSpinBox->setValue(config.readEntry("minimum_letter_count", "3").toInt());
+    m_ui->maxSearchSuggestionsSpinBox->setValue(config.readEntry("max_search_suggestions", "10").toInt());
     insertLocaleSelectData();
     m_ui->bingLocaleSelectComboBox->setCurrentIndex(m_ui->bingLocaleSelectComboBox->findData(
             config.readEntry("bing_locale", "en-us")));
     m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData(
             config.readEntry("google_locale", "en")));
+    m_ui->duckDuckGoLanguageComboBox->setCurrentIndex(m_ui->duckDuckGoLanguageComboBox->findData(
+            config.readEntry("duckduckgo_locale", "wt-wt")));
     validateSearchSuggestions();
 
     // Clear History settings
@@ -165,10 +170,13 @@ void QuickWebShortcutsConfig::save() {
 
     config.writeEntry("private_window_search_suggestions", m_ui->privateWindowCheckBox->isChecked());
     config.writeEntry("minimum_letter_count", m_ui->minimumLetterCountSpinBox->value());
+    config.writeEntry("max_search_suggestions", m_ui->maxSearchSuggestionsSpinBox->value());
     config.writeEntry("bing_locale", m_ui->bingLocaleSelectComboBox->itemData(
             m_ui->bingLocaleSelectComboBox->currentIndex()));
     config.writeEntry("google_locale", m_ui->googleLanguageComboBox->itemData(
             m_ui->googleLanguageComboBox->currentIndex()));
+    config.writeEntry("duckduckgo_locale", m_ui->duckDuckGoLanguageComboBox->itemData(
+            m_ui->duckDuckGoLanguageComboBox->currentIndex()));
 
     QString history;
     if (m_ui->historyAll->isChecked()) {
@@ -218,7 +226,9 @@ void QuickWebShortcutsConfig::defaults() {
     m_ui->minimumLetterCountSpinBox->setValue(3);
     m_ui->bingLocaleSelectComboBox->setCurrentIndex(m_ui->bingLocaleSelectComboBox->findData("en-us"));
     m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData("en"));
+    m_ui->duckDuckGoLanguageComboBox->setCurrentIndex(m_ui->duckDuckGoLanguageComboBox->findData("wt-wt"));
 
+    validateSearchSuggestions();
     emit changed(true);
 }
 
@@ -287,9 +297,10 @@ void QuickWebShortcutsConfig::validateSearchSuggestions() {
     const bool disabled = m_ui->disableRadioButton->isChecked();
     m_ui->privateWindowCheckBox->setDisabled(disabled);
     m_ui->minimumLetterCountSpinBox->setDisabled(disabled);
-    if (disabled) m_ui->privateWindowCheckBox->setChecked(false);
+    m_ui->maxSearchSuggestionsSpinBox->setDisabled(disabled);
     m_ui->bingLocaleSelectComboBox->setHidden(!m_ui->bingRadioButton->isChecked());
     m_ui->googleLanguageComboBox->setHidden(!m_ui->googleRadioButton->isChecked());
+    m_ui->duckDuckGoLanguageComboBox->setHidden(!m_ui->duckDuckGoRadioButton->isChecked());
 }
 
 void QuickWebShortcutsConfig::insertLocaleSelectData() {
@@ -486,6 +497,71 @@ void QuickWebShortcutsConfig::insertLocaleSelectData() {
     m_ui->googleLanguageComboBox->addItem("Yiddish", "yi");
     m_ui->googleLanguageComboBox->addItem("Yoruba", "yo");
     m_ui->googleLanguageComboBox->addItem("Zulu", "zu");
+
+    // DuckDuckGo locale
+    m_ui->duckDuckGoLanguageComboBox->addItem("All Regions", "wt-wt");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Argentina", "ar-es");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Austria", "au-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Belgium (fr)", "at-de");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Belgium (nl)", "be-fr");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Brazil", "be-nl");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Bulgaria", "br-pt");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Canada", "ca-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Canada (fr)", "ca-fr");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Catalonia", "ct-ca");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Chile", "cl-es");
+    m_ui->duckDuckGoLanguageComboBox->addItem("China", "cn-zh");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Colombia", "co-es");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Croatia", "hr-hr");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Czech Republic", "cz-cs");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Denmark", "dk-da");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Estonia", "ee-et");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Finland", "fi-fi");
+    m_ui->duckDuckGoLanguageComboBox->addItem("France", "fr-fr");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Greece", "gr-el");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Hong Kong", "hk-tz");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Hungary", "hu-hu");
+    m_ui->duckDuckGoLanguageComboBox->addItem("India", "in-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Indonesia", "id-id");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Indonesia (en)", "id-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Ireland", "ie-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Israel", "il-he");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Italy", "it-it");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Japan", "jp-jp");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Korea", "kr-kr");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Latvia", "lv-lv");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Lithuania", "lt-lt");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Malaysia", "my-ms");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Malaysia (en)", "my-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Mexico", "mx-es");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Netherlands", "nl-nl");
+    m_ui->duckDuckGoLanguageComboBox->addItem("New Zealand", "nz-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Norway", "no-no");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Peru", "pe-es");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Philippines", "ph-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Philippines (tl)", "ph-tl");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Poland", "pl-pl");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Portugal", "pt-pt");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Romania", "ro-ro");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Russia", "ru-ru");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Saudi Arabia", "xa-ar");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Singapore", "sg-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Slovakia", "sk-sk");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Slovenia", "sl-sl");
+    m_ui->duckDuckGoLanguageComboBox->addItem("South Africa", "za-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Spain", "es-es");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Spain (ca)", "es-ca");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Sweden", "se-sv");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Switzerland (de)", "ch-de");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Switzerland (fr)", "ch-fr");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Switzerland (it)", "ch-it");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Taiwan", "tw-tz");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Thailand", "th-th");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Turkey", "tr-tr");
+    m_ui->duckDuckGoLanguageComboBox->addItem("United Kingdom", "uk-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("United States", "us-en");
+    m_ui->duckDuckGoLanguageComboBox->addItem("United States (es)", "us-es");
+    m_ui->duckDuckGoLanguageComboBox->addItem("Vietnam", "vn-vi");
 }
 
 #include "quick_web_shortcuts_config.moc"

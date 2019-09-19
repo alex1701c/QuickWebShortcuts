@@ -5,6 +5,7 @@
 #include "SearchEngines.h"
 #include <searchproviders/Bing.h>
 #include <searchproviders/Google.h>
+#include <searchproviders/DuckDuckGo.h>
 
 QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
         : Plasma::AbstractRunner(parent, args) {
@@ -53,9 +54,10 @@ void QuickWebShortcuts::reloadConfiguration() {
     privateBrowserMode = privateBrowser.contains("private") ? "private window" : "incognito mode";
     minimumLetterCount = configGroup.readEntry("minimum_letter_count", "3").toInt();
 
-    maxSuggestionResults = configGroup.readEntry("max_search_results", "10").toInt();
+    maxSuggestionResults = configGroup.readEntry("max_search_suggestions", "10").toInt();
     bingMarket = configGroup.readEntry("bing_locale", "en-us");
     googleLocale = configGroup.readEntry("google_locale", "en");
+    duckDuckGoLocale = configGroup.readEntry("duckduckgo_locale", "wt-wt");
 
     searchSuggestionChoice = configGroup.readEntry("search_suggestions", "disabled");
     searchSuggestions = searchSuggestionChoice != "disabled";
@@ -120,10 +122,13 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         QString text = "Search" + searchEngineDisplayName + " for " + term + " in " + privateBrowserMode;
         context.addMatch(createMatch(text, data));
         if (searchSuggestions && privateWindowSearchSuggestions) {
+            if (term.size() < minimumLetterCount) return;
             if (searchSuggestionChoice == "bing") {
                 bingSearchSuggest(context, term, privateBrowser);
             } else if (searchSuggestionChoice == "google") {
                 googleSearchSuggest(context, term, privateBrowser);
+            } else {
+                duckDuckGoSearchSuggest(context, term, privateBrowser);
             }
         }
     } else if (term.startsWith(':')) {
@@ -132,10 +137,13 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         data.insert("url", searchEngineBaseUrl + QUrl::toPercentEncoding(term));
         context.addMatch(createMatch(text, data));
         if (searchSuggestions) {
+            if (term.size() < minimumLetterCount) return;
             if (searchSuggestionChoice == "bing") {
                 bingSearchSuggest(context, term);
             } else if (searchSuggestionChoice == "google") {
                 googleSearchSuggest(context, term);
+            } else {
+                duckDuckGoSearchSuggest(context, term);
             }
         }
     } else if (openUrls && term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
@@ -159,7 +167,7 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
     QMap<QString, QVariant> payload = match.data().toMap();
 
     if (payload.count("url")) {
-        system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " " + payload.value("url").toString() + ") &"));
+        system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " '" + payload.value("url").toString() + "') &"));
         qInfo() << "Opening url: " << "$(" + payload.value("browser", "xdg-open").toString()
                                       + " " + payload.value("url").toString() + ") &";
     } else {
@@ -177,7 +185,6 @@ Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMa
 }
 
 void QuickWebShortcuts::bingSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
-    if (term.size() < minimumLetterCount) return;
     QEventLoop loop;
     Bing bing(context, term, requiredData, bingMarket, browser);
     connect(&bing, SIGNAL(finished()), &loop, SLOT(quit()));
@@ -185,10 +192,16 @@ void QuickWebShortcuts::bingSearchSuggest(Plasma::RunnerContext &context, const 
 }
 
 void QuickWebShortcuts::googleSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
-    if (term.size() < minimumLetterCount) return;
     QEventLoop loop;
     Google google(context, term, requiredData, googleLocale, browser);
     connect(&google, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+}
+
+void QuickWebShortcuts::duckDuckGoSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
+    QEventLoop loop;
+    DuckDuckGo duckDuckGo(context, term, requiredData, duckDuckGoLocale, browser);
+    connect(&duckDuckGo, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
 }
 

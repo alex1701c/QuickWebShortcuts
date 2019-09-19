@@ -27,9 +27,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-292</y>
         <width>633</width>
-        <height>840</height>
+        <height>918</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -255,12 +255,15 @@
              <item>
               <widget class="QRadioButton" name="duckDuckGoRadioButton">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="text">
-                <string>Use DuckDuckGo links ( directly to targeted website) (not available yet)</string>
+                <string>Use DuckDuckGo direct links</string>
                </property>
               </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="duckDuckGoLanguageComboBox"/>
              </item>
              <item>
               <widget class="QRadioButton" name="disableRadioButton">
@@ -292,6 +295,45 @@
                  </property>
                  <property name="maximum">
                   <number>15</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_5">
+               <item alignment="Qt::AlignLeft">
+                <widget class="QLabel" name="label_3">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Maximum search suggestions:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="maxSearchSuggestionsSpinBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>19</number>
                  </property>
                 </widget>
                </item>
