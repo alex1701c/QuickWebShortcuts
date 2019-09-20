@@ -53,10 +53,10 @@ public Q_SLOTS:
         }
 
         QList<QStringList> urlList;
-        QRegularExpression linkRegex("<a rel=\"nofollow\" href=\"(.+)\" class=[\"']result-link[\"']>(.*)</a>");
-        QRegularExpressionMatchIterator i = linkRegex.globalMatch(reply->readAll());
-        while (i.hasNext()) {
-            QRegularExpressionMatch match = i.next();
+        QRegularExpression linkRegex("<a rel=\"nofollow\" href=\"([^\"]+)\" class='result-link'>(.*)</a>");
+        QRegularExpressionMatchIterator it = linkRegex.globalMatch(reply->readAll());
+        while (it.hasNext()) {
+            QRegularExpressionMatch match = it.next();
             if (match.hasMatch()) {
                 urlList.append(match.capturedTexts());
             }
@@ -65,11 +65,10 @@ public Q_SLOTS:
         const int listCount = urlList.count();
         for (int i = 0; i < listCount && i < data.maxResults; ++i) {
             const QStringList &currentList = urlList.at(i);
-            qInfo() << currentList;
             Plasma::QueryMatch match(data.runner);
             match.setIcon(data.icon);
             match.setText(QString(currentList.at(1)).remove("http://").remove("https://").remove("www."));
-            match.setSubtext(currentList.at(1));
+            match.setRelevance((float) (19 - i) / 20);
 
             QMap<QString, QVariant> runData;
             runData.insert("url", currentList.at(1));
