@@ -5,11 +5,12 @@
 
 class RequiredData {
 public:
-    QNetworkProxy *proxy = nullptr;
+    QNetworkProxy *proxy;
     Plasma::AbstractRunner *runner;
     QString searchEngine;
     QIcon icon;
-    int maxResults = 10;
+    int maxResults;
+    bool showNetworkErrors = true;
 };
 
 #endif //QUICKWEBSHORTCUTS_REQUIREDDATA_H

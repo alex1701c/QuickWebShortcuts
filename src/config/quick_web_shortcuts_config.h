@@ -4,6 +4,7 @@
 #include "ui_quick_web_shortcuts_config.h"
 #include <KCModule>
 #include <KConfigCore/KConfigGroup>
+#include <QtNetwork>
 
 
 class QuickWebShortcutsConfigForm : public QWidget, public Ui::QuickWebShortcutsConfigUi {
@@ -22,6 +23,7 @@ public:
     KConfigGroup config;
 
     QMap<QString, QIcon> icons;
+    QTime timeBeforeRequest;
 
 public Q_SLOTS:
 
@@ -46,6 +48,10 @@ public Q_SLOTS:
     void validateSearchSuggestions();
 
     void validateProxyOptions();
+
+    void validateProxyConnection();
+
+    void showProxyConnectionValidationResults(QNetworkReply *reply);
 
 private:
     QuickWebShortcutsConfigForm *m_ui;

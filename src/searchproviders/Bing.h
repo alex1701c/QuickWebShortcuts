@@ -28,15 +28,15 @@ public:
                                               browserLaunchCommand(std::move(browserLaunchCommand)), data(data) {
 
         m_manager = new QNetworkAccessManager(this);
-        if (data.proxy != nullptr) m_manager->setProxy(*data.proxy);
+        if (data.proxy != nullptr) m_manager->setProxy(*this->data.proxy);
 #ifdef  TEST_PROXY
         QNetworkRequest request(QUrl("https://ifconfig.me/ip"));
         m_manager->get(request);
         connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
 #else
         QUrlQuery queryParameters;
-        queryParameters.addQueryItem("query", query);
-        queryParameters.addQueryItem("market", market);
+        queryParameters.addQueryItem("query", this->query);
+        queryParameters.addQueryItem("market", this->market);
 
         QNetworkRequest request(QUrl("https://api.bing.com/osjson.aspx?" +
                                      QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
@@ -58,39 +58,36 @@ public Q_SLOTS:
         return;
 #endif
         if (reply->error() != QNetworkReply::NoError) {
-            QProcess::startDetached("notify-send", QStringList(
-                    {"-i", "globe", "QuickWebShortcuts ",
-                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
-                     reply->errorString()}));
-            emit finished();
-            return;
-        } else if (!m_context.isValid()) {
-            emit finished();
-            return;
-        }
+            if (data.showNetworkErrors) {
+                QProcess::startDetached("notify-send", QStringList(
+                        {"-i", "globe", "QuickWebShortcuts ",
+                         QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
+                         reply->errorString()}));
+            }
+        } else if (m_context.isValid()) {
+            const auto suggestionsObject = QJsonDocument::fromJson(reply->readAll());
+            if (suggestionsObject.isArray()) {
+                const auto rootArray = suggestionsObject.array();
+                if (rootArray.at(1).isArray()) {
+                    const auto suggestionsArray = rootArray.at(1).toArray();
+                    const int suggestionCount = suggestionsArray.count();
+                    for (int i = 0; i < suggestionCount && i < data.maxResults; ++i) {
+                        const QString suggestion = suggestionsArray.at(i).toString();
+                        if (suggestion == query) {
+                            ++data.maxResults;
+                            continue;
+                        }
+                        Plasma::QueryMatch match(data.runner);
+                        match.setIcon(data.icon);
+                        match.setText("Search for " + suggestion);
+                        match.setRelevance((float) (19 - i) / 20);
 
-        const auto suggestionsObject = QJsonDocument::fromJson(reply->readAll());
-        if (suggestionsObject.isArray()) {
-            const auto rootArray = suggestionsObject.array();
-            if (rootArray.at(1).isArray()) {
-                const auto suggestionsArray = rootArray.at(1).toArray();
-                const int suggestionCount = suggestionsArray.count();
-                for (int i = 0; i < suggestionCount && i < data.maxResults; ++i) {
-                    const QString suggestion = suggestionsArray.at(i).toString();
-                    if (suggestion == query) {
-                        ++data.maxResults;
-                        continue;
+                        QMap<QString, QVariant> runData;
+                        runData.insert("url", data.searchEngine + QUrl::toPercentEncoding(suggestion));
+                        if (!browserLaunchCommand.isEmpty()) runData.insert("browser", browserLaunchCommand);
+                        match.setData(runData);
+                        m_context.addMatch(match);
                     }
-                    Plasma::QueryMatch match(data.runner);
-                    match.setIcon(data.icon);
-                    match.setText("Search for " + suggestion);
-                    match.setRelevance((float) (19 - i) / 20);
-
-                    QMap<QString, QVariant> runData;
-                    runData.insert("url", data.searchEngine + QUrl::toPercentEncoding(suggestion));
-                    if (!browserLaunchCommand.isEmpty()) runData.insert("browser", browserLaunchCommand);
-                    match.setData(runData);
-                    m_context.addMatch(match);
                 }
             }
         }

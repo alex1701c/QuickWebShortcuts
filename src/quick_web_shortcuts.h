@@ -14,10 +14,10 @@ public:
     void reloadConfiguration() override;
 
     KConfigGroup configGroup;
-    bool openUrls, searchSuggestions, privateWindowSearchSuggestions;
+    bool openUrls, searchSuggestions, privateWindowSearchSuggestions, showNetworkErrors;
     int minimumLetterCount, maxSuggestionResults;
     QString privateBrowser, privateBrowserMode, searchEngine, searchEngineBaseUrl, searchEngineDisplayName, searchSuggestionChoice;
-    QString bingMarket, googleLocale, duckDuckGoLocale;
+    QString bingMarket, googleLocale;
     QIcon currentIcon;
     QMap<QString, QIcon> icons;
     QNetworkProxy *proxy;

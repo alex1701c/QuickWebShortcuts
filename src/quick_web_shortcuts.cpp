@@ -63,7 +63,6 @@ void QuickWebShortcuts::reloadConfiguration() {
     maxSuggestionResults = configGroup.readEntry("max_search_suggestions", "10").toInt();
     bingMarket = configGroup.readEntry("bing_locale", "en-us");
     googleLocale = configGroup.readEntry("google_locale", "en");
-    duckDuckGoLocale = configGroup.readEntry("duckduckgo_locale", "wt-wt");
 
     // RequiredData is for all search providers required and does not need to be updated
     // outside of the reloadConfiguration method
@@ -83,6 +82,9 @@ void QuickWebShortcuts::reloadConfiguration() {
         proxy->setUser(QByteArray::fromHex(configGroup.readEntry("proxy_username").toLocal8Bit()));
         proxy->setPassword(QByteArray::fromHex(configGroup.readEntry("proxy_password").toLocal8Bit()));
         requiredData.proxy = proxy;
+        requiredData.showNetworkErrors = configGroup.readEntry("proxy_show_errors", "true") == "true";
+    } else {
+        requiredData.proxy = nullptr;
     }
 }
 
@@ -184,8 +186,6 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
 
     if (payload.count("url")) {
         system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " '" + payload.value("url").toString() + "') &"));
-        qInfo() << "Opening url: " << "$(" + payload.value("browser", "xdg-open").toString()
-                                      + " " + payload.value("url").toString() + ") &";
     } else {
         configGroup.writeEntry("url", payload.value("engine").toString());
     }
@@ -216,7 +216,7 @@ void QuickWebShortcuts::googleSearchSuggest(Plasma::RunnerContext &context, cons
 
 void QuickWebShortcuts::duckDuckGoSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
     QEventLoop loop;
-    DuckDuckGo duckDuckGo(context, term, requiredData, duckDuckGoLocale, browser);
+    DuckDuckGo duckDuckGo(context, term, requiredData, browser);
     connect(&duckDuckGo, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
 }

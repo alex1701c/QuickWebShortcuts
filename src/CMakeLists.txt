@@ -17,6 +17,7 @@ ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/quick_web_shortcuts_conf
 add_library(kcm_krunner_quickwebshortcuts MODULE ${kcm_krunner_quickwebshortcuts_SRCS})
 target_link_libraries(kcm_krunner_quickwebshortcuts
         Qt5::Core
+        Qt5::Network
         Qt5::Gui
         KF5::CoreAddons
         KF5::ConfigCore

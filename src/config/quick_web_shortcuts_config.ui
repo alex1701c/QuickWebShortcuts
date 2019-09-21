@@ -27,9 +27,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-422</y>
+        <y>-638</y>
         <width>633</width>
-        <height>1210</height>
+        <height>1264</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -199,6 +199,9 @@
                    <height>0</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="editable">
                   <bool>false</bool>
                  </property>
@@ -261,9 +264,6 @@
                 <string>Use DuckDuckGo direct links</string>
                </property>
               </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="duckDuckGoLanguageComboBox"/>
              </item>
              <item>
               <widget class="QRadioButton" name="disableRadioButton">
@@ -376,21 +376,21 @@
                 <item>
                  <widget class="QRadioButton" name="noProxyRadioButton">
                   <property name="text">
-                   <string>No Proxy</string>
+                   <string>No proxy</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QRadioButton" name="httpProxyRadioButton">
                   <property name="text">
-                   <string>Http Proxy</string>
+                   <string>Http proxy</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QRadioButton" name="socks5ProxyRadioButton">
                   <property name="text">
-                   <string>Socks5 Proxy</string>
+                   <string>Socks5 proxy</string>
                   </property>
                  </widget>
                 </item>
@@ -452,6 +452,27 @@
                       <widget class="QLineEdit" name="passwordLineEdit"/>
                      </item>
                     </layout>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="showErrorsCheckBox">
+                     <property name="text">
+                      <string>Show network errors at runtime</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="testProxyConfigPushButton">
+                     <property name="text">
+                      <string>Test Proxy Configuration</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="proxyTestResultLabel">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </widget>
