@@ -8,6 +8,8 @@
 #include <utility>
 #include "RequiredData.h"
 
+//#define TEST_PROXY
+
 class Bing : public QObject {
 
 Q_OBJECT
@@ -26,6 +28,12 @@ public:
                                               browserLaunchCommand(std::move(browserLaunchCommand)), data(data) {
 
         m_manager = new QNetworkAccessManager(this);
+        if (data.proxy != nullptr) m_manager->setProxy(*data.proxy);
+#ifdef  TEST_PROXY
+        QNetworkRequest request(QUrl("https://ifconfig.me/ip"));
+        m_manager->get(request);
+        connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
+#else
         QUrlQuery queryParameters;
         queryParameters.addQueryItem("query", query);
         queryParameters.addQueryItem("market", market);
@@ -38,16 +46,29 @@ public:
         m_manager->get(request);
 
         connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
-
+#endif
     }
 
 public Q_SLOTS:
 
     void parseResponse(QNetworkReply *reply) {
-        if (!m_context.isValid()) {
+#ifdef TEST_PROXY
+        qInfo() << reply->readAll();
+        emit finished();
+        return;
+#endif
+        if (reply->error() != QNetworkReply::NoError) {
+            QProcess::startDetached("notify-send", QStringList(
+                    {"-i", "globe", "QuickWebShortcuts ",
+                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
+                     reply->errorString()}));
+            emit finished();
+            return;
+        } else if (!m_context.isValid()) {
             emit finished();
             return;
         }
+
         const auto suggestionsObject = QJsonDocument::fromJson(reply->readAll());
         if (suggestionsObject.isArray()) {
             const auto rootArray = suggestionsObject.array();

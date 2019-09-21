@@ -28,12 +28,14 @@ public:
         browserLaunchCommand(std::move(browserLaunchCommand)), data(std::move(data)) {
 
         m_manager = new QNetworkAccessManager(this);
+        if (data.proxy != nullptr) m_manager->setProxy(*data.proxy);
+
         QUrlQuery queryParameters;
         queryParameters.addQueryItem("q", this->query);
         queryParameters.addQueryItem("hl", this->language);
         queryParameters.addQueryItem("output", "toolbar");
 
-        QNetworkRequest request(QUrl("http://clients1.google.com/complete/search?" +
+        QNetworkRequest request(QUrl("https://clients1.google.com/complete/search?" +
                                      QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
@@ -47,12 +49,19 @@ public:
 public Q_SLOTS:
 
     void parseResponse(QNetworkReply *reply) {
-        if (!m_context.isValid()) {
+        if (reply->error() != QNetworkReply::NoError) {
+            QProcess::startDetached("notify-send", QStringList(
+                    {"-i", "globe", "QuickWebShortcuts ",
+                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
+                     reply->errorString()}));
+            emit finished();
+            return;
+        } else if (!m_context.isValid()) {
             emit finished();
             return;
         }
-        const QString xmlContent = reply->readAll();
 
+        const QString xmlContent = reply->readAll();
         QXmlStreamReader reader(xmlContent);
         QStringList suggestions;
         if (!reader.hasError()) {
@@ -70,7 +79,7 @@ public Q_SLOTS:
         }
         const int suggestionCount = suggestions.count();
         for (int i = 0; i < suggestionCount && i < data.maxResults; ++i) {
-            const QString& suggestion = suggestions.at(i);
+            const QString &suggestion = suggestions.at(i);
             Plasma::QueryMatch match(data.runner);
             match.setIcon(data.icon);
             match.setText("Search for " + suggestion);

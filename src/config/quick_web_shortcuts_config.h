@@ -45,6 +45,8 @@ public Q_SLOTS:
 
     void validateSearchSuggestions();
 
+    void validateProxyOptions();
+
 private:
     QuickWebShortcutsConfigForm *m_ui;
 };

@@ -3,6 +3,7 @@
 
 #include <KRunner/AbstractRunner>
 #include <searchproviders/RequiredData.h>
+#include <QtNetwork/QNetworkAccessManager>
 
 class QuickWebShortcuts : public Plasma::AbstractRunner {
 Q_OBJECT
@@ -19,6 +20,7 @@ public:
     QString bingMarket, googleLocale, duckDuckGoLocale;
     QIcon currentIcon;
     QMap<QString, QIcon> icons;
+    QNetworkProxy *proxy;
 
     RequiredData requiredData;
     QMap<QString, QString> searchEngines;

@@ -38,6 +38,7 @@ void QuickWebShortcuts::init() {
 
 void QuickWebShortcuts::reloadConfiguration() {
     icons = SearchEngines::getIcons();
+    // Load search engines
     SearchEngines::getCustomSearchEngines(searchEngines);
     searchEngineBaseUrl = configGroup.readEntry("url");
     if (searchEngineBaseUrl.isEmpty()) searchEngineBaseUrl = "https://www.google.com/search?q=";
@@ -48,20 +49,21 @@ void QuickWebShortcuts::reloadConfiguration() {
             break;
         }
     }
+    // Load general settings
     if (currentIcon.isNull()) currentIcon = QIcon::fromTheme("globe");
     openUrls = configGroup.readEntry("open_urls", "true") == "true";
     searchEngineDisplayName = configGroup.readEntry("show_name", "false") == "true" ? " " + searchEngine : "";
     privateBrowserMode = privateBrowser.contains("private") ? "private window" : "incognito mode";
-    minimumLetterCount = configGroup.readEntry("minimum_letter_count", "3").toInt();
 
+    // Search suggestions settings
+    searchSuggestionChoice = configGroup.readEntry("search_suggestions", "disabled");
+    searchSuggestions = searchSuggestionChoice != "disabled";
+    privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry("private_window_search_suggestions") == "true";
+    minimumLetterCount = configGroup.readEntry("minimum_letter_count", "3").toInt();
     maxSuggestionResults = configGroup.readEntry("max_search_suggestions", "10").toInt();
     bingMarket = configGroup.readEntry("bing_locale", "en-us");
     googleLocale = configGroup.readEntry("google_locale", "en");
     duckDuckGoLocale = configGroup.readEntry("duckduckgo_locale", "wt-wt");
-
-    searchSuggestionChoice = configGroup.readEntry("search_suggestions", "disabled");
-    searchSuggestions = searchSuggestionChoice != "disabled";
-    privateWindowSearchSuggestions = configGroup.readEntry("private_window_search_suggestions") == "true";
 
     // RequiredData is for all search providers required and does not need to be updated
     // outside of the reloadConfiguration method
@@ -69,6 +71,19 @@ void QuickWebShortcuts::reloadConfiguration() {
     requiredData.icon = currentIcon;
     requiredData.runner = this;
     requiredData.maxResults = maxSuggestionResults;
+
+    // Proxy settings
+    const QString proxyChoice = configGroup.readEntry("proxy", "disabled");
+    if (proxyChoice != "disabled") {
+        proxy = new QNetworkProxy();
+        if (proxyChoice == "http") proxy->setType(QNetworkProxy::HttpProxy);
+        else proxy->setType(QNetworkProxy::Socks5Proxy);
+        proxy->setHostName(configGroup.readEntry("proxy_hostname"));
+        proxy->setPort(configGroup.readEntry("proxy_port").toInt());
+        proxy->setUser(QByteArray::fromHex(configGroup.readEntry("proxy_username").toLocal8Bit()));
+        proxy->setPassword(QByteArray::fromHex(configGroup.readEntry("proxy_password").toLocal8Bit()));
+        requiredData.proxy = proxy;
+    }
 }
 
 void QuickWebShortcuts::matchSessionFinished() {
@@ -159,6 +174,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
             }
         }
     }
+
 }
 
 void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) {

@@ -25,6 +25,8 @@ public:
                QString browserLaunchCommand = "") : m_context(mContext), query(std::move(query)), language(std::move(language)),
                                                     browserLaunchCommand(std::move(browserLaunchCommand)), data(std::move(data)) {
         m_manager = new QNetworkAccessManager(this);
+        if (data.proxy != nullptr) m_manager->setProxy(*data.proxy);
+
         QUrlQuery queryParameters;
         queryParameters.addQueryItem("q", this->query);
 
@@ -47,7 +49,14 @@ public:
 public Q_SLOTS:
 
     void parseResponse(QNetworkReply *reply) {
-        if (!m_context.isValid()) {
+        if (reply->error() != QNetworkReply::NoError) {
+            QProcess::startDetached("notify-send", QStringList(
+                    {"-i", "globe", "QuickWebShortcuts ",
+                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
+                     reply->errorString()}));
+            emit finished();
+            return;
+        } else if (!m_context.isValid()) {
             emit finished();
             return;
         }

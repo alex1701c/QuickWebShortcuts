@@ -46,6 +46,18 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->bingLocaleSelectComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
     connect(m_ui->googleLanguageComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
     connect(m_ui->duckDuckGoLanguageComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
+    // Proxy Options
+    connect(m_ui->noProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->httpProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->socks5ProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->noProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyOptions()));
+    connect(m_ui->httpProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyOptions()));
+    connect(m_ui->socks5ProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyOptions()));
+    connect(m_ui->hostNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(m_ui->portLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(m_ui->usernameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(m_ui->passwordLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+
     // Clear History GroupBox
     connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
     connect(m_ui->deleteButton, SIGNAL(clicked(bool)), this, SLOT(deleteCurrentItem()));
@@ -108,6 +120,17 @@ void QuickWebShortcutsConfig::load() {
     m_ui->duckDuckGoLanguageComboBox->setCurrentIndex(m_ui->duckDuckGoLanguageComboBox->findData(
             config.readEntry("duckduckgo_locale", "wt-wt")));
     validateSearchSuggestions();
+
+    const QString proxy = config.readEntry("proxy");
+    if (proxy == "http") m_ui->httpProxyRadioButton->setChecked(true);
+    else if (proxy == "socks5") m_ui->socks5ProxyRadioButton->setChecked(true);
+    else m_ui->noProxyRadioButton->setChecked(true);
+
+    m_ui->hostNameLineEdit->setText(config.readEntry("proxy_hostname"));
+    m_ui->portLineEdit->setText(config.readEntry("proxy_port"));
+    m_ui->usernameLineEdit->setText(QString(QByteArray::fromHex(config.readEntry("proxy_username").toLocal8Bit())));
+    m_ui->passwordLineEdit->setText(QString(QByteArray::fromHex(config.readEntry("proxy_password").toLocal8Bit())));
+    validateProxyOptions();
 
     // Clear History settings
     QString historyOption = config.readEntry("clean_history", "all");
@@ -178,6 +201,19 @@ void QuickWebShortcutsConfig::save() {
     config.writeEntry("duckduckgo_locale", m_ui->duckDuckGoLanguageComboBox->itemData(
             m_ui->duckDuckGoLanguageComboBox->currentIndex()));
 
+    QString proxy;
+    if (m_ui->httpProxyRadioButton->isChecked()) proxy = "http";
+    else if (m_ui->socks5ProxyRadioButton->isChecked()) proxy = "socks5";
+    else proxy = "disabled";
+    config.writeEntry("proxy", proxy);
+
+    config.writeEntry("proxy_hostname", m_ui->hostNameLineEdit->text());
+    config.writeEntry("proxy_port", m_ui->portLineEdit->text());
+    config.writeEntry("proxy_username", m_ui->usernameLineEdit->text().toLatin1().toHex());
+    config.writeEntry("proxy_password", m_ui->passwordLineEdit->text().toLatin1().toHex());
+
+    config.writeEntry("duckduckgo_locale", m_ui->duckDuckGoLanguageComboBox->itemData(
+            m_ui->duckDuckGoLanguageComboBox->currentIndex()));
     QString history;
     if (m_ui->historyAll->isChecked()) {
         history = "all";
@@ -223,6 +259,7 @@ void QuickWebShortcutsConfig::defaults() {
     m_ui->searchEngines->setCurrentIndex(m_ui->searchEngines->findData("https://www.google.com/search?q="));
     m_ui->privateWindowCheckBox->setChecked(false);
     m_ui->disableRadioButton->setChecked(true);
+    m_ui->noProxyRadioButton->setChecked(true);
     m_ui->minimumLetterCountSpinBox->setValue(3);
     m_ui->bingLocaleSelectComboBox->setCurrentIndex(m_ui->bingLocaleSelectComboBox->findData("en-us"));
     m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData("en"));
@@ -562,6 +599,10 @@ void QuickWebShortcutsConfig::insertLocaleSelectData() {
     m_ui->duckDuckGoLanguageComboBox->addItem("United States", "us-en");
     m_ui->duckDuckGoLanguageComboBox->addItem("United States (es)", "us-es");
     m_ui->duckDuckGoLanguageComboBox->addItem("Vietnam", "vn-vi");
+}
+
+void QuickWebShortcutsConfig::validateProxyOptions() {
+    m_ui->proxyDataContainerWidget->setHidden(m_ui->noProxyRadioButton->isChecked());
 }
 
 #include "quick_web_shortcuts_config.moc"
