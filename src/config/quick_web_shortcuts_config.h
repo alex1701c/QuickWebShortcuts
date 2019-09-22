@@ -17,17 +17,23 @@ public:
 
 };
 
-class BrowserItem : public QWidget, public Ui::BrowserItemUi {
+class SearchEngineItem : public QWidget, public Ui::SearchEngineItemUi {
 Q_OBJECT
 
 public:
     QWidget *parentModule;
+    QString originalName, originalURL, originalIcon;
+    bool isDefault = false;
+    bool isEdited = false;
 
-    explicit BrowserItem(QWidget *parent, QWidget *parentModule);
+    explicit SearchEngineItem(QWidget *parent, QWidget *parentModule);
 
 public Q_SLOTS:
 
     void extractNameFromUrl();
+
+    void edited() { this->isEdited = true; }
+
 };
 
 class QuickWebShortcutsConfig : public KCModule {
@@ -51,8 +57,6 @@ public Q_SLOTS:
 
     void insertLocaleSelectData();
 
-    void enableEditingOfExisting();
-
     void addSearchEngine();
 
     void deleteCurrentItem();
@@ -64,6 +68,8 @@ public Q_SLOTS:
     void validateProxyConnection();
 
     void showProxyConnectionValidationResults(QNetworkReply *reply);
+
+    void itemSelected();
 
 private:
     QuickWebShortcutsConfigForm *m_ui;

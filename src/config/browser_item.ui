@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>%{AUTHOR}</author>
- <class>BrowserItemUi</class>
- <widget class="QWidget" name="BrowserItemUi">
+ <class>SearchEngineItemUi</class>
+ <widget class="QWidget" name="SearchEngineItemUi">
   <property name="geometry">
    <rect>
     <x>0</x>
