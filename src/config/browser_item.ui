@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <author>%{AUTHOR}</author>
+ <class>BrowserItemUi</class>
+ <widget class="QWidget" name="BrowserItemUi">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>669</width>
+    <height>580</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>300</width>
+    <height>0</height>
+   </size>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_5">
+   <property name="topMargin">
+    <number>1</number>
+   </property>
+   <property name="bottomMargin">
+    <number>1</number>
+   </property>
+   <item>
+    <widget class="QRadioButton" name="useRadioButton">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="iconPushButton">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="urlLineEdit">
+     <property name="placeholderText">
+      <string>Url...</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="nameLineEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="placeholderText">
+      <string>Name...</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="deletePushButton">
+     <property name="toolTip">
+      <string>Delete this regulular expression</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset theme="delete">
+       <normaloff>.</normaloff>.</iconset>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -7,12 +7,7 @@
 K_PLUGIN_FACTORY(QuickWebShortcutsConfigFactory,
                  registerPlugin<QuickWebShortcutsConfig>("kcm_krunner_quickwebshortcuts");)
 
-QuickWebShortcutsConfigForm::QuickWebShortcutsConfigForm(QWidget *parent) : QWidget(parent) {
-    setupUi(this);
-}
-
-QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariantList &args) :
-        KCModule(parent, args) {
+QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariantList &args) : KCModule(parent, args) {
     m_ui = new QuickWebShortcutsConfigForm(this);
     auto *layout = new QGridLayout(this);
     layout->addWidget(m_ui, 0, 0);
@@ -22,10 +17,6 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
 
 
     // Search Engine GroupBox
-    connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(comboBoxEditTextChanged()));
-    connect(m_ui->searchEngineName, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(m_ui->searchEngines, SIGNAL(currentTextChanged(QString)), this, SLOT(changed()));
     connect(m_ui->historyAll, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->historyQuick, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->historyNotClear, SIGNAL(clicked(bool)), this, SLOT(changed()));
@@ -60,36 +51,24 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->testProxyConfigPushButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyConnection()));
 
     // Clear History GroupBox
-    connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
-    connect(m_ui->deleteButton, SIGNAL(clicked(bool)), this, SLOT(deleteCurrentItem()));
-    connect(m_ui->searchEnginesEditable, SIGNAL(clicked(bool)), this, SLOT(enableEditingOfExisting()));
+    //connect(m_ui->searchEngineURL, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromURL()));
+    //  connect(m_ui->deleteButton, SIGNAL(clicked(bool)), this, SLOT(deleteCurrentItem()));
+//    connect(m_ui->searchEnginesEditable, SIGNAL(clicked(bool)), this, SLOT(enableEditingOfExisting()));
     connect(m_ui->addSearchEngine, SIGNAL(clicked(bool)), this, SLOT(addSearchEngine()));
 }
 
 void QuickWebShortcutsConfig::load() {
     // Load search engines
     for (const auto &item : SearchEngines::getDefaultSearchEngines().toStdMap()) {
-        m_ui->searchEngines->addItem(item.first, item.second);
-        if (icons.contains(item.first)) {
-            m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value(item.first));
-        } else {
-            m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value("globe"));
-        }
+        auto *browserItem = new BrowserItem(m_ui->groupBoxSearch, this);
+        m_ui->browserItemLayout->addWidget(browserItem);
+
+        browserItem->iconPushButton->setIcon(icons.value(item.first, icons.value("globe")));
+        browserItem->nameLineEdit->setText(item.first);
+        browserItem->urlLineEdit->setText(item.second);
+        browserItem->deletePushButton->setDisabled(true);
     }
-    for (const auto &item : SearchEngines::getCustomSearchEngines().toStdMap()) {
-        int duplicate = m_ui->searchEngines->findText(item.first);
-        if (duplicate != -1) {
-            m_ui->searchEngines->setItemText(duplicate, item.first);
-            m_ui->searchEngines->setItemData(duplicate, item.second);
-        } else {
-            m_ui->searchEngines->addItem(item.first, item.second);
-            if (icons.contains(item.first)) {
-                m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value(item.first));
-            } else {
-                m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value("globe"));
-            }
-        }
-    }
+    /*
     QString url = config.readEntry("url");
     if (url.isEmpty()) url = "https://www.google.com/search?q=";
     int current = m_ui->searchEngines->findData(url);
@@ -98,7 +77,7 @@ void QuickWebShortcutsConfig::load() {
     m_ui->deleteButton->setVisible(false);
     m_ui->showSearchEngineName->setChecked(config.readEntry("show_name", "false") == "true");
     m_ui->openURLS->setChecked(config.readEntry("open_urls", "true") == "true");
-
+*/
     // Search Suggestions settings
     const QString searchSuggestionOption = config.readEntry("search_suggestions", "disabled");
     if (searchSuggestionOption == "google") {
@@ -146,38 +125,27 @@ void QuickWebShortcutsConfig::load() {
 }
 
 
-void QuickWebShortcutsConfig::extractNameFromURL() {
-    if (m_ui->searchEngineURL->text().contains(QRegExp(R"(^(?:https?://)?(www\.)?(?:[\w-]+\.)(?:\.?[\w]{2,})+)"))) {
-        QRegExp exp(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)");
-        exp.indexIn(m_ui->searchEngineURL->text());
-        QString res = exp.capturedTexts().last();
-        res[0] = res[0].toUpper();
-        m_ui->searchEngineName->setText(res);
-        m_ui->searchEngineName->setEnabled(true);
-    }
-}
-
 void QuickWebShortcutsConfig::save() {
     // Save search engines
     // TODO Clean up this mess :-)
-    const int searchEnginesCount = m_ui->searchEngines->count();
-    for (int i = 0; i < searchEnginesCount; ++i) {
-        QString text = m_ui->searchEngines->itemText(i);
-        QString data = m_ui->searchEngines->itemData(i).toString();
+    /* const int searchEnginesCount = m_ui->searchEngines->count();
+     for (int i = 0; i < searchEnginesCount; ++i) {
+         QString text = m_ui->searchEngines->itemText(i);
+         QString data = m_ui->searchEngines->itemData(i).toString();
 
-        if (text.contains(": ")) {
-            auto split = text.split(": ");
-            data = split.last();
-            config.group("CustomSearchEngines").writeEntry(split.first(), split.last());
-            if (text == m_ui->searchEngines->currentText()) {
-                config.writeEntry("url", split.last());
-            }
-        } else {
-            if (text == m_ui->searchEngines->currentText()) {
-                config.writeEntry("url", data);
-            }
-        }
-    }
+         if (text.contains(": ")) {
+             auto split = text.split(": ");
+             data = split.last();
+             config.group("CustomSearchEngines").writeEntry(split.first(), split.last());
+             if (text == m_ui->searchEngines->currentText()) {
+                 config.writeEntry("url", split.last());
+             }
+         } else {
+             if (text == m_ui->searchEngines->currentText()) {
+                 config.writeEntry("url", data);
+             }
+         }
+     }*/
 
     QString searchSuggestionsOption;
     if (m_ui->googleRadioButton->isChecked()) {
@@ -227,6 +195,7 @@ void QuickWebShortcutsConfig::save() {
 
 void QuickWebShortcutsConfig::defaults() {
     m_ui->historyAll->setChecked(true);
+    /*
     while (m_ui->searchEngines->currentIndex() != -1) {
         m_ui->searchEngines->removeItem(m_ui->searchEngines->currentIndex());
     }
@@ -246,14 +215,14 @@ void QuickWebShortcutsConfig::defaults() {
     for (const auto &item : SearchEngines::getCustomSearchEngines().toStdMap()) {
         m_ui->searchEngines->addItem(item.first, item.second);
         m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value("globe"));
-    }
+    }*/
 
     m_ui->openURLS->setChecked(true);
     m_ui->showSearchEngineName->setChecked(false);
-    m_ui->deleteButton->setVisible(false);
-    m_ui->searchEnginesEditable->setChecked(false);
-    m_ui->searchEngines->setEditable(false);
-    m_ui->searchEngines->setCurrentIndex(m_ui->searchEngines->findData("https://www.google.com/search?q="));
+    //  m_ui->deleteButton->setVisible(false);
+    //m_ui->searchEnginesEditable->setChecked(false);
+    //  m_ui->searchEngines->setEditable(false);
+//    m_ui->searchEngines->setCurrentIndex(m_ui->searchEngines->findData("https://www.google.com/search?q="));
     m_ui->privateWindowCheckBox->setChecked(false);
     m_ui->disableRadioButton->setChecked(true);
     m_ui->noProxyRadioButton->setChecked(true);
@@ -267,6 +236,7 @@ void QuickWebShortcutsConfig::defaults() {
 }
 
 void QuickWebShortcutsConfig::enableEditingOfExisting() {
+    /*
     bool enabled = m_ui->searchEnginesEditable->isChecked();
     m_ui->deleteButton->setVisible(enabled);
     m_ui->searchEngines->setEditable(enabled);
@@ -284,47 +254,19 @@ void QuickWebShortcutsConfig::enableEditingOfExisting() {
                 }
             }
         }
-    }
+    }*/
 }
 
 void QuickWebShortcutsConfig::addSearchEngine() {
-    QString name = m_ui->searchEngineName->text();
-    QString url = m_ui->searchEngineURL->text();
-    if (!name.isEmpty() && !url.isEmpty()) {
-        config.group("CustomSearchEngines").writeEntry(name, url);
-        m_ui->searchEngineName->setText("");
-        m_ui->searchEngineURL->setText("");
-        if (!m_ui->searchEnginesEditable->isChecked()) {
-            m_ui->searchEngines->addItem(name, url);
-        } else {
-            m_ui->searchEngines->addItem(name + ": " + url, url);
-        }
-    }
-    m_ui->searchEngines->setItemIcon(m_ui->searchEngines->count() - 1, icons.value("globe"));
-}
-
-void QuickWebShortcutsConfig::comboBoxEditTextChanged() {
-    bool deletable = true;
-    for (const auto &key:SearchEngines::getDefaultSearchEngineNames()) {
-        if (m_ui->searchEngines->currentText().split(":").first() == key) {
-            deletable = false;
-            break;
-        }
-    }
-    m_ui->deleteButton->setEnabled(deletable);
-    m_ui->searchEngines->setItemText(m_ui->searchEngines->currentIndex(), m_ui->searchEngines->currentText());
+    auto *item = new BrowserItem(m_ui->groupBoxSearch, this);
+    m_ui->browserItemLayout->insertWidget(0, item);
+    item->iconPushButton->setIcon(icons.value("globe"));
 }
 
 void QuickWebShortcutsConfig::deleteCurrentItem() {
-    QString text = m_ui->searchEngines->currentText();
-    QString name = text;
-    if (text.contains(": ")) {
-        auto split = text.split(": ");
-        name = split.first().trimmed();
-    }
-
-    config.group("CustomSearchEngines").deleteEntry(name);
-    m_ui->searchEngines->removeItem(m_ui->searchEngines->currentIndex());
+    auto *item = reinterpret_cast<BrowserItem *>(this->sender()->parent());
+    m_ui->browserItemLayout->removeWidget(item);
+    item->deleteLater();
 }
 
 void QuickWebShortcutsConfig::validateSearchSuggestions() {
@@ -561,6 +503,28 @@ void QuickWebShortcutsConfig::showProxyConnectionValidationResults(QNetworkReply
         m_ui->proxyTestResultLabel->setText(
                 QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
                 reply->errorString());
+    }
+}
+
+BrowserItem::BrowserItem(QWidget *parent, QWidget *parentModule) : QWidget(parent) {
+    setupUi(this);
+    connect(this->useRadioButton, SIGNAL(clicked(bool)), parentModule, SLOT(changed()));
+    connect(this->urlLineEdit, SIGNAL(textChanged(QString)), parentModule, SLOT(changed()));
+    connect(this->nameLineEdit, SIGNAL(textChanged(QString)), parentModule, SLOT(changed()));
+    connect(this->iconPushButton, SIGNAL(clicked(bool)), parentModule, SLOT(changed()));
+    connect(this->deletePushButton, SIGNAL(clicked(bool)), parentModule, SLOT(changed()));
+    connect(this->deletePushButton, SIGNAL(clicked(bool)), parentModule, SLOT(deleteCurrentItem()));
+    connect(this->urlLineEdit, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromUrl()));
+}
+
+void BrowserItem::extractNameFromUrl() {
+    if (!this->nameLineEdit->text().isEmpty()) return;
+    if (this->urlLineEdit->text().contains(QRegExp(R"(^(?:https?://)?(www\.)?(?:[\w-]+\.)(?:\.?[\w]{2,})+)"))) {
+        QRegExp exp(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)");
+        exp.indexIn(this->urlLineEdit->text());
+        QString res = exp.capturedTexts().last();
+        res[0] = res[0].toUpper();
+        this->nameLineEdit->setText(res);
     }
 }
 

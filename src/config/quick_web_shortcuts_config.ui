@@ -27,9 +27,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-638</y>
+        <y>0</y>
         <width>633</width>
-        <height>1264</height>
+        <height>1044</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -48,106 +48,23 @@
           <enum>Qt::LeftToRight</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <widget class="QGroupBox" name="groupBoxSearch">
+          <item row="2" column="0">
+           <widget class="QGroupBox" name="groupBoxHistory">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="title">
-             <string>Search Engine</string>
+             <string>Clear History</string>
             </property>
-            <property name="flat">
+            <property name="checkable">
              <bool>false</bool>
             </property>
-            <layout class="QFormLayout" name="formLayout">
-             <item row="1" column="0" colspan="2">
-              <layout class="QVBoxLayout" name="verticalLayout_5">
-               <property name="topMargin">
-                <number>15</number>
-               </property>
-               <item>
-                <widget class="QCheckBox" name="showSearchEngineName">
-                 <property name="text">
-                  <string>Show Name Of Search Engine</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="openURLS">
-                 <property name="text">
-                  <string>Open URLs</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label">
-                 <property name="text">
-                  <string>Add A New Search Engine</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_2">
-                 <item>
-                  <widget class="QLabel" name="searchEngineURLLabel">
-                   <property name="text">
-                    <string>URL   </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="searchEngineURL">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="placeholderText">
-                    <string>E.g. https://duckduckgo.com/?q=</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout">
-                 <item>
-                  <widget class="QLabel" name="searchEngineNameLabel">
-                   <property name="text">
-                    <string>Name</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="searchEngineName">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QPushButton" name="addSearchEngine">
-                 <property name="text">
-                  <string>Add</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item row="0" column="0" colspan="2">
-              <layout class="QVBoxLayout" name="verticalLayout_3">
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <layout class="QVBoxLayout" name="verticalLayout_2">
                <property name="sizeConstraint">
                 <enum>QLayout::SetDefaultConstraint</enum>
                </property>
@@ -155,69 +72,23 @@
                 <number>15</number>
                </property>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_3">
-                 <item>
-                  <widget class="QLabel" name="searchEnginesLabel">
-                   <property name="text">
-                    <string>Select Search Engine  </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="searchEnginesEditable">
-                   <property name="text">
-                    <string>Edit Existing Options</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QComboBox" name="searchEngines">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
-                 </property>
-                 <property name="editable">
-                  <bool>false</bool>
-                 </property>
-                 <property name="insertPolicy">
-                  <enum>QComboBox::NoInsert</enum>
+                <widget class="QRadioButton" name="historyAll">
+                 <property name="text">
+                  <string>Clear all Web Shortcuts</string>
                  </property>
                 </widget>
                </item>
-               <item alignment="Qt::AlignLeft">
-                <widget class="QPushButton" name="deleteButton">
+               <item>
+                <widget class="QRadioButton" name="historyQuick">
                  <property name="text">
-                  <string>Delete Item</string>
+                  <string>Clear only Quick Web Shortcuts</string>
                  </property>
-                 <property name="icon">
-                  <iconset theme="delete">
-                   <normaloff>.</normaloff>.</iconset>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="historyNotClear">
+                 <property name="text">
+                  <string>Do not clear</string>
                  </property>
                 </widget>
                </item>
@@ -483,51 +354,55 @@
             </layout>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QGroupBox" name="groupBoxHistory">
+          <item row="0" column="0">
+           <widget class="QGroupBox" name="groupBoxSearch">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="title">
-             <string>Clear History</string>
+             <string>Search Engines</string>
             </property>
-            <property name="checkable">
+            <property name="flat">
              <bool>false</bool>
             </property>
-            <layout class="QGridLayout" name="gridLayout_3">
-             <item row="0" column="0">
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <property name="sizeConstraint">
-                <enum>QLayout::SetDefaultConstraint</enum>
-               </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_5">
                <property name="topMargin">
                 <number>15</number>
                </property>
                <item>
-                <widget class="QRadioButton" name="historyAll">
-                 <property name="text">
-                  <string>Clear all Web Shortcuts</string>
+                <layout class="QVBoxLayout" name="browserItemLayout">
+                 <property name="spacing">
+                  <number>0</number>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="historyQuick">
-                 <property name="text">
-                  <string>Clear only Quick Web Shortcuts</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="historyNotClear">
-                 <property name="text">
-                  <string>Do not clear</string>
-                 </property>
-                </widget>
+                </layout>
                </item>
               </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="addSearchEngine">
+               <property name="text">
+                <string>Add Custom Search Engine</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="showSearchEngineName">
+               <property name="text">
+                <string>Show Name Of Search Engine</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="openURLS">
+               <property name="text">
+                <string>Open URLs</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>

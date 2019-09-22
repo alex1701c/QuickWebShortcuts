@@ -3,6 +3,7 @@
 /.vscode
 /cmake-build-debug
 src/config/ui_quick_web_shortcuts_config.h
+src/config/ui_browser_item.h
 *.swap
 src/*.swap
 /src/CMakeFiles/
