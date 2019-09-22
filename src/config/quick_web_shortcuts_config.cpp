@@ -55,20 +55,32 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
 }
 
 void QuickWebShortcutsConfig::load() {
-    const QString searchEngineName = config.readEntry("search_engine_name", "Google");
+    QString searchEngineName = config.readEntry("search_engine_name");
+    auto searchEngineNames = SearchEngines::getDefaultSearchEngineNames();
+    if (searchEngineName.isEmpty()) searchEngineName = "Google";
     // Load search engines
-    for (const auto &item : SearchEngines::getDefaultSearchEngines().toStdMap()) {
+    for (const auto &item : SearchEngines::getAllSearchEngines()) {
         auto *browserItem = new SearchEngineItem(m_ui->groupBoxSearch, this);
         m_ui->searchEnginesItemLayout->addWidget(browserItem);
-
-        browserItem->iconPushButton->setIcon(icons.value(item.first, icons.value("globe")));
-        browserItem->nameLineEdit->setText(item.first);
-        browserItem->urlLineEdit->setText(item.second);
-        browserItem->deletePushButton->setDisabled(true);
-        browserItem->useRadioButton->setChecked(item.first == searchEngineName);
-        browserItem->originalName = item.first;
-        browserItem->isDefault = true;
+        browserItem->iconPushButton->setIcon(item.qIcon);
+        browserItem->nameLineEdit->setText(item.name);
+        browserItem->urlLineEdit->setText(item.url);
+        browserItem->useRadioButton->setChecked(item.name == searchEngineName);
+        browserItem->isDefault = item.isDefault;
         browserItem->isEdited = false;
+        browserItem->icon = item.icon;
+        qInfo() << item.icon;
+        browserItem->iconPushButton->setIcon(item.icon.startsWith("/") ? QIcon(item.icon) : QIcon::fromTheme(item.icon));
+        if (item.isDefault) {
+            browserItem->originalName = item.name;
+            browserItem->originalURL = item.url;
+            browserItem->originalIcon = item.icon;
+        } else {
+            browserItem->originalName = item.originalName;
+            browserItem->originalURL = item.originalURL;
+            browserItem->originalIcon = item.originalIcon;
+        }
+        browserItem->deletePushButton->setDisabled(item.isDefault || searchEngineNames.contains(item.originalName));
     }
     m_ui->showSearchEngineName->setChecked(config.readEntry("show_name", "false") == "true");
     m_ui->openURLS->setChecked(config.readEntry("open_urls", "true") == "true");
@@ -128,11 +140,13 @@ void QuickWebShortcutsConfig::save() {
         config.group(groupName).deleteGroup();
     }
     // Write items to config
+    QString selected;
     for (int i = 0; i < itemCount; ++i) {
         auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
-        if (item->isDefault && !item->isEdited) continue;
 
         const QString itemName = item->nameLineEdit->text();
+        if (item->useRadioButton->isChecked()) selected = itemName;
+        if (item->isDefault && !item->isEdited) continue;
         const QString itemUrl = item->urlLineEdit->text();
 
         if (itemName.isEmpty() || itemUrl.isEmpty()) continue;
@@ -140,13 +154,14 @@ void QuickWebShortcutsConfig::save() {
         auto itemConfig = config.group("SearchEngine-" + itemName);
         itemConfig.writeEntry("name", itemName);
         itemConfig.writeEntry("url", itemUrl);
-        itemConfig.writeEntry("icon", item->iconPushButton->icon().name());
-        if (!item->originalName.isEmpty() && item->originalName != itemName) {
+        itemConfig.writeEntry("icon", item->icon);
+        if (item->isDefault || item->originalName != itemName) {
             itemConfig.writeEntry("original_name", item->originalName);
             itemConfig.writeEntry("original_url", item->originalURL);
             itemConfig.writeEntry("original_icon", item->originalIcon);
         }
     }
+    config.writeEntry("search_engine_name", selected);
 
     QString searchSuggestionsOption;
     if (m_ui->googleRadioButton->isChecked()) {

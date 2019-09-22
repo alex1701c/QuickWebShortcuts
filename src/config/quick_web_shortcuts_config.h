@@ -22,7 +22,7 @@ Q_OBJECT
 
 public:
     QWidget *parentModule;
-    QString originalName, originalURL, originalIcon;
+    QString originalName, originalURL, originalIcon, icon;
     bool isDefault = false;
     bool isEdited = false;
 
