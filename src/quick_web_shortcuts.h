@@ -14,9 +14,9 @@ public:
     void reloadConfiguration() override;
 
     KConfigGroup configGroup;
-    bool openUrls, searchSuggestions, privateWindowSearchSuggestions, showNetworkErrors;
+    bool openUrls, searchSuggestions, privateWindowSearchSuggestions;
     int minimumLetterCount, maxSuggestionResults;
-    QString privateBrowser, privateBrowserMode, searchEngine, searchEngineBaseUrl, searchEngineDisplayName, searchSuggestionChoice;
+    QString privateBrowser, privateBrowserMode, searchEngineBaseUrl, searchOptionTemplate, searchSuggestionChoice;
     QString bingMarket, googleLocale;
     QIcon currentIcon;
     QMap<QString, QIcon> icons;

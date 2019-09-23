@@ -23,6 +23,9 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     // Search Engines
     connect(m_ui->openURLS, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->showSearchEngineName, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->showPrivateNoteCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->showSearchForCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->showSearchForCheckBox, SIGNAL(clicked(bool)), this, SLOT(showSearchForClicked()));
     connect(m_ui->addSearchEngine, SIGNAL(clicked(bool)), this, SLOT(addSearchEngine()));
     // Search Suggestions GroupBox
     connect(m_ui->googleRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
@@ -69,7 +72,6 @@ void QuickWebShortcutsConfig::load() {
         browserItem->isDefault = item.isDefault;
         browserItem->isEdited = false;
         browserItem->icon = item.icon;
-        qInfo() << item.icon;
         browserItem->iconPushButton->setIcon(item.icon.startsWith("/") ? QIcon(item.icon) : QIcon::fromTheme(item.icon));
         if (item.isDefault) {
             browserItem->originalName = item.name;
@@ -82,8 +84,11 @@ void QuickWebShortcutsConfig::load() {
         }
         browserItem->deletePushButton->setDisabled(item.isDefault || searchEngineNames.contains(item.originalName));
     }
-    m_ui->showSearchEngineName->setChecked(config.readEntry("show_name", "false") == "true");
+    m_ui->showSearchEngineName->setChecked(config.readEntry("show_name") == "true");
     m_ui->openURLS->setChecked(config.readEntry("open_urls", "true") == "true");
+    m_ui->showSearchForCheckBox->setChecked(config.readEntry("show_search_for_note", "true") == "true");
+    m_ui->showPrivateNoteCheckBox->setChecked(config.readEntry("show_private_window_note", "true") == "true");
+    showSearchForClicked();
 
     // Search Suggestions settings
     const QString searchSuggestionOption = config.readEntry("search_suggestions", "disabled");
@@ -204,8 +209,10 @@ void QuickWebShortcutsConfig::save() {
         history = "false";
     }
     config.writeEntry("clean_history", history);
-    config.writeEntry("show_name", m_ui->showSearchEngineName->isChecked() ? "true" : "false");
-    config.writeEntry("open_urls", m_ui->openURLS->isChecked() ? "true" : "false");
+    config.writeEntry("show_name", m_ui->showSearchEngineName->isChecked());
+    config.writeEntry("open_urls", m_ui->openURLS->isChecked());
+    config.writeEntry("show_search_for_note", m_ui->showSearchForCheckBox->isChecked());
+    config.writeEntry("show_private_window_note", m_ui->showPrivateNoteCheckBox->isChecked());
     emit changed(false);
 }
 
@@ -216,8 +223,10 @@ void QuickWebShortcutsConfig::defaults() {
         auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
         item->useRadioButton->setChecked(item->originalName == "Google");
     }
-    m_ui->openURLS->setChecked(true);
     m_ui->showSearchEngineName->setChecked(false);
+    m_ui->showPrivateNoteCheckBox->setChecked(true);
+    m_ui->showSearchForCheckBox->setChecked(true);
+    m_ui->openURLS->setChecked(true);
     m_ui->privateWindowCheckBox->setChecked(false);
     m_ui->disableRadioButton->setChecked(true);
     m_ui->noProxyRadioButton->setChecked(true);
@@ -226,6 +235,7 @@ void QuickWebShortcutsConfig::defaults() {
     m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData("en"));
     m_ui->showErrorsCheckBox->setChecked(true);
 
+    showSearchForClicked();
     validateSearchSuggestions();
     emit changed(true);
 }
@@ -499,6 +509,10 @@ void QuickWebShortcutsConfig::itemSelected() {
         // The same item was clicked => it has to be selected, otherwise no item is checked
         sourceItem->useRadioButton->setChecked(true);
     }
+}
+
+void QuickWebShortcutsConfig::showSearchForClicked() {
+    m_ui->showSearchEngineName->setDisabled(!m_ui->showSearchForCheckBox->isChecked());
 }
 
 SearchEngineItem::SearchEngineItem(QWidget *parent, QWidget *parentModule) : QWidget(parent), parentModule(parentModule) {

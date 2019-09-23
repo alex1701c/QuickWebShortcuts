@@ -29,7 +29,7 @@
         <x>0</x>
         <y>0</y>
         <width>633</width>
-        <height>1044</height>
+        <height>1100</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -394,6 +394,20 @@
               <widget class="QCheckBox" name="showSearchEngineName">
                <property name="text">
                 <string>Show Name Of Search Engine</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="showPrivateNoteCheckBox">
+               <property name="text">
+                <string>Show Private/Incognito Note</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="showSearchForCheckBox">
+               <property name="text">
+                <string>Show &quot;Search for: &quot; Note</string>
                </property>
               </widget>
              </item>

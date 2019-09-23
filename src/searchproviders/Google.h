@@ -78,7 +78,7 @@ public Q_SLOTS:
                 const QString &suggestion = suggestions.at(i);
                 Plasma::QueryMatch match(data.runner);
                 match.setIcon(data.icon);
-                match.setText("Search for " + suggestion);
+                match.setText(data.optionTextTemplate.arg(suggestion));
                 match.setRelevance((float) (19 - i) / 20);
 
                 QMap<QString, QVariant> runData;

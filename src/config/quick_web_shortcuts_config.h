@@ -71,6 +71,8 @@ public Q_SLOTS:
 
     void itemSelected();
 
+    void showSearchForClicked();
+
 private:
     QuickWebShortcutsConfigForm *m_ui;
 };

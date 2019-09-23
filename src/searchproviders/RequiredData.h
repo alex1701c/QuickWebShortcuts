@@ -11,6 +11,7 @@ public:
     QIcon icon;
     int maxResults;
     bool showNetworkErrors = true;
+    QString optionTextTemplate;
 };
 
 #endif //QUICKWEBSHORTCUTS_REQUIREDDATA_H

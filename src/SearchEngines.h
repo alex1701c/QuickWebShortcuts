@@ -87,6 +87,7 @@ public:
                 engine.originalName = config.readEntry("original_name");
                 engine.originalURL = config.readEntry("original_url");
                 engine.originalIcon = config.readEntry("original_icon");
+                engine.isDefaultBased = true;
                 defaultEngines.remove(engine.originalName);
             }
             searchEngines.append(engine);
@@ -98,6 +99,7 @@ public:
             engine.icon = iconNames.value(item.first);
             engine.qIcon = engine.icon.startsWith("/") ? QIcon(engine.icon) : QIcon::fromTheme(engine.icon);
             engine.isDefault = true;
+            engine.isDefaultBased = true;
             searchEngines.append(engine);
         }
         return searchEngines;

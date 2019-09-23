@@ -12,6 +12,7 @@ public:
     QString originalIcon;
     QIcon qIcon;
     bool isDefault = false;
+    bool isDefaultBased = false;
 };
 
 

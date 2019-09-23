@@ -42,6 +42,7 @@ void QuickWebShortcuts::reloadConfiguration() {
     SearchEngines::getCustomSearchEngines(searchEngines);
     searchEngineBaseUrl = configGroup.readEntry("url");
     if (searchEngineBaseUrl.isEmpty()) searchEngineBaseUrl = "https://www.google.com/search?q=";
+    QString searchEngine;
     for (auto &key:searchEngines.keys()) {
         if (searchEngines.value(key) == searchEngineBaseUrl) {
             searchEngine = key;
@@ -52,8 +53,18 @@ void QuickWebShortcuts::reloadConfiguration() {
     // Load general settings
     if (currentIcon.isNull()) currentIcon = QIcon::fromTheme("globe");
     openUrls = configGroup.readEntry("open_urls", "true") == "true";
-    searchEngineDisplayName = configGroup.readEntry("show_name", "false") == "true" ? " " + searchEngine : "";
-    privateBrowserMode = privateBrowser.contains("private") ? "private window" : "incognito mode";
+    if (configGroup.readEntry("show_search_for_note") == "false") {
+        searchOptionTemplate = "%1";
+    } else if (configGroup.readEntry("show_name") == "true") {
+        searchOptionTemplate = "Search " + searchEngine + " for %1";
+    } else {
+        searchOptionTemplate = "Search for %1";
+    }
+    if (configGroup.readEntry("private_window_note", "true") == "true") {
+        privateBrowserMode = privateBrowser.contains("private") ? " in private window" : " in incognito mode";
+    } else {
+        privateBrowserMode = "";
+    }
 
     // Search suggestions settings
     searchSuggestionChoice = configGroup.readEntry("search_suggestions", "disabled");
@@ -70,6 +81,7 @@ void QuickWebShortcuts::reloadConfiguration() {
     requiredData.icon = currentIcon;
     requiredData.runner = this;
     requiredData.maxResults = maxSuggestionResults;
+    requiredData.optionTextTemplate = searchOptionTemplate;
 
     // Proxy settings
     const QString proxyChoice = configGroup.readEntry("proxy", "disabled");
@@ -136,8 +148,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         data.insert("browser", privateBrowser);
         QString url = searchEngineBaseUrl + QUrl::toPercentEncoding(term);
         data.insert("url", url);
-        QString text = "Search" + searchEngineDisplayName + " for " + term + " in " + privateBrowserMode;
-        context.addMatch(createMatch(text, data));
+        context.addMatch(createMatch(searchOptionTemplate.arg(term) + privateBrowserMode, data));
         if (searchSuggestions && privateWindowSearchSuggestions) {
             if (term.size() < minimumLetterCount) return;
             if (searchSuggestionChoice == "bing") {
@@ -150,9 +161,8 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         }
     } else if (term.startsWith(':')) {
         term = term.mid(1);
-        QString text = "Search" + searchEngineDisplayName + " for " + term;
         data.insert("url", searchEngineBaseUrl + QUrl::toPercentEncoding(term));
-        context.addMatch(createMatch(text, data));
+        context.addMatch(createMatch(searchOptionTemplate.arg(term), data));
         if (searchSuggestions) {
             if (term.size() < minimumLetterCount) return;
             if (searchSuggestionChoice == "bing") {
