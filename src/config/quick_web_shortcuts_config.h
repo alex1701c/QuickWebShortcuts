@@ -25,6 +25,7 @@ public:
     QString originalName, originalURL, originalIcon, icon;
     bool isDefault = false;
     bool isEdited = false;
+    bool isDefaultBased = false;
 
     explicit SearchEngineItem(QWidget *parent, QWidget *parentModule);
 
@@ -34,6 +35,7 @@ public Q_SLOTS:
 
     void edited() { this->isEdited = true; }
 
+    void iconPicker();
 };
 
 class QuickWebShortcutsConfig : public KCModule {
@@ -43,8 +45,6 @@ public:
     explicit QuickWebShortcutsConfig(QWidget *parent = nullptr, const QVariantList &args = QVariantList());
 
     KConfigGroup config;
-
-    QMap<QString, QIcon> icons;
     QTime timeBeforeRequest;
 
 public Q_SLOTS:

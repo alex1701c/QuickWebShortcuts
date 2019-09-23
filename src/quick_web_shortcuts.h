@@ -4,6 +4,7 @@
 #include <KRunner/AbstractRunner>
 #include <searchproviders/RequiredData.h>
 #include <QtNetwork/QNetworkAccessManager>
+#include "SearchEngine.h"
 
 class QuickWebShortcuts : public Plasma::AbstractRunner {
 Q_OBJECT
@@ -16,16 +17,16 @@ public:
     KConfigGroup configGroup;
     bool openUrls, searchSuggestions, privateWindowSearchSuggestions;
     int minimumLetterCount, maxSuggestionResults;
-    QString privateBrowser, privateBrowserMode, searchEngineBaseUrl, searchOptionTemplate, searchSuggestionChoice;
+    QString privateBrowser, privateBrowserMode, searchOptionTemplate, searchSuggestionChoice;
     QString bingMarket, googleLocale;
-    QIcon currentIcon;
-    QMap<QString, QIcon> icons;
+    QIcon globeIcon;
     QNetworkProxy *proxy;
+    SearchEngine currentSearchEngine;
 
     RequiredData requiredData;
     QMap<QString, QString> searchEngines;
 
-    Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, const QString &icon = "");
+    Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, bool useGlobe = false);
 
     void bingSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
 

@@ -3,6 +3,7 @@
 #include <KSharedConfig>
 #include <KPluginFactory>
 #include <QtDebug>
+#include <QtWidgets/QFileDialog>
 
 K_PLUGIN_FACTORY(QuickWebShortcutsConfigFactory,
                  registerPlugin<QuickWebShortcutsConfig>("kcm_krunner_quickwebshortcuts");)
@@ -13,8 +14,6 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     layout->addWidget(m_ui, 0, 0);
 
     config = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
-    icons = SearchEngines::getIcons();
-
 
     // History GroupBox
     connect(m_ui->historyAll, SIGNAL(clicked(bool)), this, SLOT(changed()));
@@ -70,6 +69,7 @@ void QuickWebShortcutsConfig::load() {
         browserItem->urlLineEdit->setText(item.url);
         browserItem->useRadioButton->setChecked(item.name == searchEngineName);
         browserItem->isDefault = item.isDefault;
+        browserItem->isDefaultBased = item.isDefaultBased;
         browserItem->isEdited = false;
         browserItem->icon = item.icon;
         browserItem->iconPushButton->setIcon(item.icon.startsWith("/") ? QIcon(item.icon) : QIcon::fromTheme(item.icon));
@@ -77,7 +77,7 @@ void QuickWebShortcutsConfig::load() {
             browserItem->originalName = item.name;
             browserItem->originalURL = item.url;
             browserItem->originalIcon = item.icon;
-        } else {
+        } else if (item.isDefaultBased) {
             browserItem->originalName = item.originalName;
             browserItem->originalURL = item.originalURL;
             browserItem->originalIcon = item.originalIcon;
@@ -160,10 +160,9 @@ void QuickWebShortcutsConfig::save() {
         itemConfig.writeEntry("name", itemName);
         itemConfig.writeEntry("url", itemUrl);
         itemConfig.writeEntry("icon", item->icon);
-        if (item->isDefault || item->originalName != itemName) {
+        // For reference to original state (reset using defaults button)
+        if (item->isDefault || item->isDefaultBased) {
             itemConfig.writeEntry("original_name", item->originalName);
-            itemConfig.writeEntry("original_url", item->originalURL);
-            itemConfig.writeEntry("original_icon", item->originalIcon);
         }
     }
     config.writeEntry("search_engine_name", selected);
@@ -243,7 +242,7 @@ void QuickWebShortcutsConfig::defaults() {
 void QuickWebShortcutsConfig::addSearchEngine() {
     auto *item = new SearchEngineItem(m_ui->groupBoxSearch, this);
     m_ui->searchEnginesItemLayout->insertWidget(0, item);
-    item->iconPushButton->setIcon(icons.value("globe"));
+    item->iconPushButton->setIcon(QIcon::fromTheme("globe"));
 }
 
 void QuickWebShortcutsConfig::deleteCurrentItem() {
@@ -522,10 +521,12 @@ SearchEngineItem::SearchEngineItem(QWidget *parent, QWidget *parentModule) : QWi
     connect(this->urlLineEdit, SIGNAL(textChanged(QString)), parentModule, SLOT(changed()));
     connect(this->nameLineEdit, SIGNAL(textChanged(QString)), parentModule, SLOT(changed()));
     connect(this->iconPushButton, SIGNAL(clicked(bool)), parentModule, SLOT(changed()));
+    connect(this->deletePushButton, SIGNAL(clicked(bool)), parentModule, SLOT(changed()));
     connect(this->urlLineEdit, SIGNAL(textChanged(QString)), this, SLOT(edited()));
     connect(this->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(edited()));
     connect(this->iconPushButton, SIGNAL(clicked(bool)), this, SLOT(edited()));
-    connect(this->deletePushButton, SIGNAL(clicked(bool)), parentModule, SLOT(changed()));
+    connect(this->iconPushButton, SIGNAL(clicked(bool)), this, SLOT(edited()));
+    connect(this->iconPushButton, SIGNAL(clicked(bool)), this, SLOT(iconPicker()));
     connect(this->deletePushButton, SIGNAL(clicked(bool)), parentModule, SLOT(deleteCurrentItem()));
     connect(this->urlLineEdit, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromUrl()));
 }
@@ -539,6 +540,18 @@ void SearchEngineItem::extractNameFromUrl() {
         res[0] = res[0].toUpper();
         this->nameLineEdit->setText(res);
     }
+}
+
+void SearchEngineItem::iconPicker() {
+    QString iconPath = QFileDialog::getOpenFileName(this, tr("Select Icon"), "",
+                                                    tr("Images (.*.jpg *.jpeg *.png *.ico *.svg *.svgz)"));
+    if (!iconPath.isEmpty()) {
+        this->originalIcon = this->icon;
+        this->icon = iconPath;
+        this->iconPushButton->setIcon(QIcon(this->icon));
+    }
+    this->iconPushButton->clearFocus();
+
 }
 
 #include "quick_web_shortcuts_config.moc"

@@ -79,7 +79,7 @@ public Q_SLOTS:
                         }
                         Plasma::QueryMatch match(data.runner);
                         match.setIcon(data.icon);
-                        match.setText(data.optionTextTemplate.arg(suggestion));
+                        match.setText(data.searchOptionTemplate.arg(suggestion));
                         match.setRelevance((float) (19 - i) / 20);
 
                         QMap<QString, QVariant> runData;
