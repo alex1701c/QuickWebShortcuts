@@ -220,7 +220,21 @@ void QuickWebShortcutsConfig::defaults() {
     const int itemCount = m_ui->searchEnginesItemLayout->count();
     for (int i = 0; i < itemCount; ++i) {
         auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
-        item->useRadioButton->setChecked(item->originalName == "Google");
+
+        if (item->isDefaultBased) {
+            if ((item->isDefault && item->isEdited) || (!item->isDefault && item->isDefaultBased)) {
+                item->nameLineEdit->setText(item->originalName);
+                item->urlLineEdit->setText(item->originalURL);
+                item->iconPushButton->setIcon(item->originalIcon.startsWith("/")
+                                              ? QIcon(item->originalIcon) : QIcon::fromTheme(item->originalIcon));
+                item->isEdited = false;
+            }
+            item->useRadioButton->setChecked(item->originalName == "Google");
+        } else {
+            item->useRadioButton->setChecked(false);
+            continue;
+        }
+
     }
     m_ui->showSearchEngineName->setChecked(false);
     m_ui->showPrivateNoteCheckBox->setChecked(true);
@@ -236,6 +250,7 @@ void QuickWebShortcutsConfig::defaults() {
 
     showSearchForClicked();
     validateSearchSuggestions();
+    validateProxyOptions();
     emit changed(true);
 }
 
