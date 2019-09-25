@@ -19,12 +19,12 @@ public:
     int minimumLetterCount, maxSuggestionResults;
     QString privateBrowser, privateBrowserMode, searchOptionTemplate, searchSuggestionChoice;
     QString bingMarket, googleLocale;
-    QIcon globeIcon;
+    const QIcon globeIcon = QIcon::fromTheme("globe");
     QNetworkProxy *proxy;
     SearchEngine currentSearchEngine;
+    const QRegExp urlRegex = QRegExp(R"(^.*\.[a-z]{2,5}$)");
 
     RequiredData requiredData;
-    QMap<QString, QString> searchEngines;
 
     Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, bool useGlobe = false);
 

@@ -20,13 +20,14 @@ The master branch (default) is recommended for most users.
 ### Build Instructions
 
 Required Dependencies on Debian/Ubuntu:  
-`sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext`
+`sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext libnotify-bin`
 
 openSUSE  
-`sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel kservice-devel krunner-devel gettext-tools`  
+`sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel
+ kservice-devel krunner-devel gettext-tools libnotify-tools`  
 
 Fedora  
-`sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext`  
+`sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext libnotify`  
 
 
 The easiest way to install is:  
@@ -82,6 +83,9 @@ DuckDuckGo website, because of that this option is not as fast as the others. Un
 Additionally you can enable suggestions for private/incognito searches.  
 To protect your privacy you can configure a proxy. This configuration can be tested by clicking the "Test Proxy Configuration"
 button. For this the plugin is sending a request to https://ifconfig.me/ip.  
+Note: If your internet connection is very slow and you have search suggestions configured 
+the plugin shows sometimes no matches, in this case yu can just add
+a space to the query so that the match method is called again.  
 ![Configure search suggestions](https://raw.githubusercontent.com/alex1701c/Screenshots/master/QuickWebShortcuts/config_dialog_search_suggestions_section.png)
 
 #### Configure history clearing  

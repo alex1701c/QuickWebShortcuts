@@ -46,7 +46,6 @@ void QuickWebShortcuts::reloadConfiguration() {
     }
 
     // Load general settings
-    globeIcon = QIcon::fromTheme("globe");
     openUrls = configGroup.readEntry("open_urls", "true") == "true";
     if (configGroup.readEntry("show_search_for_note") == "false") {
         searchOptionTemplate = "%1";
@@ -135,7 +134,6 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     // Remove escape character
     QString term = QString(context.query()).replace(QString::fromWCharArray(L"\u001B"), " ");
 
-    QList<Plasma::QueryMatch> matches;
     QMap<QString, QVariant> data;
 
     if (term.startsWith("::")) {
@@ -168,7 +166,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
                 duckDuckGoSearchSuggest(context, term);
             }
         }
-    } else if (openUrls && term.contains(QRegExp(R"(^.*\.[a-z]{2,5}$)"))) {
+    } else if (openUrls && term.contains(urlRegex)) {
         QString text = "Go To  " + term;
         data.insert("url", !term.startsWith("http") ? "http://" + term : term);
         context.addMatch(createMatch(text, data, true));
