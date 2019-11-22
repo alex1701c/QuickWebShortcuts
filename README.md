@@ -84,7 +84,7 @@ Additionally you can enable suggestions for private/incognito searches.
 To protect your privacy you can configure a proxy. This configuration can be tested by clicking the "Test Proxy Configuration"
 button. For this the plugin is sending a request to https://ifconfig.me/ip.  
 Note: If your internet connection is very slow and you have search suggestions configured 
-the plugin shows sometimes no matches, in this case yu can just add
+the plugin shows sometimes no matches, in this case you can just add
 a space to the query so that the match method is called again.  
 ![Configure search suggestions](https://raw.githubusercontent.com/alex1701c/Screenshots/master/QuickWebShortcuts/config_dialog_search_suggestions_section.png)
 
