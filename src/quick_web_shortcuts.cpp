@@ -44,6 +44,14 @@ void QuickWebShortcuts::reloadConfiguration() {
             break;
         }
     }
+    // If the config is empty or malformed
+    if (currentSearchEngine.url.isEmpty()) {
+        SearchEngine defaultEngine;
+        defaultEngine.qIcon = QIcon("/usr/share/icons/google.svg");
+        defaultEngine.name = "Google";
+        defaultEngine.url = "https://www.google.com/search?q=";
+        currentSearchEngine = defaultEngine;
+    }
 
     // Load general settings
     openUrls = configGroup.readEntry("open_urls", "true") == "true";
