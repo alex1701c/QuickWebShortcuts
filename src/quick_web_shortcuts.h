@@ -14,15 +14,21 @@ public:
 
     void reloadConfiguration() override;
 
+    // General variables
     KConfigGroup configGroup;
-    bool openUrls, searchSuggestions, privateWindowSearchSuggestions;
-    int minimumLetterCount, maxSuggestionResults;
-    QString privateBrowser, privateBrowserMode, searchOptionTemplate, searchSuggestionChoice;
-    QString bingMarket, googleLocale;
-    const QIcon globeIcon = QIcon::fromTheme("globe");
-    QNetworkProxy *proxy;
     SearchEngine currentSearchEngine;
     const QRegExp urlRegex = QRegExp(R"(^.*\.[a-z]{2,5}$)");
+    QString privateBrowser, privateBrowserMode, searchOptionTemplate, searchSuggestionChoice, triggerCharacter, privateWindowTrigger;
+    bool openUrls;
+    // Search suggestion variables
+    bool searchSuggestions, privateWindowSearchSuggestions;
+    int minimumLetterCount, maxSuggestionResults;
+    QString bingMarket, googleLocale;
+    // Fallback Icon
+    const QIcon globeIcon = QIcon::fromTheme("globe");
+    // History cleaning config variables
+    bool cleanAll, cleanQuick, cleanNone;
+    bool wasActive = false;
 
     RequiredData requiredData;
 

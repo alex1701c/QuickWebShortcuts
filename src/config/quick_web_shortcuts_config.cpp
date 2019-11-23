@@ -26,6 +26,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->showSearchForCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->showSearchForCheckBox, SIGNAL(clicked(bool)), this, SLOT(showSearchForClicked()));
     connect(m_ui->addSearchEngine, SIGNAL(clicked(bool)), this, SLOT(addSearchEngine()));
+    connect(m_ui->triggerCharacterComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
     // Search Suggestions GroupBox
     connect(m_ui->googleRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->googleRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateSearchSuggestions()));
@@ -88,6 +89,7 @@ void QuickWebShortcutsConfig::load() {
     m_ui->openURLS->setChecked(config.readEntry("open_urls", "true") == "true");
     m_ui->showSearchForCheckBox->setChecked(config.readEntry("show_search_for_note", "true") == "true");
     m_ui->showPrivateNoteCheckBox->setChecked(config.readEntry("show_private_window_note", "true") == "true");
+    m_ui->triggerCharacterComboBox->setCurrentText(config.readEntry("trigger_character", ":"));
     showSearchForClicked();
 
     // Search Suggestions settings
@@ -125,7 +127,7 @@ void QuickWebShortcutsConfig::load() {
     validateProxyOptions();
 
     // Clear History settings
-    QString historyOption = config.readEntry("clean_history", "all");
+    QString historyOption = config.readEntry("clean_history", "quick");
     if (historyOption == "all") {
         m_ui->historyAll->setChecked(true);
     } else if (historyOption == "quick") {
@@ -212,6 +214,7 @@ void QuickWebShortcutsConfig::save() {
     config.writeEntry("open_urls", m_ui->openURLS->isChecked());
     config.writeEntry("show_search_for_note", m_ui->showSearchForCheckBox->isChecked());
     config.writeEntry("show_private_window_note", m_ui->showPrivateNoteCheckBox->isChecked());
+    config.writeEntry("trigger_character", m_ui->triggerCharacterComboBox->currentText());
     emit changed(false);
 }
 
@@ -246,7 +249,7 @@ void QuickWebShortcutsConfig::defaults() {
     m_ui->minimumLetterCountSpinBox->setValue(3);
     m_ui->bingLocaleSelectComboBox->setCurrentIndex(m_ui->bingLocaleSelectComboBox->findData("en-us"));
     m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData("en"));
-    m_ui->showErrorsCheckBox->setChecked(true);
+    m_ui->triggerCharacterComboBox->setCurrentText(":");
 
     showSearchForClicked();
     validateSearchSuggestions();

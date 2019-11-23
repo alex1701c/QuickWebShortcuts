@@ -13,9 +13,8 @@ This feature gets activated by typing "::example query".
 It has been tested with Firefox, Chromium, Google Chrome and Epiphany.
 But you have to manually select one of these as your default browser, otherwise Firefox is used as default.
 
-This project also has a minimal branch, which is smaller and more efficient but it has no config dialog.
-Because of that the settings have to be configured in the src/Config.h file. After changing the settings you have to recompile the project.   
-The master branch (default) is recommended for most users.
+Furthermore you can customize the letter that is used to trigger the plugin in the config,
+for instance you can use '!', '?', "#" or '<'.
 
 ### Build Instructions
 
@@ -71,8 +70,11 @@ With the next three checkboxes the text in the Krunner matches is configured:
 The first option adds the name of the search engine to the match text, for instance "Search Google for test".  
 The second appends " in private window" / " in incognito window", for instance "::test" would show up as "Search for test in private window"
 (if Firefox is your default browser).  
-The last one prepends "Search for" to the text. If you just want the query and optionally the private/incognito
+The next one prepends "Search for" to the text. If you just want the query and optionally the private/incognito
 mode note to be shown this option can be unchecked.  
+The open urls feature allows you to open simple links, for instance 'github.com'.
+The last option allows you to use a different character that triggers the plugin. By default ':' is used
+but this might interfere with other plugins you use.
 ![Configure search engines](https://raw.githubusercontent.com/alex1701c/Screenshots/master/QuickWebShortcuts/config_dialog_search_engines_section.png)
 
 #### Configure suggestions

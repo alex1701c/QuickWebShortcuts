@@ -67,6 +67,9 @@ void QuickWebShortcuts::reloadConfiguration() {
     } else {
         privateBrowserMode = "";
     }
+    triggerCharacter = configGroup.readEntry("trigger_character");
+    if (triggerCharacter.isEmpty()) triggerCharacter = ":";
+    privateWindowTrigger = triggerCharacter + triggerCharacter;
 
     // Search suggestions settings
     searchSuggestionChoice = configGroup.readEntry("search_suggestions", "disabled");
@@ -88,7 +91,7 @@ void QuickWebShortcuts::reloadConfiguration() {
     // Proxy settings
     const QString proxyChoice = configGroup.readEntry("proxy", "disabled");
     if (proxyChoice != "disabled") {
-        proxy = new QNetworkProxy();
+        auto *proxy = new QNetworkProxy();
         if (proxyChoice == "http") proxy->setType(QNetworkProxy::HttpProxy);
         else proxy->setType(QNetworkProxy::Socks5Proxy);
         proxy->setHostName(configGroup.readEntry("proxy_hostname"));
@@ -100,51 +103,64 @@ void QuickWebShortcuts::reloadConfiguration() {
     } else {
         requiredData.proxy = nullptr;
     }
+
+    // History settings
+    QString historyChoice = configGroup.readEntry("clean_history");
+    if (historyChoice.isEmpty()) historyChoice = "quick";
+    cleanAll = historyChoice == "all";
+    cleanQuick = historyChoice == "quick";
+    cleanNone = historyChoice == "false";
 }
 
 void QuickWebShortcuts::matchSessionFinished() {
-    if (configGroup.readEntry("clean_history") != "false") {
-        QString history = configGroup.parent().parent().group("General").readEntry("history");
-        QString filteredHistory;
-        if (configGroup.readEntry("clean_history") == "all") {
-            filteredHistory = history.replace(QRegExp(R"([a-z]{0,5}: ?[^,]+,?)"), "");
-        } else {
-            for (const auto &item : history.split(',')) {
-                if (!item.startsWith(':')) {
-                    filteredHistory += item + ",";
-                }
+    if (cleanNone || (cleanQuick && !wasActive)) return;
+    QString history = configGroup.parent().parent().group("General").readEntry("history");
+    const int initialHistorySize = history.size();
+    QString filteredHistory;
+    // Clears the normal web shortcuts, they use ":" as a delimiter between key and value
+    if (cleanAll) {
+        filteredHistory = history.replace(QRegExp(R"([a-z]{1,5}: ?[^,]+,?)"), "");
+    }
+    if (cleanAll || cleanQuick) {
+        // If cleanAll is true, filtered history has already been set => read value, clear it and write the final result
+        const QString toFilter = cleanAll ? filteredHistory : history;
+        if (cleanAll) filteredHistory = "";
+        for (const auto &item : toFilter.split(',', QString::SkipEmptyParts)) {
+            if (!item.startsWith(triggerCharacter)) {
+                filteredHistory += item + ",";
             }
         }
-        if (filteredHistory.size() == KSharedConfig::openConfig("krunnerrc")->group("General").readEntry("history").size()) {
-            return;
-        }
-        QFile f(QDir::homePath() + "/.config/krunnerrc");
-        if (f.open(QIODevice::ReadWrite)) {
-            QString s;
-            QTextStream t(&f);
-            while (!t.atEnd()) {
-                QString line = t.readLine();
-                if (!line.startsWith("history")) {
-                    s.append(line + "\n");
-                } else {
-                    s.append("history=" + filteredHistory + "\n");
-                }
+    }
+    // No changes have been made, exit function
+    if (filteredHistory.size() == initialHistorySize) return;
+
+    QFile f(QDir::homePath() + "/.config/krunnerrc");
+    if (f.open(QIODevice::ReadWrite)) {
+        QString s;
+        QTextStream t(&f);
+        while (!t.atEnd()) {
+            QString line = t.readLine();
+            if (!line.startsWith("history")) {
+                s.append(line + "\n");
+            } else {
+                s.append("history=" + filteredHistory + "\n");
             }
-            f.resize(0);
-            f.write(s.toLocal8Bit());
-            f.close();
         }
+        f.resize(0);
+        f.write(s.toLocal8Bit());
+        f.close();
     }
 }
 
 void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     if (!context.isValid()) return;
+    wasActive = false;
     // Remove escape character
     QString term = QString(context.query()).replace(QString::fromWCharArray(L"\u001B"), " ");
 
     QMap<QString, QVariant> data;
 
-    if (term.startsWith("::")) {
+    if (term.startsWith(privateWindowTrigger)) {
         term = term.mid(2);
         data.insert("browser", privateBrowser);
         QString url = currentSearchEngine.url + QUrl::toPercentEncoding(term);
@@ -160,7 +176,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
                 duckDuckGoSearchSuggest(context, term, privateBrowser);
             }
         }
-    } else if (term.startsWith(':')) {
+    } else if (term.startsWith(triggerCharacter)) {
         term = term.mid(1);
         data.insert("url", currentSearchEngine.url + QUrl::toPercentEncoding(term));
         context.addMatch(createMatch(searchOptionTemplate.arg(term), data));
@@ -184,13 +200,9 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
 void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) {
     Q_UNUSED(context)
 
-    QMap<QString, QVariant> payload = match.data().toMap();
-
-    if (payload.count("url")) {
-        system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " '" + payload.value("url").toString() + "') &"));
-    } else {
-        configGroup.writeEntry("url", payload.value("engine").toString());
-    }
+    const QMap<QString, QVariant> payload = match.data().toMap();
+    system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " '" + payload.value("url").toString() + "') &"));
+    wasActive = true;
 }
 
 Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMap<QString, QVariant> &data, const bool useGlobe) {
