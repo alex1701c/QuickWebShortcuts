@@ -1,6 +1,5 @@
 #include "quick_web_shortcuts.h"
 #include <QtGui/QtGui>
-#include <KSharedConfig>
 #include <iostream>
 #include "SearchEngines.h"
 #include <searchproviders/Bing.h>
@@ -16,18 +15,42 @@ QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
 }
 
 void QuickWebShortcuts::init() {
-    reloadConfiguration();
+    const QString configFolder = QDir::homePath() + "/.config/krunnerplugins/";
+    const QDir configDir(configFolder);
+    if (!configDir.exists()) configDir.mkpath(configFolder);
+    // Create file
+    QFile configFile(configFolder + "quickwebshortcutsrunnerrc");
+    if (!configFile.exists()) {
+        configFile.open(QIODevice::WriteOnly);
+        configFile.close();
+    }
+
+    // Add file watcher for config
+    watcher.addPath(configFolder + "quickwebshortcutsrunnerrc");
+    connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(reloadPluginConfiguration(QString)));
     connect(this, SIGNAL(teardown()), this, SLOT(matchSessionFinished()));
+
+    reloadPluginConfiguration();
 }
 
-void QuickWebShortcuts::reloadConfiguration() {
-    configGroup = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
+void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
+    KConfigGroup configGroup = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/quickwebshortcutsrunnerrc")
+            ->group("Config");
+    // Force sync from file
+    if (!configFile.isEmpty()) configGroup.config()->reparseConfiguration();
 
+    // If the file gets edited with a text editor, it often gets replaced by the edited version
+    // https://stackoverflow.com/a/30076119/9342842
+    if (!configFile.isEmpty()) {
+        if (QFile::exists(configFile)) {
+            watcher.addPath(configFile);
+        }
+    }
     // Read entry for private browsing launch command
-    QString browser = KSharedConfig::openConfig(QDir::homePath() + "/.kde/share/config/kdeglobals")->group("General")
+    const QString browser = KSharedConfig::openConfig(QDir::homePath() + "/.kde/share/config/kdeglobals")->group("General")
             .readEntry("BrowserApplication");
     if (!browser.isEmpty()) {
-        KSharedConfig::Ptr browserConfig = KSharedConfig::openConfig("/usr/share/applications/" + browser);
+        const KSharedConfig::Ptr browserConfig = KSharedConfig::openConfig("/usr/share/applications/" + browser);
         for (const auto &group: browserConfig->groupList()) {
             if (group.contains("incognito", Qt::CaseInsensitive) || group.contains("private", Qt::CaseInsensitive)) {
                 privateBrowser = browserConfig->group(group).readEntry("Exec");
@@ -44,6 +67,7 @@ void QuickWebShortcuts::reloadConfiguration() {
             break;
         }
     }
+
     // If the config is empty or malformed
     if (currentSearchEngine.url.isEmpty()) {
         SearchEngine defaultEngine;
@@ -114,12 +138,12 @@ void QuickWebShortcuts::reloadConfiguration() {
 
 void QuickWebShortcuts::matchSessionFinished() {
     if (cleanNone || (cleanQuick && !wasActive)) return;
-    QString history = configGroup.parent().parent().group("General").readEntry("history");
+    QString history = generalKrunnerConfig.readEntry("history");
     const int initialHistorySize = history.size();
     QString filteredHistory;
     // Clears the normal web shortcuts, they use ":" as a delimiter between key and value
     if (cleanAll) {
-        filteredHistory = history.replace(QRegExp(R"([a-z]{1,5}: ?[^,]+,?)"), "");
+        filteredHistory = history.remove(removeHistoryRegex);
     }
     if (cleanAll || cleanQuick) {
         // If cleanAll is true, filtered history has already been set => read value, clear it and write the final result
@@ -139,7 +163,7 @@ void QuickWebShortcuts::matchSessionFinished() {
         QString s;
         QTextStream t(&f);
         while (!t.atEnd()) {
-            QString line = t.readLine();
+            const QString line = t.readLine();
             if (!line.startsWith("history")) {
                 s.append(line + "\n");
             } else {

@@ -4,6 +4,8 @@
 #include <KRunner/AbstractRunner>
 #include <searchproviders/RequiredData.h>
 #include <QtNetwork/QNetworkAccessManager>
+#include <QtCore/QFileSystemWatcher>
+#include <KSharedConfig>
 #include "SearchEngine.h"
 
 class QuickWebShortcuts : public Plasma::AbstractRunner {
@@ -12,14 +14,15 @@ Q_OBJECT
 public:
     QuickWebShortcuts(QObject *parent, const QVariantList &args);
 
-    void reloadConfiguration() override;
+    QFileSystemWatcher watcher;
 
     // General variables
-    KConfigGroup configGroup;
     SearchEngine currentSearchEngine;
     const QRegExp urlRegex = QRegExp(R"(^.*\.[a-z]{2,5}$)");
     QString privateBrowser, privateBrowserMode, searchOptionTemplate, searchSuggestionChoice, triggerCharacter, privateWindowTrigger;
     bool openUrls;
+    const KConfigGroup generalKrunnerConfig = KSharedConfig::openConfig("krunnerrc")->group("General");
+    const QRegExp removeHistoryRegex = QRegExp(R"([a-z]{1,5}: ?[^,]+,?)");
     // Search suggestion variables
     bool searchSuggestions, privateWindowSearchSuggestions;
     int minimumLetterCount, maxSuggestionResults;
@@ -45,6 +48,8 @@ protected Q_SLOTS:
     void init() override;
 
     void matchSessionFinished();
+
+    void reloadPluginConfiguration(const QString &file = "");
 
 public: // Plasma::AbstractRunner API
     void match(Plasma::RunnerContext &context) override;

@@ -14,14 +14,14 @@ class SearchEngines {
 
 public:
     static QMap<QString, QString> getDefaultSearchEngines() {
-        QMap<QString, QString> engines;
-        engines.insert("Google", "https://www.google.com/search?q=");
-        engines.insert("DuckDuckGo", "https://duckduckgo.com/?q=");
-        engines.insert("Stackoverflow", "https://stackoverflow.com/search?q=");
-        engines.insert("Bing", "https://www.bing.com/search?q=");
-        engines.insert("Github", "https://github.com/search?q=");
-        engines.insert("Youtube", "https://www.youtube.com/results?search_query=");
-        return engines;
+        return {
+                {"Google",        "https://www.google.com/search?q="},
+                {"DuckDuckGo",    "https://duckduckgo.com/?q="},
+                {"Stackoverflow", "https://stackoverflow.com/search?q="},
+                {"Bing",          "https://www.bing.com/search?q="},
+                {"Github",        "https://github.com/search?q="},
+                {"Youtube",       "https://www.youtube.com/results?search_query="},
+        };
     }
 
     static QList<QString> getDefaultSearchEngineNames() {
@@ -41,7 +41,8 @@ public:
 
     static QList<SearchEngine> getAllSearchEngines() {
         QList<SearchEngine> searchEngines;
-        auto rootConfig = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
+        const auto rootConfig = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/quickwebshortcutsrunnerrc")
+                ->group("Config");
         auto defaultEngines = getDefaultSearchEngines();
         const auto iconNames = getIconNames();
         for (const auto &groupName:rootConfig.groupList().filter(QRegExp("^SearchEngine-"))) {

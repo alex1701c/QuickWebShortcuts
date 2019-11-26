@@ -13,7 +13,9 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     auto *layout = new QGridLayout(this);
     layout->addWidget(m_ui, 0, 0);
 
-    config = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
+    config = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/quickwebshortcutsrunnerrc")
+            ->group("Config");
+    config.config()->reparseConfiguration();
 
     // History GroupBox
     connect(m_ui->historyAll, SIGNAL(clicked(bool)), this, SLOT(changed()));
@@ -54,7 +56,6 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->passwordLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->showErrorsCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->testProxyConfigPushButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyConnection()));
-
 }
 
 void QuickWebShortcutsConfig::load() {
@@ -215,11 +216,14 @@ void QuickWebShortcutsConfig::save() {
     config.writeEntry("show_search_for_note", m_ui->showSearchForCheckBox->isChecked());
     config.writeEntry("show_private_window_note", m_ui->showPrivateNoteCheckBox->isChecked());
     config.writeEntry("trigger_character", m_ui->triggerCharacterComboBox->currentText());
+
+    config.config()->sync();
+
     emit changed(false);
 }
 
 void QuickWebShortcutsConfig::defaults() {
-    m_ui->historyAll->setChecked(true);
+    m_ui->historyQuick->setChecked(true);
     const int itemCount = m_ui->searchEnginesItemLayout->count();
     for (int i = 0; i < itemCount; ++i) {
         auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
@@ -554,9 +558,9 @@ void SearchEngineItem::extractNameFromUrl() {
     if (this->urlLineEdit->text().contains(QRegExp(R"(^(?:https?://)?(www\.)?(?:[\w-]+\.)(?:\.?[\w]{2,})+)"))) {
         QRegExp exp(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)");
         exp.indexIn(this->urlLineEdit->text());
-        QString res = exp.capturedTexts().last();
+        QString res = exp.capturedTexts().at(2);
         res[0] = res[0].toUpper();
-        this->nameLineEdit->setText(res);
+        if (!res.isEmpty() && res != "Www") this->nameLineEdit->setText(res);
     }
 }
 
