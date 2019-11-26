@@ -35,6 +35,9 @@ add_dependencies(krunner_quickwebshortcuts kcm_krunner_quickwebshortcuts)
 #https://www.iconfinder.com/icons/1313555/business_duckduckgo_engine_internet_optimization_search_web_icon
 #https://www.iconfinder.com/icons/1298745/google_icon
 
+set(ICON_INSTALL_DIR "/usr/share/pixmaps" CACHE STRING "Default icon directory")
+
 install(TARGETS krunner_quickwebshortcuts kcm_krunner_quickwebshortcuts DESTINATION ${PLUGIN_INSTALL_DIR})
 install(FILES plasma-runner-quickwebshortcuts.desktop config/plasma-runner-quickwebshortcuts_config.desktop DESTINATION ${KDE_INSTALL_KSERVICES5DIR})
 install(FILES icons/bing.svg icons/duckduckgo.svg icons/github.svg icons/google.svg icons/stackoverflow.svg icons/youtube.svg DESTINATION /usr/share/icons/)
+install(DIRECTORY icons/ DESTINATION ${ICON_INSTALL_DIR})

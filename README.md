@@ -23,15 +23,16 @@ Required Dependencies on Debian/Ubuntu:
 
 openSUSE  
 `sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel
- kservice-devel krunner-devel gettext-tools libnotify-tools`  
+ kservice-devel krunner-devel gettext-tools libnotify-tools kconfigwidgets-devel`  
 
 Fedora  
 `sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext libnotify`  
 
 
 The easiest way to install is:  
-`curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install.sh | bash`
-
+`curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install.sh | bash`  
+Or you can install it without admin privileges:  
+`curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install-user.sh | bash`  
 Or you can do it manually:
 
 ```

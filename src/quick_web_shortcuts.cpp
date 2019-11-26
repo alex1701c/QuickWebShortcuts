@@ -47,7 +47,7 @@ void QuickWebShortcuts::reloadConfiguration() {
     // If the config is empty or malformed
     if (currentSearchEngine.url.isEmpty()) {
         SearchEngine defaultEngine;
-        defaultEngine.qIcon = QIcon("/usr/share/icons/google.svg");
+        defaultEngine.qIcon = QIcon::fromTheme("google");
         defaultEngine.name = "Google";
         defaultEngine.url = "https://www.google.com/search?q=";
         currentSearchEngine = defaultEngine;

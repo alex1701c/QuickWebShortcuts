@@ -23,18 +23,19 @@ public:
         engines.insert("Youtube", "https://www.youtube.com/results?search_query=");
         return engines;
     }
+
     static QList<QString> getDefaultSearchEngineNames() {
         return {"Google", "DuckDuckGo", "Stackoverflow", "Bing", "Github", "Youtube"};
     }
 
     static QMap<QString, QString> getIconNames() {
         return {
-                {"Bing",          "/usr/share/icons/bing.svg"},
-                {"Google",        "/usr/share/icons/google.svg"},
-                {"DuckDuckGo",    "/usr/share/icons/duckduckgo.svg"},
-                {"Stackoverflow", "/usr/share/icons/stackoverflow.svg"},
-                {"Github",        "/usr/share/icons/github.svg"},
-                {"Youtube",       "/usr/share/icons/youtube.svg"},
+                {"Bing",          "bing"},
+                {"Google",        "google"},
+                {"DuckDuckGo",    "duckduckgo"},
+                {"Stackoverflow", "stackoverflow"},
+                {"Github",        "github"},
+                {"Youtube",       "youtube"},
         };
     }
 
@@ -42,9 +43,9 @@ public:
         QList<SearchEngine> searchEngines;
         auto rootConfig = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("QuickWebShortcuts");
         auto defaultEngines = getDefaultSearchEngines();
-        auto iconNames = getIconNames();
+        const auto iconNames = getIconNames();
         for (const auto &groupName:rootConfig.groupList().filter(QRegExp("^SearchEngine-"))) {
-            auto config = rootConfig.group(groupName);
+            const auto config = rootConfig.group(groupName);
             SearchEngine engine;
             engine.name = config.readEntry("name");
             engine.url = config.readEntry("url");
