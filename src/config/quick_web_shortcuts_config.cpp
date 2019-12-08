@@ -1,9 +1,10 @@
 #include "quick_web_shortcuts_config.h"
-#include "../SearchEngines.h"
+#include "searchengines/SearchEngines.h"
 #include <KSharedConfig>
 #include <KPluginFactory>
 #include <QtDebug>
 #include <QtWidgets/QFileDialog>
+#include <utilities.h>
 
 K_PLUGIN_FACTORY(QuickWebShortcutsConfigFactory,
                  registerPlugin<QuickWebShortcutsConfig>("kcm_krunner_quickwebshortcuts");)
@@ -13,6 +14,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     auto *layout = new QGridLayout(this);
     layout->addWidget(m_ui, 0, 0);
 
+    initializeConfigFile();
     config = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/quickwebshortcutsrunnerrc")
             ->group("Config");
     config.config()->reparseConfiguration();
@@ -59,7 +61,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
 }
 
 void QuickWebShortcutsConfig::load() {
-    QString searchEngineName = config.readEntry("search_engine_name");
+    QString searchEngineName = config.readEntry(Config::SearchEngineName);
     auto searchEngineNames = SearchEngines::getDefaultSearchEngineNames();
     if (searchEngineName.isEmpty()) searchEngineName = "Google";
     // Load search engines
@@ -86,52 +88,52 @@ void QuickWebShortcutsConfig::load() {
         }
         browserItem->deletePushButton->setDisabled(item.isDefault || searchEngineNames.contains(item.originalName));
     }
-    m_ui->showSearchEngineName->setChecked(config.readEntry("show_name") == "true");
-    m_ui->openURLS->setChecked(config.readEntry("open_urls", "true") == "true");
-    m_ui->showSearchForCheckBox->setChecked(config.readEntry("show_search_for_note", "true") == "true");
-    m_ui->showPrivateNoteCheckBox->setChecked(config.readEntry("show_private_window_note", "true") == "true");
-    m_ui->triggerCharacterComboBox->setCurrentText(config.readEntry("trigger_character", ":"));
+    m_ui->showSearchEngineName->setChecked(config.readEntry(Config::ShowName, true));
+    m_ui->openURLS->setChecked(config.readEntry(Config::OpenUrls, true));
+    m_ui->showSearchForCheckBox->setChecked(config.readEntry(Config::ShowSearchForNote, true));
+    m_ui->showPrivateNoteCheckBox->setChecked(config.readEntry(Config::PrivateWindowNote, true));
+    m_ui->triggerCharacterComboBox->setCurrentText(config.readEntry(Config::TriggerCharacter, Config::TriggerCharacterDefault));
     showSearchForClicked();
 
     // Search Suggestions settings
-    const QString searchSuggestionOption = config.readEntry("search_suggestions", "disabled");
-    if (searchSuggestionOption == "google") {
+    const QString searchSuggestionOption = config.readEntry(Config::SearchSuggestions, Config::SearchSuggestionDisabled);
+    if (searchSuggestionOption == Config::SearchSuggestionGoogle) {
         m_ui->googleRadioButton->setChecked(true);
-    } else if (searchSuggestionOption == "bing") {
+    } else if (searchSuggestionOption == Config::SearchSuggestionBing) {
         m_ui->bingRadioButton->setChecked(true);
-    } else if (searchSuggestionOption == "duckduckgo") {
+    } else if (searchSuggestionOption == Config::SearchSuggestionDuckDuckGo) {
         m_ui->duckDuckGoRadioButton->setChecked(true);
     } else {
         m_ui->disableRadioButton->setChecked(true);
     }
-    m_ui->privateWindowCheckBox->setChecked(config.readEntry("private_window_search_suggestions", "false") == "true");
-    m_ui->minimumLetterCountSpinBox->setValue(config.readEntry("minimum_letter_count", "3").toInt());
-    m_ui->maxSearchSuggestionsSpinBox->setValue(config.readEntry("max_search_suggestions", "10").toInt());
+    m_ui->privateWindowCheckBox->setChecked(config.readEntry(Config::PrivateWindowSearchSuggestions, false));
+    m_ui->minimumLetterCountSpinBox->setValue(config.readEntry(Config::MinimumLetterCount, Config::MinimumLetterCountDefault));
+    m_ui->maxSearchSuggestionsSpinBox->setValue(config.readEntry(Config::MaxSuggestionResults, Config::MaxSuggestionResultsDefault));
     insertLocaleSelectData();
     m_ui->bingLocaleSelectComboBox->setCurrentIndex(m_ui->bingLocaleSelectComboBox->findData(
-            config.readEntry("bing_locale", "en-us")));
+            config.readEntry(Config::BingMarket, Config::BingMarketDefault)));
     m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData(
-            config.readEntry("google_locale", "en")));
+            config.readEntry(Config::GoogleLocale, Config::GoogleLocaleDefault)));
     validateSearchSuggestions();
 
     // Proxy settings
-    const QString proxy = config.readEntry("proxy");
+    const QString proxy = config.readEntry(Config::Proxy);
     if (proxy == "http") m_ui->httpProxyRadioButton->setChecked(true);
     else if (proxy == "socks5") m_ui->socks5ProxyRadioButton->setChecked(true);
     else m_ui->noProxyRadioButton->setChecked(true);
 
-    m_ui->hostNameLineEdit->setText(config.readEntry("proxy_hostname"));
-    m_ui->portLineEdit->setText(config.readEntry("proxy_port"));
-    m_ui->usernameLineEdit->setText(QString(QByteArray::fromHex(config.readEntry("proxy_username").toLocal8Bit())));
-    m_ui->passwordLineEdit->setText(QString(QByteArray::fromHex(config.readEntry("proxy_password").toLocal8Bit())));
-    m_ui->showErrorsCheckBox->setChecked(config.readEntry("proxy_show_errors", "true") == "true");
+    m_ui->hostNameLineEdit->setText(config.readEntry(Config::ProxyHostname));
+    m_ui->portLineEdit->setText(config.readEntry(Config::ProxyPort));
+    m_ui->usernameLineEdit->setText(QString(QByteArray::fromHex(config.readEntry(Config::ProxyUsername).toLocal8Bit())));
+    m_ui->passwordLineEdit->setText(QString(QByteArray::fromHex(config.readEntry(Config::ProxyPassword).toLocal8Bit())));
+    m_ui->showErrorsCheckBox->setChecked(config.readEntry(Config::ProxyShowErrors, true));
     validateProxyOptions();
 
     // Clear History settings
-    QString historyOption = config.readEntry("clean_history", "quick");
-    if (historyOption == "all") {
+    QString historyOption = config.readEntry(Config::CleanHistory, Config::CleanHistoryDefault);
+    if (historyOption == Config::CleanHistoryAll) {
         m_ui->historyAll->setChecked(true);
-    } else if (historyOption == "quick") {
+    } else if (historyOption == Config::CleanHistoryQuick) {
         m_ui->historyQuick->setChecked(true);
     } else {
         m_ui->historyNotClear->setChecked(true);
@@ -160,62 +162,62 @@ void QuickWebShortcutsConfig::save() {
         if (itemName.isEmpty() || itemUrl.isEmpty()) continue;
 
         auto itemConfig = config.group("SearchEngine-" + itemName);
-        itemConfig.writeEntry("name", itemName);
-        itemConfig.writeEntry("url", itemUrl);
-        itemConfig.writeEntry("icon", item->icon);
+        itemConfig.writeEntry(SearchEngineConfig::Name, itemName);
+        itemConfig.writeEntry(SearchEngineConfig::Url, itemUrl);
+        itemConfig.writeEntry(SearchEngineConfig::Icon, item->icon);
         // For reference to original state (reset using defaults button)
         if (item->isDefault || item->isDefaultBased) {
-            itemConfig.writeEntry("original_name", item->originalName);
+            itemConfig.writeEntry(SearchEngineConfig::OriginalName, item->originalName);
         }
     }
-    config.writeEntry("search_engine_name", selected);
+    config.writeEntry(Config::SearchEngineName, selected);
 
     QString searchSuggestionsOption;
     if (m_ui->googleRadioButton->isChecked()) {
-        searchSuggestionsOption = "google";
+        searchSuggestionsOption = Config::SearchSuggestionGoogle;
     } else if (m_ui->bingRadioButton->isChecked()) {
-        searchSuggestionsOption = "bing";
+        searchSuggestionsOption = Config::SearchSuggestionBing;
     } else if (m_ui->duckDuckGoRadioButton->isChecked()) {
-        searchSuggestionsOption = "duckduckgo";
+        searchSuggestionsOption = Config::SearchSuggestionDuckDuckGo;
     } else {
-        searchSuggestionsOption = "disabled";
+        searchSuggestionsOption = Config::SearchSuggestionDisabled;
     }
-    config.writeEntry("search_suggestions", searchSuggestionsOption);
+    config.writeEntry(Config::SearchSuggestions, searchSuggestionsOption);
 
-    config.writeEntry("private_window_search_suggestions", m_ui->privateWindowCheckBox->isChecked());
-    config.writeEntry("minimum_letter_count", m_ui->minimumLetterCountSpinBox->value());
-    config.writeEntry("max_search_suggestions", m_ui->maxSearchSuggestionsSpinBox->value());
-    config.writeEntry("bing_locale", m_ui->bingLocaleSelectComboBox->itemData(
+    config.writeEntry(Config::PrivateWindowSearchSuggestions, m_ui->privateWindowCheckBox->isChecked());
+    config.writeEntry(Config::MinimumLetterCount, m_ui->minimumLetterCountSpinBox->value());
+    config.writeEntry(Config::MaxSuggestionResults, m_ui->maxSearchSuggestionsSpinBox->value());
+    config.writeEntry(Config::BingMarket, m_ui->bingLocaleSelectComboBox->itemData(
             m_ui->bingLocaleSelectComboBox->currentIndex()));
-    config.writeEntry("google_locale", m_ui->googleLanguageComboBox->itemData(
+    config.writeEntry(Config::GoogleLocale, m_ui->googleLanguageComboBox->itemData(
             m_ui->googleLanguageComboBox->currentIndex()));
 
     QString proxy;
     if (m_ui->httpProxyRadioButton->isChecked()) proxy = "http";
     else if (m_ui->socks5ProxyRadioButton->isChecked()) proxy = "socks5";
-    else proxy = "disabled";
-    config.writeEntry("proxy", proxy);
+    else proxy = Config::ProxyDisabled;
+    config.writeEntry(Config::Proxy, proxy);
 
-    config.writeEntry("proxy_hostname", m_ui->hostNameLineEdit->text());
-    config.writeEntry("proxy_port", m_ui->portLineEdit->text());
-    config.writeEntry("proxy_username", m_ui->usernameLineEdit->text().toLatin1().toHex());
-    config.writeEntry("proxy_password", m_ui->passwordLineEdit->text().toLatin1().toHex());
-    config.writeEntry("proxy_show_errors", m_ui->showErrorsCheckBox->isChecked());
+    config.writeEntry(Config::ProxyHostname, m_ui->hostNameLineEdit->text());
+    config.writeEntry(Config::ProxyPort, m_ui->portLineEdit->text());
+    config.writeEntry(Config::ProxyUsername, m_ui->usernameLineEdit->text().toLatin1().toHex());
+    config.writeEntry(Config::ProxyPassword, m_ui->passwordLineEdit->text().toLatin1().toHex());
+    config.writeEntry(Config::ProxyShowErrors, m_ui->showErrorsCheckBox->isChecked());
 
     QString history;
     if (m_ui->historyAll->isChecked()) {
-        history = "all";
+        history = Config::CleanHistoryAll;
     } else if (m_ui->historyQuick->isChecked()) {
-        history = "quick";
+        history = Config::CleanHistoryQuick;
     } else {
-        history = "false";
+        history = Config::CleanHistoryNone;
     }
-    config.writeEntry("clean_history", history);
-    config.writeEntry("show_name", m_ui->showSearchEngineName->isChecked());
-    config.writeEntry("open_urls", m_ui->openURLS->isChecked());
-    config.writeEntry("show_search_for_note", m_ui->showSearchForCheckBox->isChecked());
-    config.writeEntry("show_private_window_note", m_ui->showPrivateNoteCheckBox->isChecked());
-    config.writeEntry("trigger_character", m_ui->triggerCharacterComboBox->currentText());
+    config.writeEntry(Config::CleanHistory, history);
+    config.writeEntry(Config::ShowName, m_ui->showSearchEngineName->isChecked());
+    config.writeEntry(Config::OpenUrls, m_ui->openURLS->isChecked());
+    config.writeEntry(Config::ShowSearchForNote, m_ui->showSearchForCheckBox->isChecked());
+    config.writeEntry(Config::PrivateWindowNote, m_ui->showPrivateNoteCheckBox->isChecked());
+    config.writeEntry(Config::TriggerCharacter, m_ui->triggerCharacterComboBox->currentText());
 
     config.config()->sync();
 
@@ -250,10 +252,10 @@ void QuickWebShortcutsConfig::defaults() {
     m_ui->privateWindowCheckBox->setChecked(false);
     m_ui->disableRadioButton->setChecked(true);
     m_ui->noProxyRadioButton->setChecked(true);
-    m_ui->minimumLetterCountSpinBox->setValue(3);
-    m_ui->bingLocaleSelectComboBox->setCurrentIndex(m_ui->bingLocaleSelectComboBox->findData("en-us"));
-    m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData("en"));
-    m_ui->triggerCharacterComboBox->setCurrentText(":");
+    m_ui->minimumLetterCountSpinBox->setValue(Config::MinimumLetterCountDefault);
+    m_ui->bingLocaleSelectComboBox->setCurrentIndex(m_ui->bingLocaleSelectComboBox->findData(Config::BingMarketDefault));
+    m_ui->googleLanguageComboBox->setCurrentIndex(m_ui->googleLanguageComboBox->findData(Config::GoogleLocaleDefault));
+    m_ui->triggerCharacterComboBox->setCurrentText(Config::TriggerCharacterDefault);
 
     showSearchForClicked();
     validateSearchSuggestions();
@@ -565,8 +567,8 @@ void SearchEngineItem::extractNameFromUrl() {
 }
 
 void SearchEngineItem::iconPicker() {
-    QString iconPath = QFileDialog::getOpenFileName(this, tr("Select Icon"), "",
-                                                    tr("Images (.*.jpg *.jpeg *.png *.ico *.svg *.svgz)"));
+    const QString iconPath = QFileDialog::getOpenFileName(this, tr("Select Icon"), "",
+                                                          tr("Images (.*.jpg *.jpeg *.png *.ico *.svg *.svgz)"));
     if (!iconPath.isEmpty()) {
         this->originalIcon = this->icon;
         this->icon = iconPath;

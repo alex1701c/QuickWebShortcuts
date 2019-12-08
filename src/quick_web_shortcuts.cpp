@@ -1,7 +1,9 @@
 #include "quick_web_shortcuts.h"
 #include <QtGui/QtGui>
 #include <iostream>
-#include "SearchEngines.h"
+#include "searchengines/SearchEngines.h"
+#include "Config.h"
+#include "utilities.h"
 #include <searchproviders/Bing.h>
 #include <searchproviders/Google.h>
 #include <searchproviders/DuckDuckGo.h>
@@ -15,18 +17,10 @@ QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
 }
 
 void QuickWebShortcuts::init() {
-    const QString configFolder = QDir::homePath() + "/.config/krunnerplugins/";
-    const QDir configDir(configFolder);
-    if (!configDir.exists()) configDir.mkpath(configFolder);
-    // Create file
-    QFile configFile(configFolder + "quickwebshortcutsrunnerrc");
-    if (!configFile.exists()) {
-        configFile.open(QIODevice::WriteOnly);
-        configFile.close();
-    }
+    initializeConfigFile();
 
     // Add file watcher for config
-    watcher.addPath(configFolder + "quickwebshortcutsrunnerrc");
+    watcher.addPath(QDir::homePath() + "/.config/krunnerplugins/" + Config::ConfigFile);
     connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(reloadPluginConfiguration(QString)));
     connect(this, SIGNAL(teardown()), this, SLOT(matchSessionFinished()));
 
@@ -34,8 +28,8 @@ void QuickWebShortcuts::init() {
 }
 
 void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
-    KConfigGroup configGroup = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/quickwebshortcutsrunnerrc")
-            ->group("Config");
+    KConfigGroup configGroup = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/" + Config::ConfigFile)
+            ->group(Config::RootGroup);
     // Force sync from file
     if (!configFile.isEmpty()) configGroup.config()->reparseConfiguration();
 
@@ -60,7 +54,7 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
         privateBrowser = "firefox --private-window";
     }
     // Load search engines
-    const QString searchEngineName = configGroup.readEntry("search_engine_name");
+    const QString searchEngineName = configGroup.readEntry(Config::SearchEngineName);
     for (auto &engine:SearchEngines::getAllSearchEngines()) {
         if (engine.name == searchEngineName) {
             currentSearchEngine = engine;
@@ -78,31 +72,31 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     }
 
     // Load general settings
-    openUrls = configGroup.readEntry("open_urls", "true") == "true";
-    if (configGroup.readEntry("show_search_for_note") == "false") {
+    openUrls = configGroup.readEntry(Config::OpenUrls, true);
+    if (!configGroup.readEntry(Config::ShowSearchForNote, true)) {
         searchOptionTemplate = "%1";
-    } else if (configGroup.readEntry("show_name") == "true") {
+    } else if (configGroup.readEntry(Config::ShowName, false)) {
         searchOptionTemplate = "Search " + currentSearchEngine.name + " for %1";
     } else {
         searchOptionTemplate = "Search for %1";
     }
-    if (configGroup.readEntry("private_window_note", "true") == "true") {
+
+    if (configGroup.readEntry(Config::PrivateWindowNote, true)) {
         privateBrowserMode = privateBrowser.contains("private") ? " in private window" : " in incognito mode";
     } else {
         privateBrowserMode = "";
     }
-    triggerCharacter = configGroup.readEntry("trigger_character");
-    if (triggerCharacter.isEmpty()) triggerCharacter = ":";
+    triggerCharacter = configGroup.readEntry(Config::TriggerCharacter, Config::TriggerCharacterDefault);
     privateWindowTrigger = triggerCharacter + triggerCharacter;
 
     // Search suggestions settings
-    searchSuggestionChoice = configGroup.readEntry("search_suggestions", "disabled");
-    searchSuggestions = searchSuggestionChoice != "disabled";
-    privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry("private_window_search_suggestions") == "true";
-    minimumLetterCount = configGroup.readEntry("minimum_letter_count", "3").toInt();
-    maxSuggestionResults = configGroup.readEntry("max_search_suggestions", "10").toInt();
-    bingMarket = configGroup.readEntry("bing_locale", "en-us");
-    googleLocale = configGroup.readEntry("google_locale", "en");
+    searchSuggestionChoice = configGroup.readEntry(Config::SearchSuggestions, Config::SearchSuggestionDisabled);
+    searchSuggestions = searchSuggestionChoice != Config::SearchSuggestionDisabled;
+    privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry(Config::PrivateWindowSearchSuggestions, false);
+    minimumLetterCount = configGroup.readEntry(Config::MinimumLetterCount, Config::MinimumLetterCountDefault);
+    maxSuggestionResults = configGroup.readEntry(Config::MaxSuggestionResults, Config::MaxSuggestionResultsDefault);
+    bingMarket = configGroup.readEntry(Config::BingMarket, Config::BingMarketDefault);
+    googleLocale = configGroup.readEntry(Config::GoogleLocale, Config::GoogleLocaleDefault);
 
     // RequiredData is for all search providers required and does not need to be updated
     // outside of the reloadConfiguration method
@@ -113,27 +107,25 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     requiredData.searchOptionTemplate = searchOptionTemplate;
 
     // Proxy settings
-    const QString proxyChoice = configGroup.readEntry("proxy", "disabled");
-    if (proxyChoice != "disabled") {
+    const QString proxyChoice = configGroup.readEntry(Config::Proxy, Config::ProxyDisabled);
+    if (proxyChoice != Config::ProxyDisabled) {
         auto *proxy = new QNetworkProxy();
-        if (proxyChoice == "http") proxy->setType(QNetworkProxy::HttpProxy);
-        else proxy->setType(QNetworkProxy::Socks5Proxy);
-        proxy->setHostName(configGroup.readEntry("proxy_hostname"));
-        proxy->setPort(configGroup.readEntry("proxy_port").toInt());
-        proxy->setUser(QByteArray::fromHex(configGroup.readEntry("proxy_username").toLocal8Bit()));
-        proxy->setPassword(QByteArray::fromHex(configGroup.readEntry("proxy_password").toLocal8Bit()));
+        proxy->setType(proxyChoice == "http" ? QNetworkProxy::HttpProxy : QNetworkProxy::Socks5Proxy);
+        proxy->setHostName(configGroup.readEntry(Config::ProxyHostname));
+        proxy->setPort(configGroup.readEntry(Config::ProxyPort).toInt());
+        proxy->setUser(QByteArray::fromHex(configGroup.readEntry(Config::ProxyUsername).toLocal8Bit()));
+        proxy->setPassword(QByteArray::fromHex(configGroup.readEntry(Config::ProxyPassword).toLocal8Bit()));
         requiredData.proxy = proxy;
-        requiredData.showNetworkErrors = configGroup.readEntry("proxy_show_errors", "true") == "true";
+        requiredData.showNetworkErrors = configGroup.readEntry(Config::ProxyShowErrors, true);
     } else {
         requiredData.proxy = nullptr;
     }
 
     // History settings
-    QString historyChoice = configGroup.readEntry("clean_history");
-    if (historyChoice.isEmpty()) historyChoice = "quick";
-    cleanAll = historyChoice == "all";
-    cleanQuick = historyChoice == "quick";
-    cleanNone = historyChoice == "false";
+    QString historyChoice = configGroup.readEntry(Config::CleanHistory, Config::CleanHistoryDefault);
+    cleanAll = historyChoice == Config::CleanHistoryAll;
+    cleanQuick = historyChoice == Config::CleanHistoryQuick;
+    cleanNone = historyChoice == Config::CleanHistoryNone;
 }
 
 void QuickWebShortcuts::matchSessionFinished() {
@@ -158,22 +150,9 @@ void QuickWebShortcuts::matchSessionFinished() {
     // No changes have been made, exit function
     if (filteredHistory.size() == initialHistorySize) return;
 
-    QFile f(QDir::homePath() + "/.config/krunnerrc");
-    if (f.open(QIODevice::ReadWrite)) {
-        QString s;
-        QTextStream t(&f);
-        while (!t.atEnd()) {
-            const QString line = t.readLine();
-            if (!line.startsWith("history")) {
-                s.append(line + "\n");
-            } else {
-                s.append("history=" + filteredHistory + "\n");
-            }
-        }
-        f.resize(0);
-        f.write(s.toLocal8Bit());
-        f.close();
-    }
+    // Write changes and make sure that the config gets synced
+    generalKrunnerConfig.writeEntry("history", filteredHistory);
+    generalKrunnerConfig.sync();
 }
 
 void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
@@ -192,9 +171,9 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         context.addMatch(createMatch(searchOptionTemplate.arg(term) + privateBrowserMode, data));
         if (searchSuggestions && privateWindowSearchSuggestions) {
             if (term.size() < minimumLetterCount) return;
-            if (searchSuggestionChoice == "bing") {
+            if (searchSuggestionChoice == Config::SearchSuggestionBing) {
                 bingSearchSuggest(context, term, privateBrowser);
-            } else if (searchSuggestionChoice == "google") {
+            } else if (searchSuggestionChoice == Config::SearchSuggestionGoogle) {
                 googleSearchSuggest(context, term, privateBrowser);
             } else {
                 duckDuckGoSearchSuggest(context, term, privateBrowser);
@@ -206,9 +185,9 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         context.addMatch(createMatch(searchOptionTemplate.arg(term), data));
         if (searchSuggestions) {
             if (term.size() < minimumLetterCount) return;
-            if (searchSuggestionChoice == "bing") {
+            if (searchSuggestionChoice == Config::SearchSuggestionBing) {
                 bingSearchSuggest(context, term);
-            } else if (searchSuggestionChoice == "google") {
+            } else if (searchSuggestionChoice == Config::SearchSuggestionGoogle) {
                 googleSearchSuggest(context, term);
             } else {
                 duckDuckGoSearchSuggest(context, term);

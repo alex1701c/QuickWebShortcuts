@@ -8,6 +8,7 @@
 #include <QMap>
 #include <KSharedConfig>
 #include <QtWidgets/QComboBox>
+#include <Config.h>
 #include "SearchEngine.h"
 
 class SearchEngines {
@@ -41,21 +42,21 @@ public:
 
     static QList<SearchEngine> getAllSearchEngines() {
         QList<SearchEngine> searchEngines;
-        const auto rootConfig = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/quickwebshortcutsrunnerrc")
-                ->group("Config");
+        const auto rootConfig = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/" + Config::ConfigFile)
+                ->group(Config::RootGroup);
         auto defaultEngines = getDefaultSearchEngines();
         const auto iconNames = getIconNames();
         for (const auto &groupName:rootConfig.groupList().filter(QRegExp("^SearchEngine-"))) {
             const auto config = rootConfig.group(groupName);
             SearchEngine engine;
-            engine.name = config.readEntry("name");
-            engine.url = config.readEntry("url");
-            engine.icon = config.readEntry("icon");
-            if (engine.icon.isEmpty()) engine.icon = config.readEntry("original_icon");
+            engine.name = config.readEntry(SearchEngineConfig::Name);
+            engine.url = config.readEntry(SearchEngineConfig::Url);
+            engine.icon = config.readEntry(SearchEngineConfig::Icon);
+            if (engine.icon.isEmpty()) engine.icon = config.readEntry(SearchEngineConfig::OriginalIcon);
             if (engine.icon.isEmpty()) engine.icon = "globe";
             engine.qIcon = engine.icon.startsWith("/") ? QIcon(engine.icon) : QIcon::fromTheme(engine.icon);
-            if (!config.readEntry("original_name").isEmpty()) {
-                engine.originalName = config.readEntry("original_name");
+            if (!config.readEntry(SearchEngineConfig::OriginalName).isEmpty()) {
+                engine.originalName = config.readEntry(SearchEngineConfig::OriginalName);
                 engine.originalURL = defaultEngines.value(engine.originalName);
                 engine.originalIcon = iconNames.value(engine.originalName);
                 engine.isDefaultBased = true;

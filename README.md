@@ -75,7 +75,7 @@ The next one prepends "Search for" to the text. If you just want the query and o
 mode note to be shown this option can be unchecked.  
 The open urls feature allows you to open simple links, for instance 'github.com'.
 The last option allows you to use a different character that triggers the plugin. By default ':' is used
-but this might interfere with other plugins you use.
+but this might interfere with other plugins you use.  
 ![Configure search engines](https://raw.githubusercontent.com/alex1701c/Screenshots/master/QuickWebShortcuts/config_dialog_search_engines_section.png)
 
 #### Configure suggestions
