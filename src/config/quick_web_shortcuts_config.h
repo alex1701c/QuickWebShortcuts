@@ -2,7 +2,6 @@
 #define QUICKWEBSHORTCUTSCONFIG_H
 
 #include "ui_quick_web_shortcuts_config.h"
-#include "ui_browser_item.h"
 #include <KCModule>
 #include <KConfigCore/KConfigGroup>
 #include <QtNetwork>
@@ -23,27 +22,6 @@ public:
         setupUi(this);
     }
 
-};
-
-class SearchEngineItem : public QWidget, public Ui::SearchEngineItemUi {
-Q_OBJECT
-
-public:
-    QWidget *parentModule;
-    QString originalName, originalURL, originalIcon, icon;
-    bool isDefault = false;
-    bool isEdited = false;
-    bool isDefaultBased = false;
-
-    explicit SearchEngineItem(QWidget *parent, QWidget *parentModule);
-
-public Q_SLOTS:
-
-    void extractNameFromUrl();
-
-    void edited() { this->isEdited = true; }
-
-    void iconPicker();
 };
 
 class QuickWebShortcutsConfig : public KCModule {
@@ -68,8 +46,6 @@ public Q_SLOTS:
 
     void defaults() override;
 
-    void insertLocaleSelectData();
-
     void addSearchEngine();
 
     void deleteCurrentItem();
@@ -82,7 +58,6 @@ public Q_SLOTS:
 
     void showSearchForClicked();
 
-    // Disable proxy options of the KWallet library is not available
     void validateProxyConnection();
 
     void showProxyConnectionValidationResults(QNetworkReply *reply);

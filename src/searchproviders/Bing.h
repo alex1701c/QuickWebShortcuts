@@ -43,9 +43,12 @@ public:
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-        m_manager->get(request);
+        auto initialReply = m_manager->get(request);
 
         connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
+        QTimer::singleShot(2000, initialReply, [initialReply]() {
+            initialReply->abort();
+        });
 #endif
     }
 
@@ -57,6 +60,11 @@ public Q_SLOTS:
         emit finished();
         return;
 #endif
+        if (reply->error() == QNetworkReply::OperationCanceledError) {
+            emit finished();
+            delete reply;
+            return;
+        }
         if (reply->error() != QNetworkReply::NoError) {
             if (data.showNetworkErrors) {
                 QProcess::startDetached("notify-send", QStringList(
@@ -91,6 +99,7 @@ public Q_SLOTS:
                 }
             }
         }
+        delete reply;
         emit finished();
     }
 

@@ -36,15 +36,23 @@ public:
         request.setHeader(QNetworkRequest::KnownHeaders::UserAgentHeader,
                           "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0");
 
-        m_manager->get(request);
+        auto initialReply = m_manager->get(request);
 
         connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
+        QTimer::singleShot(2000, initialReply, [initialReply]() {
+            initialReply->abort();
+        });
     }
 
 
 public Q_SLOTS:
 
     void parseResponse(QNetworkReply *reply) {
+        if (reply->error() == QNetworkReply::OperationCanceledError) {
+            emit finished();
+            delete reply;
+            return;
+        }
         if (reply->error() != QNetworkReply::NoError) {
             if (data.showNetworkErrors) {
                 QProcess::startDetached("notify-send", QStringList(
@@ -79,8 +87,9 @@ public Q_SLOTS:
                 m_context.addMatch(match);
             }
         }
-        emit finished();
 
+        delete reply;
+        emit finished();
     }
 
 Q_SIGNALS:

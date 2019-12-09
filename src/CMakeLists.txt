@@ -14,7 +14,11 @@ endif ()
 set(kcm_krunner_quickwebshortcuts_SRCS
         config/quick_web_shortcuts_config.cpp
         searchengines/SearchEngines.h
-        searchproviders/RequiredData.h searchengines/SearchEngine.h Config.h utilities.h)
+        searchengines/SearchEngine.h
+        Config.h
+        utilities.h
+        config/api_language_utility.h
+        config/SearchEngineItem.cpp)
 
 ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/quick_web_shortcuts_config.ui)
 ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/browser_item.ui)
