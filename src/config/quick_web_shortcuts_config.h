@@ -7,6 +7,14 @@
 #include <KConfigCore/KConfigGroup>
 #include <QtNetwork>
 
+#ifndef NO_PROXY_INTEGRATION
+
+#include <KWallet/KWallet>
+
+using KWallet::Wallet;
+
+#endif
+
 class QuickWebShortcutsConfigForm : public QWidget, public Ui::QuickWebShortcutsConfigUi {
 Q_OBJECT
 
@@ -44,8 +52,13 @@ Q_OBJECT
 public:
     explicit QuickWebShortcutsConfig(QWidget *parent = nullptr, const QVariantList &args = QVariantList());
 
+    ~QuickWebShortcutsConfig() override;
+
     KConfigGroup config;
+#ifndef NO_PROXY_INTEGRATION
     QTime timeBeforeRequest;
+    Wallet *wallet;
+#endif
 
 public Q_SLOTS:
 
@@ -65,13 +78,19 @@ public Q_SLOTS:
 
     void validateProxyOptions();
 
+    void itemSelected();
+
+    void showSearchForClicked();
+
+    // Disable proxy options of the KWallet library is not available
     void validateProxyConnection();
 
     void showProxyConnectionValidationResults(QNetworkReply *reply);
 
-    void itemSelected();
+    void readKWalletEntries();
 
-    void showSearchForClicked();
+    void saveKWalletEntries();
+
 
 private:
     QuickWebShortcutsConfigForm *m_ui;

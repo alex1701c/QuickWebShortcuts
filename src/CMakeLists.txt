@@ -4,7 +4,11 @@ set(quickwebshortcuts_SRCS quick_web_shortcuts.h quick_web_shortcuts.cpp searchp
         searchengines/SearchEngines.h searchproviders/Google.h searchproviders/DuckDuckGo.h searchengines/SearchEngine.h Config.h utilities.h)
 
 add_library(krunner_quickwebshortcuts MODULE ${quickwebshortcuts_SRCS})
-target_link_libraries(krunner_quickwebshortcuts KF5::Runner KF5::Plasma Qt5::Core Qt5::Network)
+target_link_libraries(krunner_quickwebshortcuts KF5::Runner Qt5::Core Qt5::Network)
+
+if (${KF5Wallet_FOUND})
+    target_link_libraries(krunner_quickwebshortcuts KF5::Wallet)
+endif ()
 
 
 set(kcm_krunner_quickwebshortcuts_SRCS
@@ -24,6 +28,10 @@ target_link_libraries(kcm_krunner_quickwebshortcuts
         KF5::I18n
         KF5::ConfigWidgets
         )
+
+if (${KF5Wallet_FOUND})
+    target_link_libraries(kcm_krunner_quickwebshortcuts KF5::Wallet)
+endif ()
 
 add_dependencies(krunner_quickwebshortcuts kcm_krunner_quickwebshortcuts)
 

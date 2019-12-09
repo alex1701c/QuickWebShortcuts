@@ -19,7 +19,8 @@ for instance you can use '!', '?', "#" or '<'.
 ### Build Instructions
 
 Required Dependencies on Debian/Ubuntu:  
-`sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext libnotify-bin`
+`sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext 
+ libnotify-bin libkf5wallet-dev`
 
 openSUSE  
 `sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel
@@ -28,6 +29,8 @@ openSUSE
 Fedora  
 `sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext libnotify`  
 
+Arch (Manjaro):
+`sudo pacman -S cmake extra-cmake-modules kwallet`
 
 The easiest way to install is:  
 `curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install.sh | bash`  
@@ -45,6 +48,8 @@ make
 sudo make install
 kquitapp5 krunner 2> /dev/null; kstart5 --windowclass krunner krunner > /dev/null 2>&1 &
 ```
+Info: KWallet is not required for building this project but without it the proxy feature for the 
+search suggestions are disabled, if you install it after building the plugin you have to recompile it.  
 
 ## Screenshots
 

@@ -16,6 +16,11 @@ QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
     setPriority(HighestPriority);
 }
 
+QuickWebShortcuts::~QuickWebShortcuts() {
+    delete requiredData.proxy;
+}
+
+
 void QuickWebShortcuts::init() {
     initializeConfigFile();
 
@@ -107,19 +112,13 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     requiredData.searchOptionTemplate = searchOptionTemplate;
 
     // Proxy settings
-    const QString proxyChoice = configGroup.readEntry(Config::Proxy, Config::ProxyDisabled);
-    if (proxyChoice != Config::ProxyDisabled) {
-        auto *proxy = new QNetworkProxy();
-        proxy->setType(proxyChoice == "http" ? QNetworkProxy::HttpProxy : QNetworkProxy::Socks5Proxy);
-        proxy->setHostName(configGroup.readEntry(Config::ProxyHostname));
-        proxy->setPort(configGroup.readEntry(Config::ProxyPort).toInt());
-        proxy->setUser(QByteArray::fromHex(configGroup.readEntry(Config::ProxyUsername).toLocal8Bit()));
-        proxy->setPassword(QByteArray::fromHex(configGroup.readEntry(Config::ProxyPassword).toLocal8Bit()));
-        requiredData.proxy = proxy;
-        requiredData.showNetworkErrors = configGroup.readEntry(Config::ProxyShowErrors, true);
-    } else {
-        requiredData.proxy = nullptr;
-    }
+#ifndef NO_PROXY_INTEGRATION
+    delete requiredData.proxy;
+    requiredData.proxy = getProxyFromConfig(configGroup.readEntry(Config::Proxy, Config::ProxyDisabled));
+    requiredData.showNetworkErrors = configGroup.readEntry(Config::ProxyShowErrors, true);
+#else
+    requiredData.proxy = nullptr;
+#endif
 
     // History settings
     QString historyChoice = configGroup.readEntry(Config::CleanHistory, Config::CleanHistoryDefault);
@@ -204,7 +203,10 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
     Q_UNUSED(context)
 
     const QMap<QString, QVariant> payload = match.data().toMap();
+    // Otherwise compiler shows warning that the results of the system() call is ignored
+#pragma GCC diagnostic ignored "-Wunused-result"
     system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " '" + payload.value("url").toString() + "') &"));
+#pragma GCC diagnostic pop
     wasActive = true;
 }
 

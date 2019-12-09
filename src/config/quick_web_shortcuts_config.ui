@@ -32,7 +32,7 @@
         <x>0</x>
         <y>0</y>
         <width>633</width>
-        <height>1140</height>
+        <height>1164</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -51,7 +51,139 @@
           <enum>Qt::LeftToRight</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="2" column="0">
+          <item row="1" column="0">
+           <widget class="QGroupBox" name="groupBoxSearch">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="title">
+             <string>Search Engines</string>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_5">
+               <property name="topMargin">
+                <number>15</number>
+               </property>
+               <item>
+                <layout class="QVBoxLayout" name="searchEnginesItemLayout">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                </layout>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="addSearchEngine">
+               <property name="text">
+                <string>Add Custom Search Engine</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="showSearchEngineName">
+               <property name="text">
+                <string>Show Name Of Search Engine</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="showPrivateNoteCheckBox">
+               <property name="text">
+                <string>Show Private/Incognito Note</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="showSearchForCheckBox">
+               <property name="text">
+                <string>Show &quot;Search for: &quot; Note</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="openURLS">
+               <property name="text">
+                <string>Open URLs</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <item alignment="Qt::AlignLeft">
+                <widget class="QLabel" name="label">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Trigger Character:</string>
+                 </property>
+                </widget>
+               </item>
+               <item alignment="Qt::AlignLeft">
+                <widget class="QComboBox" name="triggerCharacterComboBox">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>:</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>!</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>?</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>#</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>&lt;</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="3" column="0">
            <widget class="QGroupBox" name="groupBoxHistory">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -100,7 +232,7 @@
             </layout>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="2" column="0">
            <widget class="QGroupBox" name="groupBoxSearchSuggestions">
             <property name="title">
              <string>Search Suggestions</string>
@@ -117,7 +249,23 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="googleLanguageComboBox"/>
+              <widget class="QComboBox" name="googleLanguageComboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>250</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::WheelFocus</enum>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QRadioButton" name="bingRadioButton">
@@ -127,7 +275,23 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="bingLocaleSelectComboBox"/>
+              <widget class="QComboBox" name="bingLocaleSelectComboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>250</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::WheelFocus</enum>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QRadioButton" name="duckDuckGoRadioButton">
@@ -358,135 +522,10 @@
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QGroupBox" name="groupBoxSearch">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QLabel" name="topLabel">
+            <property name="text">
+             <string/>
             </property>
-            <property name="title">
-             <string>Search Engines</string>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_3">
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_5">
-               <property name="topMargin">
-                <number>15</number>
-               </property>
-               <item>
-                <layout class="QVBoxLayout" name="searchEnginesItemLayout">
-                 <property name="spacing">
-                  <number>0</number>
-                 </property>
-                </layout>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <widget class="QPushButton" name="addSearchEngine">
-               <property name="text">
-                <string>Add Custom Search Engine</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="showSearchEngineName">
-               <property name="text">
-                <string>Show Name Of Search Engine</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="showPrivateNoteCheckBox">
-               <property name="text">
-                <string>Show Private/Incognito Note</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="showSearchForCheckBox">
-               <property name="text">
-                <string>Show &quot;Search for: &quot; Note</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="openURLS">
-               <property name="text">
-                <string>Open URLs</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout">
-               <item alignment="Qt::AlignLeft">
-                <widget class="QLabel" name="label">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Trigger Character:</string>
-                 </property>
-                </widget>
-               </item>
-               <item alignment="Qt::AlignLeft">
-                <widget class="QComboBox" name="triggerCharacterComboBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>:</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>!</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>?</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>#</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>&lt;</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </item>
-            </layout>
            </widget>
           </item>
          </layout>

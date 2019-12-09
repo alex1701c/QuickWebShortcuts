@@ -5,7 +5,7 @@
 
 class RequiredData {
 public:
-    QNetworkProxy *proxy;
+    QNetworkProxy *proxy = nullptr;
     Plasma::AbstractRunner *runner;
     QString searchEngine;
     QIcon icon;

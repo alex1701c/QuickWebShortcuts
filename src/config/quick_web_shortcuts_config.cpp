@@ -45,19 +45,28 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->maxSearchSuggestionsSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changed()));
     connect(m_ui->bingLocaleSelectComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
     connect(m_ui->googleLanguageComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
-    // Proxy Options
+// Signals/Slots that depend on the proxy feature to be enabled
+#ifndef NO_PROXY_INTEGRATION
+    wallet = Wallet::openWallet(Wallet::LocalWallet(), 0, Wallet::Synchronous);
     connect(m_ui->noProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->httpProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->socks5ProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
     connect(m_ui->noProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyOptions()));
     connect(m_ui->httpProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyOptions()));
     connect(m_ui->socks5ProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyOptions()));
+    connect(m_ui->testProxyConfigPushButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyConnection()));
     connect(m_ui->hostNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->portLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->usernameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->passwordLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->showErrorsCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->testProxyConfigPushButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyConnection()));
+#endif
+}
+
+QuickWebShortcutsConfig::~QuickWebShortcutsConfig() {
+#ifndef NO_PROXY_INTEGRATION
+    delete wallet;
+#endif
 }
 
 void QuickWebShortcutsConfig::load() {
@@ -116,18 +125,19 @@ void QuickWebShortcutsConfig::load() {
             config.readEntry(Config::GoogleLocale, Config::GoogleLocaleDefault)));
     validateSearchSuggestions();
 
+#ifndef NO_PROXY_INTEGRATION
     // Proxy settings
     const QString proxy = config.readEntry(Config::Proxy);
     if (proxy == "http") m_ui->httpProxyRadioButton->setChecked(true);
     else if (proxy == "socks5") m_ui->socks5ProxyRadioButton->setChecked(true);
     else m_ui->noProxyRadioButton->setChecked(true);
 
-    m_ui->hostNameLineEdit->setText(config.readEntry(Config::ProxyHostname));
-    m_ui->portLineEdit->setText(config.readEntry(Config::ProxyPort));
-    m_ui->usernameLineEdit->setText(QString(QByteArray::fromHex(config.readEntry(Config::ProxyUsername).toLocal8Bit())));
-    m_ui->passwordLineEdit->setText(QString(QByteArray::fromHex(config.readEntry(Config::ProxyPassword).toLocal8Bit())));
-    m_ui->showErrorsCheckBox->setChecked(config.readEntry(Config::ProxyShowErrors, true));
+    readKWalletEntries();
     validateProxyOptions();
+#else
+    m_ui->proxyDataContainerWidget->setHidden(true);
+    m_ui->suggestionsProxyWidget->setHidden(true);
+#endif
 
     // Clear History settings
     QString historyOption = config.readEntry(Config::CleanHistory, Config::CleanHistoryDefault);
@@ -198,11 +208,10 @@ void QuickWebShortcutsConfig::save() {
     else proxy = Config::ProxyDisabled;
     config.writeEntry(Config::Proxy, proxy);
 
-    config.writeEntry(Config::ProxyHostname, m_ui->hostNameLineEdit->text());
-    config.writeEntry(Config::ProxyPort, m_ui->portLineEdit->text());
-    config.writeEntry(Config::ProxyUsername, m_ui->usernameLineEdit->text().toLatin1().toHex());
-    config.writeEntry(Config::ProxyPassword, m_ui->passwordLineEdit->text().toLatin1().toHex());
+#ifndef NO_PROXY_INTEGRATION
+    saveKWalletEntries();
     config.writeEntry(Config::ProxyShowErrors, m_ui->showErrorsCheckBox->isChecked());
+#endif
 
     QString history;
     if (m_ui->historyAll->isChecked()) {
@@ -484,6 +493,34 @@ void QuickWebShortcutsConfig::validateProxyOptions() {
     m_ui->proxyDataContainerWidget->setHidden(m_ui->noProxyRadioButton->isChecked());
 }
 
+void QuickWebShortcutsConfig::itemSelected() {
+    auto *sourceItem = reinterpret_cast<SearchEngineItem *>(this->sender()->parent());
+    const int itemCount = m_ui->searchEnginesItemLayout->count();
+    int selected = 0;
+    for (int i = 0; i < itemCount; ++i) {
+        auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
+        if (item->useRadioButton->isChecked()) ++selected;
+    }
+    if (selected == 2) {
+        // Another item is selected
+        for (int i = 0; i < itemCount; ++i) {
+            auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
+            if (item->useRadioButton->isChecked() && item != sourceItem) {
+                item->useRadioButton->setChecked(false);
+            }
+        }
+    } else {
+        // The same item was clicked => it has to be selected, otherwise no item is checked
+        sourceItem->useRadioButton->setChecked(true);
+    }
+}
+
+void QuickWebShortcutsConfig::showSearchForClicked() {
+    m_ui->showSearchEngineName->setDisabled(!m_ui->showSearchForCheckBox->isChecked());
+}
+
+#ifndef NO_PROXY_INTEGRATION
+
 void QuickWebShortcutsConfig::validateProxyConnection() {
     auto *manager = new QNetworkAccessManager(this);
     auto *proxy = new QNetworkProxy();
@@ -512,31 +549,48 @@ void QuickWebShortcutsConfig::showProxyConnectionValidationResults(QNetworkReply
     }
 }
 
-void QuickWebShortcutsConfig::itemSelected() {
-    auto *sourceItem = reinterpret_cast<SearchEngineItem *>(this->sender()->parent());
-    const int itemCount = m_ui->searchEnginesItemLayout->count();
-    int selected = 0;
-    for (int i = 0; i < itemCount; ++i) {
-        auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
-        if (item->useRadioButton->isChecked()) ++selected;
-    }
-    if (selected == 2) {
-        // Another item is selected
-        for (int i = 0; i < itemCount; ++i) {
-            auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
-            if (item->useRadioButton->isChecked() && item != sourceItem) {
-                item->useRadioButton->setChecked(false);
-            }
-        }
+void QuickWebShortcutsConfig::readKWalletEntries() {
+    // KWallet Entries
+    if (KWallet::Wallet::isEnabled() && wallet->isOpen()) {
+        QByteArray hostName;
+        wallet->readEntry(KWalletConfig::ProxyHostname, hostName);
+        m_ui->hostNameLineEdit->setText(hostName);
+        QByteArray port;
+        wallet->readEntry(KWalletConfig::ProxyPort, port);
+        m_ui->portLineEdit->setText(port);
+        QByteArray username;
+        wallet->readEntry(KWalletConfig::ProxyUsername, username);
+        m_ui->usernameLineEdit->setText(username);
+        QByteArray password;
+        wallet->readEntry(KWalletConfig::ProxyPassword, password);
+        m_ui->passwordLineEdit->setText(password);
+        m_ui->showErrorsCheckBox->setChecked(config.readEntry(Config::ProxyShowErrors, true));
     } else {
-        // The same item was clicked => it has to be selected, otherwise no item is checked
-        sourceItem->useRadioButton->setChecked(true);
+        m_ui->topLabel->setText("KWallet is disabled or could not be opened, proxy credentials can not be stored!");
     }
 }
 
-void QuickWebShortcutsConfig::showSearchForClicked() {
-    m_ui->showSearchEngineName->setDisabled(!m_ui->showSearchForCheckBox->isChecked());
+void QuickWebShortcutsConfig::saveKWalletEntries() {
+    // Save important information in KWallet
+    if (KWallet::Wallet::isEnabled() && wallet->isOpen()) {
+        wallet->writeEntry(KWalletConfig::ProxyHostname, m_ui->hostNameLineEdit->text().toLocal8Bit());
+        wallet->writeEntry(KWalletConfig::ProxyPort, m_ui->portLineEdit->text().toLocal8Bit());
+        wallet->writeEntry(KWalletConfig::ProxyUsername, m_ui->usernameLineEdit->text().toLocal8Bit());
+        wallet->writeEntry(KWalletConfig::ProxyPassword, m_ui->passwordLineEdit->text().toLocal8Bit());
+    }
 }
+#else
+
+// For internal qt calls
+void QuickWebShortcutsConfig::validateProxyConnection() {}
+
+void QuickWebShortcutsConfig::showProxyConnectionValidationResults(QNetworkReply *reply) { Q_UNUSED(reply) }
+
+void QuickWebShortcutsConfig::readKWalletEntries() {}
+
+void QuickWebShortcutsConfig::saveKWalletEntries() {}
+
+#endif
 
 SearchEngineItem::SearchEngineItem(QWidget *parent, QWidget *parentModule) : QWidget(parent), parentModule(parentModule) {
     setupUi(this);

@@ -36,10 +36,6 @@ struct Config {
     // Proxy settings for search suggestions
     constexpr static const auto Proxy = "proxy";
     constexpr static const auto ProxyDisabled = "disabled";
-    constexpr static const auto ProxyHostname = "proxy_hostname";
-    constexpr static const auto ProxyPort = "proxy_port";
-    constexpr static const auto ProxyUsername = "proxy_username";
-    constexpr static const auto ProxyPassword = "proxy_password";
     constexpr static const auto ProxyShowErrors = "proxy_show_errors";
 
     // History cleaning options
@@ -61,4 +57,12 @@ struct SearchEngineConfig {
     constexpr static const auto OriginalName = "original_name";
 };
 
+#ifndef NO_PROXY_INTEGRATION
+struct KWalletConfig {
+    constexpr static const auto ProxyHostname = "Krunner-QuickWebShortcuts-proxy_hostname";
+    constexpr static const auto ProxyPort = "Krunner-QuickWebShortcuts-proxy_port";
+    constexpr static const auto ProxyUsername = "Krunner-QuickWebShortcuts-proxy_username";
+    constexpr static const auto ProxyPassword = "Krunner-QuickWebShortcuts-proxy_password";
+};
+#endif
 #endif //QUICKWEBSHORTCUTS_CONFIG_H
