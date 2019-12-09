@@ -14,7 +14,7 @@ It has been tested with Firefox, Chromium, Google Chrome and Epiphany.
 But you have to manually select one of these as your default browser, otherwise Firefox is used as default.
 
 Furthermore you can customize the letter that is used to trigger the plugin in the config,
-for instance you can use '!', '?', "#" or '<'.
+for instance you can use '!', '?', '#' or '<'.
 
 ### Build Instructions
 
@@ -29,8 +29,8 @@ openSUSE
 Fedora  
 `sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext libnotify`  
 
-Arch (Manjaro):
-`sudo pacman -S cmake extra-cmake-modules kwallet`
+Arch (Manjaro):  
+`sudo pacman -S cmake extra-cmake-modules libnotify kwallet`
 
 The easiest way to install is:  
 `curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install.sh | bash`  
