@@ -4,6 +4,7 @@
 #include "ui_quick_web_shortcuts_config.h"
 #include <KCModule>
 #include <KConfigCore/KConfigGroup>
+#include "SearchEngineItem.h"
 #include <QtNetwork>
 
 #ifndef NO_PROXY_INTEGRATION
@@ -32,12 +33,6 @@ public:
 
     ~QuickWebShortcutsConfig() override;
 
-    KConfigGroup config;
-#ifndef NO_PROXY_INTEGRATION
-    QTime timeBeforeRequest;
-    Wallet *wallet;
-#endif
-
 public Q_SLOTS:
 
     void save() override;
@@ -47,6 +42,8 @@ public Q_SLOTS:
     void defaults() override;
 
     void addSearchEngine();
+
+    void connectSearchEngineSignals(SearchEngineItem *);
 
     void deleteCurrentItem();
 
@@ -69,6 +66,11 @@ public Q_SLOTS:
 
 private:
     QuickWebShortcutsConfigForm *m_ui;
+    KConfigGroup config;
+#ifndef NO_PROXY_INTEGRATION
+    QTime timeBeforeRequest;
+    Wallet *wallet;
+#endif
 };
 
 #endif

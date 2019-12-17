@@ -4,6 +4,7 @@
 
 #include <QtNetwork/QNetworkReply>
 #include <KRunner/AbstractRunner>
+#include <KNotifications/KNotification>
 #include <QtCore>
 #include <utility>
 #include "RequiredData.h"
@@ -15,24 +16,26 @@ class Bing : public QObject {
 Q_OBJECT
 
 private:
-    QNetworkAccessManager *m_manager;
-    Plasma::RunnerContext m_context;
+    QNetworkAccessManager *manager;
+    Plasma::RunnerContext context;
     const QString query;
     const QString market = "en-us";
     const QString browserLaunchCommand;
     RequiredData data;
 
 public:
-    Bing(Plasma::RunnerContext &mContext, QString mQuery, RequiredData &data, QString mMarket = "en-us",
-         QString browserLaunchCommand = "") : m_context(mContext), query(std::move(mQuery)), market(std::move(mMarket)),
+    Bing(Plasma::RunnerContext &context, QString query, RequiredData &data, QString market = "en-us",
+         QString browserLaunchCommand = "") : context(context), query(std::move(query)), market(std::move(market)),
                                               browserLaunchCommand(std::move(browserLaunchCommand)), data(data) {
 
-        m_manager = new QNetworkAccessManager(this);
-        if (data.proxy != nullptr) m_manager->setProxy(*this->data.proxy);
+        manager = new QNetworkAccessManager(this);
+        if (data.proxy != nullptr) {
+            manager->setProxy(*this->data.proxy);
+        }
 #ifdef  TEST_PROXY
         QNetworkRequest request(QUrl("https://ifconfig.me/ip"));
         m_manager->get(request);
-        connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
+        connect(manager, &QNetworkAccessManager::finished, this, &Bing::parseResponse);
 #else
         QUrlQuery queryParameters;
         queryParameters.addQueryItem("query", this->query);
@@ -43,9 +46,10 @@ public:
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-        auto initialReply = m_manager->get(request);
+        const auto initialReply = manager->get(request);
 
-        connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
+        connect(manager, &QNetworkAccessManager::finished, this, &Bing::parseResponse);
+
         QTimer::singleShot(2000, initialReply, [initialReply]() {
             initialReply->abort();
         });
@@ -67,12 +71,13 @@ public Q_SLOTS:
         }
         if (reply->error() != QNetworkReply::NoError) {
             if (data.showNetworkErrors) {
-                QProcess::startDetached("notify-send", QStringList(
-                        {"-i", "globe", "QuickWebShortcuts ",
-                         QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
-                         reply->errorString()}));
+                KNotification::event(KNotification::Error,
+                                     "Krunner-QuickWebShortcuts",
+                                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) +
+                                     ":\n" +
+                                     reply->errorString(), "globe");
             }
-        } else if (m_context.isValid()) {
+        } else if (context.isValid()) {
             const auto suggestionsObject = QJsonDocument::fromJson(reply->readAll());
             if (suggestionsObject.isArray()) {
                 const auto rootArray = suggestionsObject.array();
@@ -94,7 +99,7 @@ public Q_SLOTS:
                         runData.insert("url", data.searchEngine + QUrl::toPercentEncoding(suggestion));
                         if (!browserLaunchCommand.isEmpty()) runData.insert("browser", browserLaunchCommand);
                         match.setData(runData);
-                        m_context.addMatch(match);
+                        context.addMatch(match);
                     }
                 }
             }

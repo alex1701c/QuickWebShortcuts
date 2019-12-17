@@ -3,6 +3,7 @@
 
 #include <QtNetwork/QNetworkReply>
 #include <QtCore>
+#include <KNotifications/KNotification>
 #include <utility>
 #include "RequiredData.h"
 
@@ -11,24 +12,26 @@ class Google : public QObject {
 Q_OBJECT
 
 private:
-    QNetworkAccessManager *m_manager;
-    Plasma::RunnerContext m_context;
+    QNetworkAccessManager *manager;
+    Plasma::RunnerContext context;
     const QString query;
     const QString language;
     const QString browserLaunchCommand;
     RequiredData data;
 
 public:
-    Google(Plasma::RunnerContext &mContext,
+    Google(Plasma::RunnerContext &context,
            QString query,
            RequiredData data,
            QString language = "en",
            QString browserLaunchCommand = ""
-    ) : m_context(mContext), query(std::move(query)), language(std::move(language)),
+    ) : context(context), query(std::move(query)), language(std::move(language)),
         browserLaunchCommand(std::move(browserLaunchCommand)), data(std::move(data)) {
 
-        m_manager = new QNetworkAccessManager(this);
-        if (data.proxy != nullptr) m_manager->setProxy(*this->data.proxy);
+        manager = new QNetworkAccessManager(this);
+        if (data.proxy != nullptr) {
+            manager->setProxy(*this->data.proxy);
+        }
 
         QUrlQuery queryParameters;
         queryParameters.addQueryItem("q", this->query);
@@ -40,9 +43,9 @@ public:
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-        auto initialReply = m_manager->get(request);
+        const auto initialReply = manager->get(request);
 
-        connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
+        connect(manager, &QNetworkAccessManager::finished, this, &Google::parseResponse);
         QTimer::singleShot(2000, initialReply, [initialReply]() {
             initialReply->abort();
         });
@@ -58,12 +61,13 @@ public Q_SLOTS:
         }
         if (reply->error() != QNetworkReply::NoError) {
             if (data.showNetworkErrors) {
-                QProcess::startDetached("notify-send", QStringList(
-                        {"-i", "globe", "QuickWebShortcuts ",
-                         QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
-                         reply->errorString()}));
+                KNotification::event(KNotification::Error,
+                                     "Krunner-QuickWebShortcuts",
+                                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) +
+                                     ":\n" +
+                                     reply->errorString(), "globe");
             }
-        } else if (m_context.isValid()) {
+        } else if (context.isValid()) {
             const QString xmlContent = reply->readAll();
             QXmlStreamReader reader(xmlContent);
             QStringList suggestions;
@@ -90,9 +94,11 @@ public Q_SLOTS:
 
                 QMap<QString, QVariant> runData;
                 runData.insert("url", data.searchEngine + QUrl::toPercentEncoding(suggestion));
-                if (!browserLaunchCommand.isEmpty()) runData.insert("browser", browserLaunchCommand);
+                if (!browserLaunchCommand.isEmpty()) {
+                    runData.insert("browser", browserLaunchCommand);
+                }
                 match.setData(runData);
-                m_context.addMatch(match);
+                context.addMatch(match);
             }
 
         }

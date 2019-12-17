@@ -19,18 +19,16 @@ for instance you can use '!', '?', '#' or '<'.
 ### Build Instructions
 
 Required Dependencies on Debian/Ubuntu:  
-`sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext 
- libnotify-bin libkf5wallet-dev`
+`sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext libkf5notifications-dev libkf5wallet-dev`
 
 openSUSE  
-`sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel
- kservice-devel krunner-devel gettext-tools kconfigwidgets-devel libnotify-tools kwallet-devel`  
+`sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel kservice-devel krunner-devel gettext-tools kconfigwidgets-devel knotifications-devel kwallet-devel`  
 
 Fedora  
-`sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext libnotify kf5-kwallet-devel`  
+`sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext kf5-knotifications-devel kf5-kwallet-devel`  
 
 Arch (Manjaro):  
-`sudo pacman -S cmake extra-cmake-modules libnotify kwallet`
+`sudo pacman -S cmake extra-cmake-modules knotifications kwallet`
 
 The easiest way to install is:  
 `curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install.sh | bash`  

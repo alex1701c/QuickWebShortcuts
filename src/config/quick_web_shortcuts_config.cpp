@@ -1,7 +1,6 @@
 #include "quick_web_shortcuts_config.h"
 #include "searchengines/SearchEngines.h"
 #include "api_language_utility.h"
-#include "SearchEngineItem.h"
 #include <KSharedConfig>
 #include <KPluginFactory>
 #include <QtDebug>
@@ -21,38 +20,44 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
             ->group("Config");
     config.config()->reparseConfiguration();
 
+    // Initialize function pointers that require method overloading
+    const auto changedSlotPointer = static_cast<void (QuickWebShortcutsConfig::*)()>(&QuickWebShortcutsConfig::changed);
+    const auto comboBoxIndexChanged = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+    const auto spinBoxValueChanged = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
+
     // History GroupBox
-    connect(m_ui->historyAll, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->historyQuick, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->historyNotClear, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->historyAll, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->historyQuick, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->historyNotClear, &QCheckBox::clicked, this, changedSlotPointer);
     // Search Engines
-    connect(m_ui->openURLS, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->showSearchEngineName, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->showPrivateNoteCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->showSearchForCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->showSearchForCheckBox, SIGNAL(clicked(bool)), this, SLOT(showSearchForClicked()));
-    connect(m_ui->addSearchEngine, SIGNAL(clicked(bool)), this, SLOT(addSearchEngine()));
-    connect(m_ui->triggerCharacterComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
+    connect(m_ui->openURLS, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->showSearchEngineName, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->showPrivateNoteCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->showSearchForCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->showSearchForCheckBox, &QCheckBox::clicked, this, &QuickWebShortcutsConfig::showSearchForClicked);
+    connect(m_ui->addSearchEngine, &QCheckBox::clicked, this, &QuickWebShortcutsConfig::addSearchEngine);
+    connect(m_ui->addSearchEngine, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->triggerCharacterComboBox, comboBoxIndexChanged, this, changedSlotPointer);
     // Search Suggestions GroupBox
-    connect(m_ui->googleRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->googleRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateSearchSuggestions()));
-    connect(m_ui->bingRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->bingRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateSearchSuggestions()));
-    connect(m_ui->duckDuckGoRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->duckDuckGoRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateSearchSuggestions()));
-    connect(m_ui->disableRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->disableRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateSearchSuggestions()));
-    connect(m_ui->privateWindowCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->minimumLetterCountSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changed()));
-    connect(m_ui->maxSearchSuggestionsSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changed()));
-    connect(m_ui->bingLocaleSelectComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
-    connect(m_ui->googleLanguageComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changed()));
+    connect(m_ui->googleRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->googleRadioButton, &QCheckBox::clicked, this, &QuickWebShortcutsConfig::validateSearchSuggestions);
+    connect(m_ui->bingRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->bingRadioButton, &QCheckBox::clicked, this, &QuickWebShortcutsConfig::validateSearchSuggestions);
+    connect(m_ui->duckDuckGoRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->duckDuckGoRadioButton, &QCheckBox::clicked, this, &QuickWebShortcutsConfig::validateSearchSuggestions);
+    connect(m_ui->disableRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->disableRadioButton, &QCheckBox::clicked, this, &QuickWebShortcutsConfig::validateSearchSuggestions);
+    connect(m_ui->privateWindowCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->minimumLetterCountSpinBox, spinBoxValueChanged, this, changedSlotPointer);
+    connect(m_ui->maxSearchSuggestionsSpinBox, spinBoxValueChanged, this, changedSlotPointer);
+    connect(m_ui->bingLocaleSelectComboBox, comboBoxIndexChanged, this, changedSlotPointer);
+    connect(m_ui->googleLanguageComboBox, comboBoxIndexChanged, this, changedSlotPointer);
 // Signals/Slots that depend on the proxy feature to be enabled
 #ifndef NO_PROXY_INTEGRATION
     wallet = Wallet::openWallet(Wallet::LocalWallet(), 0, Wallet::Synchronous);
-    connect(m_ui->noProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->httpProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
-    connect(m_ui->socks5ProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->noProxyRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->httpProxyRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
+    connect(m_ui->socks5ProxyRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->noProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyOptions()));
     connect(m_ui->httpProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyOptions()));
     connect(m_ui->socks5ProxyRadioButton, SIGNAL(clicked(bool)), this, SLOT(validateProxyOptions()));
@@ -61,7 +66,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->portLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->usernameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
     connect(m_ui->passwordLineEdit, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(m_ui->showErrorsCheckBox, SIGNAL(clicked(bool)), this, SLOT(changed()));
+    connect(m_ui->showErrorsCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
 #endif
 }
 
@@ -77,7 +82,7 @@ void QuickWebShortcutsConfig::load() {
     if (searchEngineName.isEmpty()) searchEngineName = "Google";
     // Load search engines
     for (const auto &item : SearchEngines::getAllSearchEngines()) {
-        auto *browserItem = new SearchEngineItem(m_ui->groupBoxSearch, this);
+        auto *browserItem = new SearchEngineItem(m_ui->groupBoxSearch);
         m_ui->searchEnginesItemLayout->addWidget(browserItem);
         browserItem->iconPushButton->setIcon(item.qIcon);
         browserItem->nameLineEdit->setText(item.name);
@@ -87,7 +92,7 @@ void QuickWebShortcutsConfig::load() {
         browserItem->isDefaultBased = item.isDefaultBased;
         browserItem->isEdited = false;
         browserItem->icon = item.icon;
-        browserItem->iconPushButton->setIcon(item.icon.startsWith("/") ? QIcon(item.icon) : QIcon::fromTheme(item.icon));
+        browserItem->iconPushButton->setIcon(QIcon::fromTheme(item.icon));
         if (item.isDefault) {
             browserItem->originalName = item.name;
             browserItem->originalURL = item.url;
@@ -98,6 +103,7 @@ void QuickWebShortcutsConfig::load() {
             browserItem->originalIcon = item.originalIcon;
         }
         browserItem->deletePushButton->setDisabled(item.isDefault || searchEngineNames.contains(item.originalName));
+        connectSearchEngineSignals(browserItem);
     }
     m_ui->showSearchEngineName->setChecked(config.readEntry(Config::ShowName, true));
     m_ui->openURLS->setChecked(config.readEntry(Config::OpenUrls, true));
@@ -249,8 +255,7 @@ void QuickWebShortcutsConfig::defaults() {
             if ((item->isDefault && item->isEdited) || (!item->isDefault && item->isDefaultBased)) {
                 item->nameLineEdit->setText(item->originalName);
                 item->urlLineEdit->setText(item->originalURL);
-                item->iconPushButton->setIcon(item->originalIcon.startsWith("/")
-                                              ? QIcon(item->originalIcon) : QIcon::fromTheme(item->originalIcon));
+                item->iconPushButton->setIcon(QIcon::fromTheme(item->originalIcon));
                 item->isEdited = false;
             }
             item->useRadioButton->setChecked(item->originalName == "Google");
@@ -279,20 +284,29 @@ void QuickWebShortcutsConfig::defaults() {
 }
 
 void QuickWebShortcutsConfig::addSearchEngine() {
-    auto *item = new SearchEngineItem(m_ui->groupBoxSearch, this);
+    auto *item = new SearchEngineItem(m_ui->groupBoxSearch);
     m_ui->searchEnginesItemLayout->insertWidget(0, item);
     item->iconPushButton->setIcon(QIcon::fromTheme("globe"));
 }
 
+void QuickWebShortcutsConfig::connectSearchEngineSignals(SearchEngineItem *item) {
+    const auto changedSlotPointer = static_cast<void (QuickWebShortcutsConfig::*)()>(&QuickWebShortcutsConfig::changed);
+    connect(item, &SearchEngineItem::changed, this, changedSlotPointer);
+    connect(item, &SearchEngineItem::itemSelected, this, &QuickWebShortcutsConfig::itemSelected);
+    connect(item, &SearchEngineItem::itemSelected, this, changedSlotPointer);
+    connect(item, &SearchEngineItem::deleteCurrentItem, this, &QuickWebShortcutsConfig::deleteCurrentItem);
+    connect(item, &SearchEngineItem::deleteCurrentItem, this, changedSlotPointer);
+}
+
 void QuickWebShortcutsConfig::deleteCurrentItem() {
-    auto *item = reinterpret_cast<SearchEngineItem *>(this->sender()->parent());
+    auto *item = reinterpret_cast<SearchEngineItem *>(this->sender());
     m_ui->searchEnginesItemLayout->removeWidget(item);
     item->deleteLater();
 }
 
 void QuickWebShortcutsConfig::validateSearchSuggestions() {
     const auto origin = reinterpret_cast<QRadioButton *>(sender());
-    // If the current selection is clicked it should still be selected
+    // If the current selection is clicked again it should still be selected
     if (origin != nullptr && !origin->isChecked()) {
         origin->setChecked(true);
         return;
@@ -311,12 +325,14 @@ void QuickWebShortcutsConfig::validateProxyOptions() {
 }
 
 void QuickWebShortcutsConfig::itemSelected() {
-    auto *sourceItem = reinterpret_cast<SearchEngineItem *>(this->sender()->parent());
+    auto *sourceItem = reinterpret_cast<SearchEngineItem *>(this->sender());
     const int itemCount = m_ui->searchEnginesItemLayout->count();
     int selected = 0;
     for (int i = 0; i < itemCount; ++i) {
         auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
-        if (item->useRadioButton->isChecked()) ++selected;
+        if (item->useRadioButton->isChecked()) {
+            ++selected;
+        }
     }
     if (selected == 2) {
         // Another item is selected
@@ -351,11 +367,13 @@ void QuickWebShortcutsConfig::validateProxyConnection() {
     QNetworkRequest request(QUrl("https://ifconfig.me/ip"));
     timeBeforeRequest = QTime::currentTime();
     auto initialReply = manager->get(request);
-    connect(manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(showProxyConnectionValidationResults(QNetworkReply * )));
+    connect(manager, &QNetworkAccessManager::finished, this, &QuickWebShortcutsConfig::showProxyConnectionValidationResults);
     m_ui->proxyTestResultLabel->setText("Making request...");
 
     QTimer::singleShot(5000, initialReply, [initialReply]() {
-        if (!initialReply->isFinished()) initialReply->abort();
+        if (!initialReply->isFinished()) {
+            initialReply->abort();
+        }
     });
 }
 
@@ -376,7 +394,6 @@ void QuickWebShortcutsConfig::showProxyConnectionValidationResults(QNetworkReply
 }
 
 void QuickWebShortcutsConfig::readKWalletEntries() {
-    // KWallet Entries
     if (KWallet::Wallet::isEnabled() && wallet->isOpen()) {
         QByteArray hostName;
         wallet->readEntry(KWalletConfig::ProxyHostname, hostName);
@@ -398,7 +415,6 @@ void QuickWebShortcutsConfig::readKWalletEntries() {
 }
 
 void QuickWebShortcutsConfig::saveKWalletEntries() {
-    // Save important information in KWallet
     if (KWallet::Wallet::isEnabled() && wallet->isOpen()) {
         wallet->writeEntry(KWalletConfig::ProxyHostname, m_ui->hostNameLineEdit->text().toLocal8Bit());
         wallet->writeEntry(KWalletConfig::ProxyPort, m_ui->portLineEdit->text().toLocal8Bit());

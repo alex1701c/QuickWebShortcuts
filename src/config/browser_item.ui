@@ -61,7 +61,7 @@
    <item>
     <widget class="QPushButton" name="deletePushButton">
      <property name="toolTip">
-      <string>Delete this regulular expression</string>
+      <string>Delete this regulular search engine</string>
      </property>
      <property name="text">
       <string/>

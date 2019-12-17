@@ -1,5 +1,3 @@
-#include <QMap>
-
 #ifndef QUICKWEBSHORTCUTS_SEARCHENGINES_H
 #define QUICKWEBSHORTCUTS_SEARCHENGINES_H
 
@@ -54,7 +52,7 @@ public:
             engine.icon = config.readEntry(SearchEngineConfig::Icon);
             if (engine.icon.isEmpty()) engine.icon = config.readEntry(SearchEngineConfig::OriginalIcon);
             if (engine.icon.isEmpty()) engine.icon = "globe";
-            engine.qIcon = engine.icon.startsWith("/") ? QIcon(engine.icon) : QIcon::fromTheme(engine.icon);
+            engine.qIcon =  QIcon::fromTheme(engine.icon);
             if (!config.readEntry(SearchEngineConfig::OriginalName).isEmpty()) {
                 engine.originalName = config.readEntry(SearchEngineConfig::OriginalName);
                 engine.originalURL = defaultEngines.value(engine.originalName);
@@ -69,7 +67,7 @@ public:
             engine.name = item.first;
             engine.url = item.second;
             engine.icon = iconNames.value(item.first);
-            engine.qIcon = engine.icon.startsWith("/") ? QIcon(engine.icon) : QIcon::fromTheme(engine.icon);
+            engine.qIcon = QIcon::fromTheme(engine.icon);
             engine.isDefault = true;
             engine.isDefaultBased = true;
             searchEngines.append(engine);

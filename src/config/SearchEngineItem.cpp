@@ -1,27 +1,28 @@
 #include <QtWidgets/QFileDialog>
+#include <QCheckBox>
 #include "SearchEngineItem.h"
 
-SearchEngineItem::SearchEngineItem(QWidget *parent, QWidget *parentModule) : QWidget(parent), parentModule(parentModule) {
+SearchEngineItem::SearchEngineItem(QWidget *parent) : QWidget(parent) {
     setupUi(this);
-    connect(this->useRadioButton, SIGNAL(clicked(bool)), parentModule, SLOT(changed()));
-    connect(this->useRadioButton, SIGNAL(clicked(bool)), parentModule, SLOT(itemSelected()));
-    connect(this->urlLineEdit, SIGNAL(textChanged(QString)), parentModule, SLOT(changed()));
-    connect(this->nameLineEdit, SIGNAL(textChanged(QString)), parentModule, SLOT(changed()));
-    connect(this->iconPushButton, SIGNAL(clicked(bool)), parentModule, SLOT(changed()));
-    connect(this->deletePushButton, SIGNAL(clicked(bool)), parentModule, SLOT(changed()));
-    connect(this->urlLineEdit, SIGNAL(textChanged(QString)), this, SLOT(edited()));
-    connect(this->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(edited()));
-    connect(this->iconPushButton, SIGNAL(clicked(bool)), this, SLOT(edited()));
-    connect(this->iconPushButton, SIGNAL(clicked(bool)), this, SLOT(edited()));
-    connect(this->iconPushButton, SIGNAL(clicked(bool)), this, SLOT(iconPicker()));
-    connect(this->deletePushButton, SIGNAL(clicked(bool)), parentModule, SLOT(deleteCurrentItem()));
-    connect(this->urlLineEdit, SIGNAL(textChanged(QString)), this, SLOT(extractNameFromUrl()));
+    connect(this->useRadioButton, &QCheckBox::clicked, this, &SearchEngineItem::changed);
+    connect(this->useRadioButton, &QCheckBox::clicked, this, &SearchEngineItem::itemSelected);
+    connect(this->urlLineEdit, &QLineEdit::textChanged, this, &SearchEngineItem::changed);
+    connect(this->nameLineEdit, &QLineEdit::textChanged, this, &SearchEngineItem::changed);
+    connect(this->iconPushButton, &QCheckBox::clicked, this, &SearchEngineItem::changed);
+    connect(this->deletePushButton, &QCheckBox::clicked, this, &SearchEngineItem::changed);
+    connect(this->urlLineEdit, &QLineEdit::textChanged, this, &SearchEngineItem::edited);
+    connect(this->nameLineEdit, &QLineEdit::textChanged, this, &SearchEngineItem::edited);
+    connect(this->iconPushButton, &QCheckBox::clicked, this, &SearchEngineItem::edited);
+    connect(this->iconPushButton, &QCheckBox::clicked, this, &SearchEngineItem::edited);
+    connect(this->iconPushButton, &QCheckBox::clicked, this, &SearchEngineItem::iconPicker);
+    connect(this->deletePushButton, &QCheckBox::clicked, this, &SearchEngineItem::deleteCurrentItem);
+    connect(this->urlLineEdit, &QLineEdit::textChanged, this, &SearchEngineItem::extractNameFromUrl);
 }
 
 void SearchEngineItem::extractNameFromUrl() {
     if (!this->nameLineEdit->text().isEmpty()) return;
-    if (this->urlLineEdit->text().contains(QRegExp(R"(^(?:https?://)?(www\.)?(?:[\w-]+\.)(?:\.?[\w]{2,})+)"))) {
-        QRegExp exp(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)");
+    QRegExp exp(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)");
+    if (this->urlLineEdit->text().contains(exp)) {
         exp.indexIn(this->urlLineEdit->text());
         QString res = exp.capturedTexts().at(2);
         res[0] = res[0].toUpper();
@@ -38,5 +39,4 @@ void SearchEngineItem::iconPicker() {
         this->iconPushButton->setIcon(QIcon(this->icon));
     }
     this->iconPushButton->clearFocus();
-
 }

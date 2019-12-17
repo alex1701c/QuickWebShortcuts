@@ -1,12 +1,17 @@
 #include "quick_web_shortcuts.h"
 #include <QtGui/QtGui>
-#include <iostream>
+#include <KShell>
+#include <KNotifications/KNotification>
 #include "searchengines/SearchEngines.h"
 #include "Config.h"
 #include "utilities.h"
 #include <searchproviders/Bing.h>
 #include <searchproviders/Google.h>
 #include <searchproviders/DuckDuckGo.h>
+
+/**
+ * TODO Url regex
+ */
 
 QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
         : Plasma::AbstractRunner(parent, args) {
@@ -26,8 +31,8 @@ void QuickWebShortcuts::init() {
 
     // Add file watcher for config
     watcher.addPath(QDir::homePath() + "/.config/krunnerplugins/" + Config::ConfigFile);
-    connect(&watcher, SIGNAL(fileChanged(QString)), this, SLOT(reloadPluginConfiguration(QString)));
-    connect(this, SIGNAL(teardown()), this, SLOT(matchSessionFinished()));
+    connect(&watcher, &QFileSystemWatcher::fileChanged, this, &QuickWebShortcuts::reloadPluginConfiguration);
+    connect(this, &QuickWebShortcuts::teardown, this, &QuickWebShortcuts::matchSessionFinished);
 
     reloadPluginConfiguration();
 }
@@ -36,7 +41,9 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     KConfigGroup configGroup = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/" + Config::ConfigFile)
             ->group(Config::RootGroup);
     // Force sync from file
-    if (!configFile.isEmpty()) configGroup.config()->reparseConfiguration();
+    if (!configFile.isEmpty()) {
+        configGroup.config()->reparseConfiguration();
+    }
 
     // If the file gets edited with a text editor, it often gets replaced by the edited version
     // https://stackoverflow.com/a/30076119/9342842
@@ -55,9 +62,11 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
                 privateBrowser = browserConfig->group(group).readEntry("Exec");
             }
         }
-    } else {
+    }
+    if (privateBrowser.isEmpty()) {
         privateBrowser = "firefox --private-window";
     }
+
     // Load search engines
     const QString searchEngineName = configGroup.readEntry(Config::SearchEngineName);
     for (auto &engine:SearchEngines::getAllSearchEngines()) {
@@ -86,6 +95,7 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
         searchOptionTemplate = "Search for %1";
     }
 
+    // Display text for private browser option
     if (configGroup.readEntry(Config::PrivateWindowNote, true)) {
         privateBrowserMode = privateBrowser.contains("private") ? " in private window" : " in incognito mode";
     } else {
@@ -99,17 +109,18 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     searchSuggestions = searchSuggestionChoice != Config::SearchSuggestionDisabled;
     privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry(Config::PrivateWindowSearchSuggestions, false);
     minimumLetterCount = configGroup.readEntry(Config::MinimumLetterCount, Config::MinimumLetterCountDefault);
-    maxSuggestionResults = configGroup.readEntry(Config::MaxSuggestionResults, Config::MaxSuggestionResultsDefault);
     bingMarket = configGroup.readEntry(Config::BingMarket, Config::BingMarketDefault);
     googleLocale = configGroup.readEntry(Config::GoogleLocale, Config::GoogleLocaleDefault);
 
     // RequiredData is for all search providers required and does not need to be updated
     // outside of the reloadConfiguration method
-    requiredData.searchEngine = currentSearchEngine.url;
-    requiredData.icon = currentSearchEngine.qIcon;
-    requiredData.runner = this;
-    requiredData.maxResults = maxSuggestionResults;
-    requiredData.searchOptionTemplate = searchOptionTemplate;
+    if (searchSuggestions) {
+        requiredData.searchEngine = currentSearchEngine.url;
+        requiredData.icon = currentSearchEngine.qIcon;
+        requiredData.runner = this;
+        requiredData.maxResults = configGroup.readEntry(Config::MaxSuggestionResults, Config::MaxSuggestionResultsDefault);
+        requiredData.searchOptionTemplate = searchOptionTemplate;
+    }
 
     // Proxy settings
 #ifndef NO_PROXY_INTEGRATION
@@ -157,6 +168,7 @@ void QuickWebShortcuts::matchSessionFinished() {
 void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     if (!context.isValid()) return;
     wasActive = false;
+
     // Remove escape character
     QString term = QString(context.query()).replace(QString::fromWCharArray(L"\u001B"), " ");
 
@@ -169,13 +181,8 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         data.insert("url", url);
         context.addMatch(createMatch(searchOptionTemplate.arg(term) + privateBrowserMode, data));
         if (searchSuggestions && privateWindowSearchSuggestions) {
-            if (term.size() < minimumLetterCount) return;
-            if (searchSuggestionChoice == Config::SearchSuggestionBing) {
-                bingSearchSuggest(context, term, privateBrowser);
-            } else if (searchSuggestionChoice == Config::SearchSuggestionGoogle) {
-                googleSearchSuggest(context, term, privateBrowser);
-            } else {
-                duckDuckGoSearchSuggest(context, term, privateBrowser);
+            if (term.size() >= minimumLetterCount) {
+                searchSuggest(context, term, privateBrowser);
             }
         }
     } else if (term.startsWith(triggerCharacter)) {
@@ -183,19 +190,13 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         data.insert("url", currentSearchEngine.url + QUrl::toPercentEncoding(term));
         context.addMatch(createMatch(searchOptionTemplate.arg(term), data));
         if (searchSuggestions) {
-            if (term.size() < minimumLetterCount) return;
-            if (searchSuggestionChoice == Config::SearchSuggestionBing) {
-                bingSearchSuggest(context, term);
-            } else if (searchSuggestionChoice == Config::SearchSuggestionGoogle) {
-                googleSearchSuggest(context, term);
-            } else {
-                duckDuckGoSearchSuggest(context, term);
+            if (term.size() >= minimumLetterCount) {
+                searchSuggest(context, term);
             }
         }
-    } else if (openUrls && term.contains(urlRegex)) {
-        QString text = "Go To  " + term;
-        data.insert("url", !term.startsWith("http") ? "http://" + term : term);
-        context.addMatch(createMatch(text, data, true));
+    } else if (openUrls && (term.contains(shortUrlRegex) || term.contains(urlRegex))) {
+        data.insert("url", !term.startsWith("http") ? "https://" + term : term);
+        context.addMatch(createMatch("Go To  " + term, data, true));
     }
 }
 
@@ -203,10 +204,29 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
     Q_UNUSED(context)
 
     const QMap<QString, QVariant> payload = match.data().toMap();
-    // Otherwise compiler shows warning that the results of the system() call is ignored
-#pragma GCC diagnostic ignored "-Wunused-result"
-    system(qPrintable("$(" + payload.value("browser", "xdg-open").toString() + " '" + payload.value("url").toString() + "') &"));
-#pragma GCC diagnostic pop
+    const QString url = payload.value("url").toString();
+    QString launchCommand;
+    QStringList parameters;
+
+    if (payload.contains("browser")) {
+        const QString command = launchCommand = payload.value("browser").toString();
+        KShell::Errors splitArgsError;
+        QStringList arguments = KShell::splitArgs(command, KShell::AbortOnMeta, &splitArgsError);
+        // If the arguments could not be split, abort
+        if (splitArgsError != KShell::Errors::NoError || arguments.isEmpty()) {
+            KNotification::event(KNotification::Error, "Krunner-QuickWebShortcuts",
+                                 "Error when parsing command browser arguments", "globe");
+            return;
+        }
+        launchCommand = arguments.takeAt(0);
+        if (!arguments.isEmpty()) {
+            parameters = arguments;
+        }
+    } else {
+        launchCommand = "xdg-open";
+    }
+    parameters.append(url);
+    QProcess::startDetached(launchCommand, parameters);
     wasActive = true;
 }
 
@@ -219,25 +239,26 @@ Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMa
     return match;
 }
 
-void QuickWebShortcuts::bingSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
-    QEventLoop loop;
-    Bing bing(context, term, requiredData, bingMarket, browser);
-    connect(&bing, SIGNAL(finished()), &loop, SLOT(quit()));
-    loop.exec();
-}
 
-void QuickWebShortcuts::googleSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
-    QEventLoop loop;
-    Google google(context, term, requiredData, googleLocale, browser);
-    connect(&google, SIGNAL(finished()), &loop, SLOT(quit()));
-    loop.exec();
-}
+void QuickWebShortcuts::searchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
 
-void QuickWebShortcuts::duckDuckGoSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
-    QEventLoop loop;
-    DuckDuckGo duckDuckGo(context, term, requiredData, browser);
-    connect(&duckDuckGo, SIGNAL(finished()), &loop, SLOT(quit()));
-    loop.exec();
+    if (searchSuggestionChoice == Config::SearchSuggestionBing) {
+        QEventLoop loop;
+        Bing bing(context, term, requiredData, bingMarket, browser);
+        connect(&bing, &Bing::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+    } else if (searchSuggestionChoice == Config::SearchSuggestionGoogle) {
+        QEventLoop loop;
+        Google google(context, term, requiredData, googleLocale, browser);
+        connect(&google, &Google::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+    } else if (searchSuggestionChoice == Config::SearchSuggestionDuckDuckGo) {
+        QEventLoop loop;
+        DuckDuckGo duckDuckGo(context, term, requiredData, browser);
+        connect(&duckDuckGo, &DuckDuckGo::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+    }
+
 }
 
 K_EXPORT_PLASMA_RUNNER(quick_web_shortcuts, QuickWebShortcuts)

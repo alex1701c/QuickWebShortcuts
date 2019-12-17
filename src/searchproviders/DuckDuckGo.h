@@ -6,6 +6,7 @@
 #include <QtCore>
 #include <utility>
 #include <QTextDocument>
+#include <KNotifications/KNotification>
 #include "RequiredData.h"
 
 class DuckDuckGo : public QObject {
@@ -13,18 +14,20 @@ class DuckDuckGo : public QObject {
 Q_OBJECT
 
 private:
-    QNetworkAccessManager *m_manager;
-    Plasma::RunnerContext m_context;
+    QNetworkAccessManager *manager;
+    Plasma::RunnerContext context;
     const QString query;
     const QString browserLaunchCommand;
     RequiredData data;
 
 public:
-    DuckDuckGo(Plasma::RunnerContext &mContext, QString query, RequiredData data,
-               QString browserLaunchCommand = "") : m_context(mContext), query(std::move(query)),
+    DuckDuckGo(Plasma::RunnerContext &context, QString query, RequiredData data,
+               QString browserLaunchCommand = "") : context(context), query(std::move(query)),
                                                     browserLaunchCommand(std::move(browserLaunchCommand)), data(std::move(data)) {
-        m_manager = new QNetworkAccessManager(this);
-        if (data.proxy != nullptr) m_manager->setProxy(*this->data.proxy);
+        manager = new QNetworkAccessManager(this);
+        if (data.proxy != nullptr) {
+            manager->setProxy(*this->data.proxy);
+        }
 
         QUrlQuery queryParameters;
         queryParameters.addQueryItem("q", this->query);
@@ -36,9 +39,9 @@ public:
         request.setHeader(QNetworkRequest::KnownHeaders::UserAgentHeader,
                           "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0");
 
-        auto initialReply = m_manager->get(request);
+        const auto initialReply = manager->get(request);
 
-        connect(m_manager, SIGNAL(finished(QNetworkReply * )), this, SLOT(parseResponse(QNetworkReply * )));
+        connect(manager, &QNetworkAccessManager::finished, this, &DuckDuckGo::parseResponse);
         QTimer::singleShot(2000, initialReply, [initialReply]() {
             initialReply->abort();
         });
@@ -55,25 +58,26 @@ public Q_SLOTS:
         }
         if (reply->error() != QNetworkReply::NoError) {
             if (data.showNetworkErrors) {
-                QProcess::startDetached("notify-send", QStringList(
-                        {"-i", "globe", "QuickWebShortcuts ",
-                         QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
-                         reply->errorString()}));
+                KNotification::event(KNotification::Error,
+                                     "Krunner-QuickWebShortcuts",
+                                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) +
+                                     ":\n" +
+                                     reply->errorString(), "globe");
             }
-        } else if (m_context.isValid()) {
+        } else if (context.isValid()) {
             // Parse html content
             QList<QStringList> urlList;
             QRegularExpression linkRegex("<a rel=\"nofollow\" href=\"([^\"]+)\" class='result-link'>(.*)</a>");
             QRegularExpressionMatchIterator it = linkRegex.globalMatch(reply->readAll());
-            while (it.hasNext()) {
-                QRegularExpressionMatch match = it.next();
+            while (it.hasNext() && urlList.size() < data.maxResults) {
+                const QRegularExpressionMatch match = it.next();
                 if (match.hasMatch()) {
                     urlList.append(match.capturedTexts());
                 }
             }
             // Create matches
             const int listCount = urlList.count();
-            for (int i = 0; i < listCount && i < data.maxResults; ++i) {
+            for (int i = 0; i < listCount; ++i) {
                 const QStringList &currentList = urlList.at(i);
                 Plasma::QueryMatch match(data.runner);
                 match.setIcon(data.icon);
@@ -84,7 +88,7 @@ public Q_SLOTS:
                 runData.insert("url", currentList.at(1));
                 if (!browserLaunchCommand.isEmpty()) runData.insert("browser", browserLaunchCommand);
                 match.setData(runData);
-                m_context.addMatch(match);
+                context.addMatch(match);
             }
         }
 

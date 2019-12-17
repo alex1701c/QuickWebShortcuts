@@ -18,7 +18,9 @@ void initializeConfigFile() {
 }
 
 #ifndef NO_PROXY_INTEGRATION
+
 #include <KWallet/KWallet>
+#include <KNotifications/KNotification>
 
 using KWallet::Wallet;
 
@@ -39,9 +41,8 @@ QNetworkProxy *getProxyFromConfig(const QString &proxyChoice) {
             proxy->setUser(username);
             proxy->setPassword(password);
         } else {
-            QProcess::startDetached("notify-send", QStringList(
-                    {"Krunner QuickWebShortcuts", "The Proxy credentials from KWallet could not be read, proceeding without!",
-                     "--expire-time", "5000"}));
+            KNotification::event(KNotification::Error, "Krunner-QuickWebShortcuts",
+                                 "The Proxy credentials from KWallet could not be read, proceeding without!", "globe");
             delete wallet;
             delete proxy;
             return nullptr;
@@ -51,15 +52,14 @@ QNetworkProxy *getProxyFromConfig(const QString &proxyChoice) {
         if (!port.isEmpty() && !hostName.isEmpty()) {
             return proxy;
         } else {
-            QProcess::startDetached("notify-send", QStringList(
-                    {"Krunner QuickWebShortcuts",
-                     "The Proxy credentials require at least a Hostname and Port, proceeding without!",
-                     "--expire-time", "5000"}));
+            KNotification::event(KNotification::Error, "Krunner-QuickWebShortcuts",
+                                 "The Proxy credentials require at least a Hostname and Port, proceeding without!", "globe");
         }
 
         delete proxy;
     }
     return nullptr;
 }
+
 #endif
 #endif //QUICKWEBSHORTCUTS_UTILITIES_H

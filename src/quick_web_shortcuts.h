@@ -15,7 +15,8 @@ private:
     // General variables
     QFileSystemWatcher watcher;
     SearchEngine currentSearchEngine;
-    const QRegExp urlRegex = QRegExp(R"(^.*\.[a-z]{2,5}$)");
+    const QRegExp shortUrlRegex = QRegExp(R"(^.*\.[a-z]{2,5}$)");
+    const QRegExp urlRegex = QRegExp(R"(((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?))");
     QString privateBrowser, privateBrowserMode, searchOptionTemplate, searchSuggestionChoice, triggerCharacter, privateWindowTrigger;
     bool openUrls;
     KConfigGroup generalKrunnerConfig = KSharedConfig::openConfig("krunnerrc")->group("General");
@@ -23,7 +24,7 @@ private:
 
     // Search suggestion variables
     bool searchSuggestions, privateWindowSearchSuggestions;
-    int minimumLetterCount, maxSuggestionResults;
+    int minimumLetterCount;
     QString bingMarket, googleLocale;
 
     // Fallback Icon
@@ -40,13 +41,10 @@ public:
 
     ~QuickWebShortcuts() override;
 
+private:
     Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, bool useGlobe = false);
 
-    void bingSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
-
-    void googleSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
-
-    void duckDuckGoSearchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
+    void searchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
 
 protected Q_SLOTS:
 
