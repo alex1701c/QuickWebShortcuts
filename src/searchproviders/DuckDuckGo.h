@@ -30,14 +30,14 @@ public:
         }
 
         QUrlQuery queryParameters;
-        queryParameters.addQueryItem("q", this->query);
+        queryParameters.addQueryItem(QStringLiteral("q"), this->query);
 
-        QNetworkRequest request(QUrl("https://duckduckgo.com/lite/?" +
+        QNetworkRequest request(QUrl(QStringLiteral("https://duckduckgo.com/lite/?") +
                                      QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
-        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
         request.setHeader(QNetworkRequest::KnownHeaders::UserAgentHeader,
-                          "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0");
+                          QStringLiteral("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0"));
 
         const auto initialReply = manager->get(request);
 
@@ -59,15 +59,15 @@ public Q_SLOTS:
         if (reply->error() != QNetworkReply::NoError) {
             if (data.showNetworkErrors) {
                 KNotification::event(KNotification::Error,
-                                     "Krunner-QuickWebShortcuts",
+                                     QStringLiteral("Krunner-QuickWebShortcuts"),
                                      QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) +
-                                     ":\n" +
-                                     reply->errorString(), "globe");
+                                     QStringLiteral(":\n") +
+                                     reply->errorString(), QStringLiteral("globe"));
             }
         } else if (context.isValid()) {
             // Parse html content
             QList<QStringList> urlList;
-            QRegularExpression linkRegex("<a rel=\"nofollow\" href=\"([^\"]+)\" class='result-link'>(.*)</a>");
+            QRegularExpression linkRegex(QStringLiteral("<a rel=\"nofollow\" href=\"([^\"]+)\" class='result-link'>(.*)</a>"));
             QRegularExpressionMatchIterator it = linkRegex.globalMatch(reply->readAll());
             while (it.hasNext() && urlList.size() < data.maxResults) {
                 const QRegularExpressionMatch match = it.next();
@@ -81,12 +81,15 @@ public Q_SLOTS:
                 const QStringList &currentList = urlList.at(i);
                 Plasma::QueryMatch match(data.runner);
                 match.setIcon(data.icon);
-                match.setText(QString(currentList.at(1)).remove("http://").remove("https://").remove("www."));
+                match.setText(QString(currentList.at(1))
+                                      .remove(QLatin1String("http://"))
+                                      .remove(QLatin1String("https://"))
+                                      .remove(QLatin1String("www.")));
                 match.setRelevance((float) (19 - i) / 20);
 
                 QMap<QString, QVariant> runData;
-                runData.insert("url", currentList.at(1));
-                if (!browserLaunchCommand.isEmpty()) runData.insert("browser", browserLaunchCommand);
+                runData.insert(QStringLiteral("url"), currentList.at(1));
+                if (!browserLaunchCommand.isEmpty()) runData.insert(QStringLiteral("browser"), browserLaunchCommand);
                 match.setData(runData);
                 context.addMatch(match);
             }

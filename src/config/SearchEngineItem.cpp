@@ -21,12 +21,14 @@ SearchEngineItem::SearchEngineItem(QWidget *parent) : QWidget(parent) {
 
 void SearchEngineItem::extractNameFromUrl() {
     if (!this->nameLineEdit->text().isEmpty()) return;
-    QRegExp exp(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)");
+    QRegExp exp(QStringLiteral(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)"));
     if (this->urlLineEdit->text().contains(exp)) {
         exp.indexIn(this->urlLineEdit->text());
         QString res = exp.capturedTexts().at(2);
         res[0] = res[0].toUpper();
-        if (!res.isEmpty() && res != "Www") this->nameLineEdit->setText(res);
+        if (!res.isEmpty() && res != QLatin1String("Www")) {
+            this->nameLineEdit->setText(res);
+        }
     }
 }
 

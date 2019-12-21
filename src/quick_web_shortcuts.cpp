@@ -9,13 +9,9 @@
 #include <searchproviders/Google.h>
 #include <searchproviders/DuckDuckGo.h>
 
-/**
- * TODO Url regex
- */
-
 QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
         : Plasma::AbstractRunner(parent, args) {
-    setObjectName("Quick Web Shortcuts");
+    setObjectName(QStringLiteral("Quick Web Shortcuts"));
     setSpeed(NormalSpeed);
     setHasRunOptions(true);
     setPriority(HighestPriority);
@@ -30,7 +26,7 @@ void QuickWebShortcuts::init() {
     initializeConfigFile();
 
     // Add file watcher for config
-    watcher.addPath(QDir::homePath() + "/.config/krunnerplugins/" + Config::ConfigFile);
+    watcher.addPath(QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile);
     connect(&watcher, &QFileSystemWatcher::fileChanged, this, &QuickWebShortcuts::reloadPluginConfiguration);
     connect(this, &QuickWebShortcuts::teardown, this, &QuickWebShortcuts::matchSessionFinished);
 
@@ -38,7 +34,8 @@ void QuickWebShortcuts::init() {
 }
 
 void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
-    KConfigGroup configGroup = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/" + Config::ConfigFile)
+    KConfigGroup configGroup = KSharedConfig::openConfig(
+            QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile)
             ->group(Config::RootGroup);
     // Force sync from file
     if (!configFile.isEmpty()) {
@@ -53,18 +50,19 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
         }
     }
     // Read entry for private browsing launch command
-    const QString browser = KSharedConfig::openConfig(QDir::homePath() + "/.kde/share/config/kdeglobals")->group("General")
-            .readEntry("BrowserApplication");
+    const QString browser = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.kde/share/config/kdeglobals"))
+            ->group("General").readEntry("BrowserApplication");
     if (!browser.isEmpty()) {
-        const KSharedConfig::Ptr browserConfig = KSharedConfig::openConfig("/usr/share/applications/" + browser);
+        const KSharedConfig::Ptr browserConfig = KSharedConfig::openConfig(QStringLiteral("/usr/share/applications/") + browser);
         for (const auto &group: browserConfig->groupList()) {
-            if (group.contains("incognito", Qt::CaseInsensitive) || group.contains("private", Qt::CaseInsensitive)) {
+            if (group.contains(QStringLiteral("incognito"), Qt::CaseInsensitive) ||
+                group.contains(QStringLiteral("private"), Qt::CaseInsensitive)) {
                 privateBrowser = browserConfig->group(group).readEntry("Exec");
             }
         }
     }
     if (privateBrowser.isEmpty()) {
-        privateBrowser = "firefox --private-window";
+        privateBrowser = QStringLiteral("firefox --private-window");
     }
 
     // Load search engines
@@ -79,25 +77,26 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     // If the config is empty or malformed
     if (currentSearchEngine.url.isEmpty()) {
         SearchEngine defaultEngine;
-        defaultEngine.qIcon = QIcon::fromTheme("google");
-        defaultEngine.name = "Google";
-        defaultEngine.url = "https://www.google.com/search?q=";
+        defaultEngine.qIcon = QIcon::fromTheme(QStringLiteral("google"));
+        defaultEngine.name = QStringLiteral("Google");
+        defaultEngine.url = QStringLiteral("https://www.google.com/search?q=");
         currentSearchEngine = defaultEngine;
     }
 
     // Load general settings
     openUrls = configGroup.readEntry(Config::OpenUrls, true);
     if (!configGroup.readEntry(Config::ShowSearchForNote, true)) {
-        searchOptionTemplate = "%1";
+        searchOptionTemplate = QStringLiteral("%1");
     } else if (configGroup.readEntry(Config::ShowName, false)) {
-        searchOptionTemplate = "Search " + currentSearchEngine.name + " for %1";
+        searchOptionTemplate = QStringLiteral("Search ") + currentSearchEngine.name + QStringLiteral(" for %1");
     } else {
-        searchOptionTemplate = "Search for %1";
+        searchOptionTemplate = QStringLiteral("Search for %1");
     }
 
     // Display text for private browser option
     if (configGroup.readEntry(Config::PrivateWindowNote, true)) {
-        privateBrowserMode = privateBrowser.contains("private") ? " in private window" : " in incognito mode";
+        privateBrowserMode = privateBrowser.contains(QLatin1String("private")) ?
+                             QStringLiteral(" in private window") : QStringLiteral(" in incognito mode");
     } else {
         privateBrowserMode = "";
     }
@@ -108,13 +107,13 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     searchSuggestionChoice = configGroup.readEntry(Config::SearchSuggestions, Config::SearchSuggestionDisabled);
     searchSuggestions = searchSuggestionChoice != Config::SearchSuggestionDisabled;
     privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry(Config::PrivateWindowSearchSuggestions, false);
-    minimumLetterCount = configGroup.readEntry(Config::MinimumLetterCount, Config::MinimumLetterCountDefault);
-    bingMarket = configGroup.readEntry(Config::BingMarket, Config::BingMarketDefault);
-    googleLocale = configGroup.readEntry(Config::GoogleLocale, Config::GoogleLocaleDefault);
 
     // RequiredData is for all search providers required and does not need to be updated
     // outside of the reloadConfiguration method
     if (searchSuggestions) {
+        minimumLetterCount = configGroup.readEntry(Config::MinimumLetterCount, Config::MinimumLetterCountDefault);
+        bingMarket = configGroup.readEntry(Config::BingMarket, Config::BingMarketDefault);
+        googleLocale = configGroup.readEntry(Config::GoogleLocale, Config::GoogleLocaleDefault);
         requiredData.searchEngine = currentSearchEngine.url;
         requiredData.icon = currentSearchEngine.qIcon;
         requiredData.runner = this;
@@ -136,6 +135,18 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     cleanAll = historyChoice == Config::CleanHistoryAll;
     cleanQuick = historyChoice == Config::CleanHistoryQuick;
     cleanNone = historyChoice == Config::CleanHistoryNone;
+
+    // Initialize variables only if needed
+    if (!cleanNone) {
+        generalKrunnerConfig = KSharedConfig::openConfig("krunnerrc")->group("General");
+        removeHistoryRegex = QRegExp(QStringLiteral(R"([a-z]{1,5}: ?[^,]+,?)"));
+    }
+
+    if (openUrls) {
+        shortUrlRegex = QRegExp(QStringLiteral(R"(^.*\.[a-z]{2,5}$)"));
+        urlRegex = QRegExp(QStringLiteral(
+                                   R"(((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?))"));
+    }
 }
 
 void QuickWebShortcuts::matchSessionFinished() {
@@ -151,9 +162,10 @@ void QuickWebShortcuts::matchSessionFinished() {
         // If cleanAll is true, filtered history has already been set => read value, clear it and write the final result
         const QString toFilter = cleanAll ? filteredHistory : history;
         if (cleanAll) filteredHistory = "";
-        for (const auto &item : toFilter.split(',', QString::SkipEmptyParts)) {
+        const QChar sep = ',';
+        for (const auto &item : toFilter.split(sep, QString::SkipEmptyParts)) {
             if (!item.startsWith(triggerCharacter)) {
-                filteredHistory += item + ",";
+                filteredHistory += item + sep;
             }
         }
     }
@@ -176,9 +188,9 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
 
     if (term.startsWith(privateWindowTrigger)) {
         term = term.mid(2);
-        data.insert("browser", privateBrowser);
+        data.insert(QStringLiteral("browser"), privateBrowser);
         QString url = currentSearchEngine.url + QUrl::toPercentEncoding(term);
-        data.insert("url", url);
+        data.insert(QStringLiteral("url"), url);
         context.addMatch(createMatch(searchOptionTemplate.arg(term) + privateBrowserMode, data));
         if (searchSuggestions && privateWindowSearchSuggestions) {
             if (term.size() >= minimumLetterCount) {
@@ -187,7 +199,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         }
     } else if (term.startsWith(triggerCharacter)) {
         term = term.mid(1);
-        data.insert("url", currentSearchEngine.url + QUrl::toPercentEncoding(term));
+        data.insert(QStringLiteral("url"), currentSearchEngine.url + QUrl::toPercentEncoding(term));
         context.addMatch(createMatch(searchOptionTemplate.arg(term), data));
         if (searchSuggestions) {
             if (term.size() >= minimumLetterCount) {
@@ -195,8 +207,8 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
             }
         }
     } else if (openUrls && (term.contains(shortUrlRegex) || term.contains(urlRegex))) {
-        data.insert("url", !term.startsWith("http") ? "https://" + term : term);
-        context.addMatch(createMatch("Go To  " + term, data, true));
+        data.insert(QStringLiteral("url"), !term.startsWith(QLatin1String("http")) ? QStringLiteral("https://") + term : term);
+        context.addMatch(createMatch(QStringLiteral("Go To  ") + term, data, true));
     }
 }
 
@@ -204,18 +216,21 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
     Q_UNUSED(context)
 
     const QMap<QString, QVariant> payload = match.data().toMap();
-    const QString url = payload.value("url").toString();
+    const QString url = payload.value(QStringLiteral("url")).toString();
     QString launchCommand;
     QStringList parameters;
 
-    if (payload.contains("browser")) {
-        const QString command = launchCommand = payload.value("browser").toString();
+    if (payload.contains(QStringLiteral("browser"))) {
+        const QString command = launchCommand = payload.value(QStringLiteral("browser")).toString();
         KShell::Errors splitArgsError;
         QStringList arguments = KShell::splitArgs(command, KShell::AbortOnMeta, &splitArgsError);
         // If the arguments could not be split, abort
         if (splitArgsError != KShell::Errors::NoError || arguments.isEmpty()) {
-            KNotification::event(KNotification::Error, "Krunner-QuickWebShortcuts",
-                                 "Error when parsing command browser arguments", "globe");
+            KNotification::event(KNotification::Error,
+                                 QStringLiteral("Krunner-QuickWebShortcuts"),
+                                 QStringLiteral("Error when parsing command browser arguments"),
+                                 QStringLiteral("globe")
+            );
             return;
         }
         launchCommand = arguments.takeAt(0);
@@ -223,7 +238,7 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
             parameters = arguments;
         }
     } else {
-        launchCommand = "xdg-open";
+        launchCommand = QStringLiteral("xdg-open");
     }
     parameters.append(url);
     QProcess::startDetached(launchCommand, parameters);

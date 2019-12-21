@@ -21,7 +21,7 @@ set(kcm_krunner_quickwebshortcuts_SRCS
         config/SearchEngineItem.cpp)
 
 ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/quick_web_shortcuts_config.ui)
-ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/browser_item.ui)
+ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/search_engine_item.ui)
 add_library(kcm_krunner_quickwebshortcuts MODULE ${kcm_krunner_quickwebshortcuts_SRCS})
 target_link_libraries(kcm_krunner_quickwebshortcuts
         Qt5::Core

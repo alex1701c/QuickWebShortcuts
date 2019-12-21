@@ -13,60 +13,51 @@ class SearchEngines {
 
 public:
     static QMap<QString, QString> getDefaultSearchEngines() {
+        // Shorter macro
+#define s(str) QStringLiteral(str)
         return {
-                {"Google",        "https://www.google.com/search?q="},
-                {"DuckDuckGo",    "https://duckduckgo.com/?q="},
-                {"Stackoverflow", "https://stackoverflow.com/search?q="},
-                {"Bing",          "https://www.bing.com/search?q="},
-                {"Github",        "https://github.com/search?q="},
-                {"Youtube",       "https://www.youtube.com/results?search_query="},
+                {s("Google"),        s("https://www.google.com/search?q=")},
+                {s("DuckDuckGo"),    s("https://duckduckgo.com/?q=")},
+                {s("Stackoverflow"), s("https://stackoverflow.com/search?q=")},
+                {s("Bing"),          s("https://www.bing.com/search?q=")},
+                {s("Github"),        s("https://github.com/search?q=")},
+                {s("Youtube"),       s("https://www.youtube.com/results?search_query=")},
         };
     }
 
-    static QList<QString> getDefaultSearchEngineNames() {
-        return {"Google", "DuckDuckGo", "Stackoverflow", "Bing", "Github", "Youtube"};
-    }
-
-    static QMap<QString, QString> getIconNames() {
-        return {
-                {"Bing",          "bing"},
-                {"Google",        "google"},
-                {"DuckDuckGo",    "duckduckgo"},
-                {"Stackoverflow", "stackoverflow"},
-                {"Github",        "github"},
-                {"Youtube",       "youtube"},
-        };
-    }
 
     static QList<SearchEngine> getAllSearchEngines() {
         QList<SearchEngine> searchEngines;
-        const auto rootConfig = KSharedConfig::openConfig(QDir::homePath() + "/.config/krunnerplugins/" + Config::ConfigFile)
+        const auto rootConfig = KSharedConfig::openConfig(
+                QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile)
                 ->group(Config::RootGroup);
         auto defaultEngines = getDefaultSearchEngines();
-        const auto iconNames = getIconNames();
-        for (const auto &groupName:rootConfig.groupList().filter(QRegExp("^SearchEngine-"))) {
+        const auto fallbackIcon = QIcon::fromTheme(QStringLiteral("globe"));
+        for (const auto &groupName:rootConfig.groupList().filter(QRegExp(QStringLiteral("^SearchEngine-")))) {
             const auto config = rootConfig.group(groupName);
             SearchEngine engine;
             engine.name = config.readEntry(SearchEngineConfig::Name);
             engine.url = config.readEntry(SearchEngineConfig::Url);
             engine.icon = config.readEntry(SearchEngineConfig::Icon);
-            if (engine.icon.isEmpty()) engine.icon = config.readEntry(SearchEngineConfig::OriginalIcon);
-            if (engine.icon.isEmpty()) engine.icon = "globe";
-            engine.qIcon =  QIcon::fromTheme(engine.icon);
             if (!config.readEntry(SearchEngineConfig::OriginalName).isEmpty()) {
                 engine.originalName = config.readEntry(SearchEngineConfig::OriginalName);
                 engine.originalURL = defaultEngines.value(engine.originalName);
-                engine.originalIcon = iconNames.value(engine.originalName);
+                engine.originalIcon = engine.originalName.toLower();
                 engine.isDefaultBased = true;
+                if (engine.icon.isEmpty()) {
+                    engine.icon = QString(engine.originalName).toLower();
+                }
                 defaultEngines.remove(engine.originalName);
             }
+            engine.qIcon = QIcon::fromTheme(engine.icon, fallbackIcon);
             searchEngines.append(engine);
         }
+        // If a default engine got edited they are already removed from the map
         for (const auto &item : defaultEngines.toStdMap()) {
             SearchEngine engine;
             engine.name = item.first;
             engine.url = item.second;
-            engine.icon = iconNames.value(item.first);
+            engine.icon = item.first.toLower();
             engine.qIcon = QIcon::fromTheme(engine.icon);
             engine.isDefault = true;
             engine.isDefaultBased = true;

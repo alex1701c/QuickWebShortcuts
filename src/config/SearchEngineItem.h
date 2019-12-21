@@ -1,7 +1,7 @@
 #ifndef QUICKWEBSHORTCUTS_SEARCHENGINEITEM_H
 #define QUICKWEBSHORTCUTS_SEARCHENGINEITEM_H
 
-#include "ui_browser_item.h"
+#include "ui_search_engine_item.h"
 
 #include <QtCore>
 #include <QWidget>

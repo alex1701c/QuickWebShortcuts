@@ -15,12 +15,14 @@ private:
     // General variables
     QFileSystemWatcher watcher;
     SearchEngine currentSearchEngine;
-    const QRegExp shortUrlRegex = QRegExp(R"(^.*\.[a-z]{2,5}$)");
-    const QRegExp urlRegex = QRegExp(R"(((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?))");
+
+    QRegExp shortUrlRegex;
+    QRegExp urlRegex;
+    QRegExp removeHistoryRegex;
+
     QString privateBrowser, privateBrowserMode, searchOptionTemplate, searchSuggestionChoice, triggerCharacter, privateWindowTrigger;
     bool openUrls;
-    KConfigGroup generalKrunnerConfig = KSharedConfig::openConfig("krunnerrc")->group("General");
-    const QRegExp removeHistoryRegex = QRegExp(R"([a-z]{1,5}: ?[^,]+,?)");
+    KConfigGroup generalKrunnerConfig;
 
     // Search suggestion variables
     bool searchSuggestions, privateWindowSearchSuggestions;
@@ -28,7 +30,7 @@ private:
     QString bingMarket, googleLocale;
 
     // Fallback Icon
-    const QIcon globeIcon = QIcon::fromTheme("globe");
+    const QIcon globeIcon = QIcon::fromTheme(QStringLiteral("globe"));
 
     // History cleaning config variables
     bool cleanAll, cleanQuick, cleanNone;

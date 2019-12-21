@@ -19,7 +19,7 @@ private:
     QNetworkAccessManager *manager;
     Plasma::RunnerContext context;
     const QString query;
-    const QString market = "en-us";
+    const QString market;
     const QString browserLaunchCommand;
     RequiredData data;
 
@@ -38,13 +38,13 @@ public:
         connect(manager, &QNetworkAccessManager::finished, this, &Bing::parseResponse);
 #else
         QUrlQuery queryParameters;
-        queryParameters.addQueryItem("query", this->query);
-        queryParameters.addQueryItem("market", this->market);
+        queryParameters.addQueryItem(QStringLiteral("query"), this->query);
+        queryParameters.addQueryItem(QStringLiteral("market"), this->market);
 
-        QNetworkRequest request(QUrl("https://api.bing.com/osjson.aspx?" +
+        QNetworkRequest request(QUrl(QStringLiteral("https://api.bing.com/osjson.aspx?") +
                                      QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
-        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
 
         const auto initialReply = manager->get(request);
 
@@ -72,10 +72,10 @@ public Q_SLOTS:
         if (reply->error() != QNetworkReply::NoError) {
             if (data.showNetworkErrors) {
                 KNotification::event(KNotification::Error,
-                                     "Krunner-QuickWebShortcuts",
+                                     QStringLiteral("Krunner-QuickWebShortcuts"),
                                      QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) +
-                                     ":\n" +
-                                     reply->errorString(), "globe");
+                                     QStringLiteral(":\n") +
+                                     reply->errorString(), QStringLiteral("globe"));
             }
         } else if (context.isValid()) {
             const auto suggestionsObject = QJsonDocument::fromJson(reply->readAll());
@@ -96,8 +96,8 @@ public Q_SLOTS:
                         match.setRelevance((float) (19 - i) / 20);
 
                         QMap<QString, QVariant> runData;
-                        runData.insert("url", data.searchEngine + QUrl::toPercentEncoding(suggestion));
-                        if (!browserLaunchCommand.isEmpty()) runData.insert("browser", browserLaunchCommand);
+                        runData.insert(QStringLiteral("url"), data.searchEngine + QUrl::toPercentEncoding(suggestion));
+                        if (!browserLaunchCommand.isEmpty()) runData.insert(QStringLiteral("browser"), browserLaunchCommand);
                         match.setData(runData);
                         context.addMatch(match);
                     }

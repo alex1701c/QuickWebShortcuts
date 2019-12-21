@@ -6,7 +6,7 @@
 #include "Config.h"
 
 void initializeConfigFile() {
-    const QString configFolder = QDir::homePath() + "/.config/krunnerplugins/";
+    const QString configFolder = QDir::homePath() + QStringLiteral("/.config/krunnerplugins/");
     const QDir configDir(configFolder);
     if (!configDir.exists()) configDir.mkpath(configFolder);
     // Create file
@@ -35,14 +35,16 @@ QNetworkProxy *getProxyFromConfig(const QString &proxyChoice) {
             wallet->readEntry(KWalletConfig::ProxyUsername, username);
             wallet->readEntry(KWalletConfig::ProxyPassword, password);
 
-            proxy->setType(proxyChoice == "http" ? QNetworkProxy::HttpProxy : QNetworkProxy::Socks5Proxy);
+            proxy->setType(proxyChoice == QLatin1String("http") ? QNetworkProxy::HttpProxy : QNetworkProxy::Socks5Proxy);
             proxy->setHostName(hostName);
             proxy->setPort(port.toInt());
             proxy->setUser(username);
             proxy->setPassword(password);
         } else {
-            KNotification::event(KNotification::Error, "Krunner-QuickWebShortcuts",
-                                 "The Proxy credentials from KWallet could not be read, proceeding without!", "globe");
+            KNotification::event(KNotification::Error,
+                                 QStringLiteral("Krunner-QuickWebShortcuts"),
+                                 QStringLiteral("The Proxy credentials from KWallet could not be read, proceeding without!"),
+                                 QStringLiteral("globe"));
             delete wallet;
             delete proxy;
             return nullptr;
@@ -52,8 +54,9 @@ QNetworkProxy *getProxyFromConfig(const QString &proxyChoice) {
         if (!port.isEmpty() && !hostName.isEmpty()) {
             return proxy;
         } else {
-            KNotification::event(KNotification::Error, "Krunner-QuickWebShortcuts",
-                                 "The Proxy credentials require at least a Hostname and Port, proceeding without!", "globe");
+            KNotification::event(KNotification::Error, QStringLiteral("Krunner-QuickWebShortcuts"),
+                                 QStringLiteral("The Proxy credentials require at least a Hostname and Port, proceeding without!"),
+                                 QStringLiteral("globe"));
         }
 
         delete proxy;

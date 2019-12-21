@@ -34,14 +34,14 @@ public:
         }
 
         QUrlQuery queryParameters;
-        queryParameters.addQueryItem("q", this->query);
-        queryParameters.addQueryItem("hl", this->language);
-        queryParameters.addQueryItem("output", "toolbar");
+        queryParameters.addQueryItem(QStringLiteral("q"), this->query);
+        queryParameters.addQueryItem(QStringLiteral("hl"), this->language);
+        queryParameters.addQueryItem(QStringLiteral("output"), "toolbar");
 
-        QNetworkRequest request(QUrl("https://clients1.google.com/complete/search?" +
+        QNetworkRequest request(QUrl(QStringLiteral("https://clients1.google.com/complete/search?") +
                                      QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
-        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
 
         const auto initialReply = manager->get(request);
 
@@ -62,10 +62,10 @@ public Q_SLOTS:
         if (reply->error() != QNetworkReply::NoError) {
             if (data.showNetworkErrors) {
                 KNotification::event(KNotification::Error,
-                                     "Krunner-QuickWebShortcuts",
+                                     QStringLiteral("Krunner-QuickWebShortcuts"),
                                      QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) +
-                                     ":\n" +
-                                     reply->errorString(), "globe");
+                                     QStringLiteral(":\n") +
+                                     reply->errorString(), QStringLiteral("globe"));
             }
         } else if (context.isValid()) {
             const QString xmlContent = reply->readAll();
@@ -73,10 +73,10 @@ public Q_SLOTS:
             QStringList suggestions;
             if (!reader.hasError()) {
                 reader.readNextStartElement();
-                if (reader.name() == "toplevel") {
+                if (reader.name() == QLatin1String("toplevel")) {
                     while (reader.readNextStartElement()) {
                         reader.readNext();
-                        const QString suggestion = reader.attributes().value("data").toString();
+                        const QString suggestion = reader.attributes().value(QStringLiteral("data")).toString();
                         if (suggestion != query) suggestions.append(suggestion);
                         reader.readElementText();
                         reader.skipCurrentElement();
@@ -93,9 +93,9 @@ public Q_SLOTS:
                 match.setRelevance((float) (19 - i) / 20);
 
                 QMap<QString, QVariant> runData;
-                runData.insert("url", data.searchEngine + QUrl::toPercentEncoding(suggestion));
+                runData.insert(QStringLiteral("url"), data.searchEngine + QUrl::toPercentEncoding(suggestion));
                 if (!browserLaunchCommand.isEmpty()) {
-                    runData.insert("browser", browserLaunchCommand);
+                    runData.insert(QStringLiteral("browser"), browserLaunchCommand);
                 }
                 match.setData(runData);
                 context.addMatch(match);
