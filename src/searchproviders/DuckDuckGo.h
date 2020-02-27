@@ -19,6 +19,7 @@ private:
     const QString query;
     const QString browserLaunchCommand;
     RequiredData data;
+    QNetworkReply *reply;
 
 public:
     DuckDuckGo(Plasma::RunnerContext &context, QString query, RequiredData data,
@@ -39,21 +40,23 @@ public:
         request.setHeader(QNetworkRequest::KnownHeaders::UserAgentHeader,
                           QStringLiteral("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0"));
 
-        const auto initialReply = manager->get(request);
+        reply = manager->get(request);
 
         connect(manager, &QNetworkAccessManager::finished, this, &DuckDuckGo::parseResponse);
-        QTimer::singleShot(2000, initialReply, [initialReply]() {
-            initialReply->abort();
+        QTimer::singleShot(2000, reply, [this]() {
+            reply->abort();
         });
     }
 
+    virtual ~DuckDuckGo() {
+        delete reply;
+    }
 
 public Q_SLOTS:
 
-    void parseResponse(QNetworkReply *reply) {
+    void parseResponse() {
         if (reply->error() == QNetworkReply::OperationCanceledError) {
             emit finished();
-            delete reply;
             return;
         }
         if (reply->error() != QNetworkReply::NoError) {
@@ -95,7 +98,6 @@ public Q_SLOTS:
             }
         }
 
-        delete reply;
         emit finished();
     }
 

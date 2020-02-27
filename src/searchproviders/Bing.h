@@ -11,7 +11,7 @@
 
 //#define TEST_PROXY
 
-class Bing : public QObject {
+class Bing: public QObject {
 
 Q_OBJECT
 
@@ -22,11 +22,13 @@ private:
     const QString market;
     const QString browserLaunchCommand;
     RequiredData data;
+    QNetworkReply *reply;
 
 public:
     Bing(Plasma::RunnerContext &context, QString query, RequiredData &data, QString market = "en-us",
-         QString browserLaunchCommand = "") : context(context), query(std::move(query)), market(std::move(market)),
-                                              browserLaunchCommand(std::move(browserLaunchCommand)), data(data) {
+         QString browserLaunchCommand = "")
+        : context(context), query(std::move(query)), market(std::move(market)),
+          browserLaunchCommand(std::move(browserLaunchCommand)), data(data) {
 
         manager = new QNetworkAccessManager(this);
         if (data.proxy != nullptr) {
@@ -42,23 +44,26 @@ public:
         queryParameters.addQueryItem(QStringLiteral("market"), this->market);
 
         QNetworkRequest request(QUrl(QStringLiteral("https://api.bing.com/osjson.aspx?") +
-                                     QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
+            QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
         request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
 
-        const auto initialReply = manager->get(request);
+        reply = manager->get(request);
 
         connect(manager, &QNetworkAccessManager::finished, this, &Bing::parseResponse);
 
-        QTimer::singleShot(2000, initialReply, [initialReply]() {
-            initialReply->abort();
+        QTimer::singleShot(2000, this, [this]() {
+            reply->abort();
         });
 #endif
+    }
+    virtual ~Bing() {
+        delete reply;
     }
 
 public Q_SLOTS:
 
-    void parseResponse(QNetworkReply *reply) {
+    void parseResponse() {
 #ifdef TEST_PROXY
         qInfo() << reply->readAll();
         emit finished();
@@ -66,7 +71,6 @@ public Q_SLOTS:
 #endif
         if (reply->error() == QNetworkReply::OperationCanceledError) {
             emit finished();
-            delete reply;
             return;
         }
         if (reply->error() != QNetworkReply::NoError) {
@@ -97,14 +101,13 @@ public Q_SLOTS:
 
                         QMap<QString, QVariant> runData;
                         runData.insert(QStringLiteral("url"), data.searchEngine + QUrl::toPercentEncoding(suggestion));
-                        if (!browserLaunchCommand.isEmpty()) runData.insert(QStringLiteral("browser"), browserLaunchCommand);
+                        if (!browserLaunchCommand.isEmpty()) { runData.insert(QStringLiteral("browser"), browserLaunchCommand); }
                         match.setData(runData);
                         context.addMatch(match);
                     }
                 }
             }
         }
-        delete reply;
         emit finished();
     }
 

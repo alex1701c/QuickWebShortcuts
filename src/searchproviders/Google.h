@@ -18,6 +18,7 @@ private:
     const QString language;
     const QString browserLaunchCommand;
     RequiredData data;
+    QNetworkReply *reply;
 
 public:
     Google(Plasma::RunnerContext &context,
@@ -43,20 +44,23 @@ public:
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
         request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
 
-        const auto initialReply = manager->get(request);
+        reply = manager->get(request);
 
         connect(manager, &QNetworkAccessManager::finished, this, &Google::parseResponse);
-        QTimer::singleShot(2000, initialReply, [initialReply]() {
-            initialReply->abort();
+        QTimer::singleShot(2000, reply, [this]() {
+            reply->abort();
         });
+    }
+
+    virtual ~Google() {
+        delete reply;
     }
 
 public Q_SLOTS:
 
-    void parseResponse(QNetworkReply *reply) {
+    void parseResponse() {
         if (reply->error() == QNetworkReply::OperationCanceledError) {
             emit finished();
-            delete reply;
             return;
         }
         if (reply->error() != QNetworkReply::NoError) {
@@ -102,9 +106,7 @@ public Q_SLOTS:
             }
 
         }
-        delete reply;
         emit finished();
-
     }
 
 Q_SIGNALS:
