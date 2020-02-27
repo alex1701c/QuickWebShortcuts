@@ -1,0 +1,4 @@
+#!/bin/bash
+
+pidof krunner | xargs kill
+kstart5 krunner &

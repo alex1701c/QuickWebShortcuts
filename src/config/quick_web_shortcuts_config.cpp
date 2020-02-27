@@ -5,6 +5,8 @@
 #include <KPluginFactory>
 #include <QtDebug>
 #include <QtWidgets/QFileDialog>
+
+#include "kcmutils_version.h"
 #include <utilities.h>
 
 K_PLUGIN_FACTORY(QuickWebShortcutsConfigFactory,
@@ -21,7 +23,11 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     config.config()->reparseConfiguration();
 
     // Initialize function pointers that require method overloading
+#if KCMUTILS_VERSION >= QT_VERSION_CHECK(5, 64, 0)
+    const auto changedSlotPointer = &QuickWebShortcutsConfig::markAsChanged;
+#else
     const auto changedSlotPointer = static_cast<void (QuickWebShortcutsConfig::*)()>(&QuickWebShortcutsConfig::changed);
+#endif
     const auto comboBoxIndexChanged = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
     const auto spinBoxValueChanged = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
 
@@ -248,8 +254,6 @@ void QuickWebShortcutsConfig::save() {
     config.writeEntry(Config::TriggerCharacter, m_ui->triggerCharacterComboBox->currentText());
 
     config.config()->sync();
-
-    emit changed(false);
 }
 
 void QuickWebShortcutsConfig::defaults() {
@@ -287,7 +291,11 @@ void QuickWebShortcutsConfig::defaults() {
     showSearchForClicked();
     validateSearchSuggestions();
     validateProxyOptions();
+#if KCMUTILS_VERSION >= QT_VERSION_CHECK(5, 64, 0)
+    emit markAsChanged();
+#else
     emit changed(true);
+#endif
 }
 
 void QuickWebShortcutsConfig::addSearchEngine() {
@@ -297,7 +305,11 @@ void QuickWebShortcutsConfig::addSearchEngine() {
 }
 
 void QuickWebShortcutsConfig::connectSearchEngineSignals(SearchEngineItem *item) {
+#if KCMUTILS_VERSION >= QT_VERSION_CHECK(5, 64, 0)
+    const auto changedSlotPointer = &QuickWebShortcutsConfig::markAsChanged;
+#else
     const auto changedSlotPointer = static_cast<void (QuickWebShortcutsConfig::*)()>(&QuickWebShortcutsConfig::changed);
+#endif
     connect(item, &SearchEngineItem::changed, this, changedSlotPointer);
     connect(item, &SearchEngineItem::itemSelected, this, &QuickWebShortcutsConfig::itemSelected);
     connect(item, &SearchEngineItem::itemSelected, this, changedSlotPointer);
@@ -401,7 +413,7 @@ void QuickWebShortcutsConfig::showProxyConnectionValidationResults(QNetworkReply
 }
 
 void QuickWebShortcutsConfig::readKWalletEntries() {
-    if (KWallet::Wallet::isEnabled() && wallet->isOpen()) {
+    if (KWallet::Wallet::isEnabled() && wallet && wallet->isOpen()) {
         QByteArray hostName;
         wallet->readEntry(KWalletConfig::ProxyHostname, hostName);
         m_ui->hostNameLineEdit->setText(hostName);
@@ -422,7 +434,7 @@ void QuickWebShortcutsConfig::readKWalletEntries() {
 }
 
 void QuickWebShortcutsConfig::saveKWalletEntries() {
-    if (KWallet::Wallet::isEnabled() && wallet->isOpen()) {
+    if (KWallet::Wallet::isEnabled() && wallet && wallet->isOpen()) {
         wallet->writeEntry(KWalletConfig::ProxyHostname, m_ui->hostNameLineEdit->text().toLocal8Bit());
         wallet->writeEntry(KWalletConfig::ProxyPort, m_ui->portLineEdit->text().toLocal8Bit());
         wallet->writeEntry(KWalletConfig::ProxyUsername, m_ui->usernameLineEdit->text().toLocal8Bit());

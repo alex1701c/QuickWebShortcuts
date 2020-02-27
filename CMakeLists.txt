@@ -28,3 +28,13 @@ include(FeatureSummary)
 
 add_subdirectory(src)
 
+# CPack build
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Krunner plugin to quickly use webshortcuts and search suggestions")
+set(CPACK_PACKAGE_NAME krunner-${CMAKE_PROJECT_NAME})
+set(CPACK_PACKAGE_VERSION "2.3.0")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "alex1701c")
+SET(CPACK_GENERATOR "DEB;RPM")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/postinst")
+SET(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/postinst")
+INCLUDE(CPack)

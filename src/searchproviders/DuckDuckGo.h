@@ -26,7 +26,7 @@ public:
                QString browserLaunchCommand = "") : context(context), query(std::move(query)),
                                                     browserLaunchCommand(std::move(browserLaunchCommand)), data(std::move(data)) {
         manager = new QNetworkAccessManager(this);
-        if (data.proxy != nullptr) {
+        if (data.proxy) {
             manager->setProxy(*this->data.proxy);
         }
 

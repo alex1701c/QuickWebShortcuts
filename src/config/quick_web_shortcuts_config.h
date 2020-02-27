@@ -36,31 +36,21 @@ public:
 public Q_SLOTS:
 
     void save() override;
-
     void load() override;
-
     void defaults() override;
 
     void addSearchEngine();
-
     void connectSearchEngineSignals(SearchEngineItem *);
-
     void deleteCurrentItem();
-
     void validateSearchSuggestions();
-
     void validateProxyOptions();
-
     void itemSelected();
-
     void showSearchForClicked();
 
     void validateProxyConnection();
-
     void showProxyConnectionValidationResults(QNetworkReply *reply);
 
     void readKWalletEntries();
-
     void saveKWalletEntries();
 
 

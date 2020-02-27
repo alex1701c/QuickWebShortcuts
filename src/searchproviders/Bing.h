@@ -31,7 +31,7 @@ public:
           browserLaunchCommand(std::move(browserLaunchCommand)), data(data) {
 
         manager = new QNetworkAccessManager(this);
-        if (data.proxy != nullptr) {
+        if (data.proxy) {
             manager->setProxy(*this->data.proxy);
         }
 #ifdef  TEST_PROXY
