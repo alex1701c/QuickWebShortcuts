@@ -69,7 +69,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->noProxyRadioButton, &QCheckBox::clicked, this, validateProxyOptionsSlotPointer);
     connect(m_ui->httpProxyRadioButton, &QCheckBox::clicked, this, validateProxyOptionsSlotPointer);
     connect(m_ui->socks5ProxyRadioButton, &QCheckBox::clicked, this, validateProxyOptionsSlotPointer);
-    connect(m_ui->testProxyConfigPushButton, &QCheckBox::clicked, this, validateProxyOptionsSlotPointer);
+    connect(m_ui->testProxyConfigPushButton, &QPushButton::clicked, this, validateProxyOptionsSlotPointer);
     connect(m_ui->hostNameLineEdit, &QLineEdit::textChanged, this, changedSlotPointer);
     connect(m_ui->portLineEdit, &QLineEdit::textChanged, this, changedSlotPointer);
     connect(m_ui->usernameLineEdit, &QLineEdit::textChanged, this, changedSlotPointer);
@@ -101,7 +101,7 @@ void QuickWebShortcutsConfig::load() {
         browserItem->isDefaultBased = item.isDefaultBased;
         browserItem->isEdited = false;
         browserItem->icon = item.icon;
-        browserItem->iconPushButton->setIcon(QIcon::fromTheme(item.icon));
+        browserItem->iconPushButton->setIcon(QIcon::fromTheme(item.icon, globeIcon));
         if (item.isDefault) {
             browserItem->originalName = item.name;
             browserItem->originalURL = item.url;
@@ -177,7 +177,8 @@ void QuickWebShortcutsConfig::load() {
 void QuickWebShortcutsConfig::save() {
     // Remove old groups
     const int itemCount = m_ui->searchEnginesItemLayout->count();
-    for (const auto &groupName:config.groupList().filter(QRegExp(QStringLiteral("^SearchEngine-")))) {
+    const auto filteredGroups = config.groupList().filter(QRegularExpression(QStringLiteral("^SearchEngine-")));
+    for (const auto &groupName: filteredGroups) {
         config.group(groupName).deleteGroup();
     }
     // Write items to config
@@ -302,6 +303,7 @@ void QuickWebShortcutsConfig::addSearchEngine() {
     auto *item = new SearchEngineItem(m_ui->groupBoxSearch);
     m_ui->searchEnginesItemLayout->insertWidget(0, item);
     item->iconPushButton->setIcon(QIcon::fromTheme(QStringLiteral("globe")));
+    connectSearchEngineSignals(item);
 }
 
 void QuickWebShortcutsConfig::connectSearchEngineSignals(SearchEngineItem *item) {

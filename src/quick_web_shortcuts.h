@@ -4,8 +4,9 @@
 #include <KRunner/AbstractRunner>
 #include <searchproviders/RequiredData.h>
 #include <QtNetwork/QNetworkAccessManager>
-#include <QtCore/QFileSystemWatcher>
+#include <QFileSystemWatcher>
 #include <KSharedConfig>
+#include <QRegularExpression>
 #include "searchengines/SearchEngine.h"
 
 class QuickWebShortcuts : public Plasma::AbstractRunner {
@@ -16,9 +17,9 @@ private:
     QFileSystemWatcher watcher;
     SearchEngine currentSearchEngine;
 
-    QRegExp shortUrlRegex;
-    QRegExp urlRegex;
-    QRegExp removeHistoryRegex;
+    QRegularExpression shortUrlRegex;
+    QRegularExpression urlRegex;
+    QRegularExpression removeHistoryRegex;
 
     QString privateBrowser, privateBrowserMode, searchOptionTemplate, searchSuggestionChoice, triggerCharacter, privateWindowTrigger;
     bool openUrls;
@@ -34,7 +35,7 @@ private:
 
     // History cleaning config variables
     bool cleanAll, cleanQuick, cleanNone;
-    bool wasActive = false;
+    bool wasActive = true;
 
     RequiredData requiredData;
 
@@ -52,9 +53,9 @@ protected Q_SLOTS:
 
     void init() override;
 
-    void matchSessionFinished();
+    void filterHistory();
 
-    void reloadPluginConfiguration(const QString &file = "");
+    void reloadPluginConfiguration(const QString &file = QString());
 
     void match(Plasma::RunnerContext &context) override;
 

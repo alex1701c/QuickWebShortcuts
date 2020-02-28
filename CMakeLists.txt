@@ -17,7 +17,7 @@ feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAG
 # KWallet is used for storing the proxy credentials, but it is not for the core functionallity required
 find_package(KF5 ${KF5_MIN_VERSION} COMPONENTS Wallet)
 if (NOT ${KF5Wallet_FOUND})
-    message(WARNING "Could not find Wallet component, disabeling proxy feature!")
+    message(WARNING "Could not find Wallet component, disabling proxy feature!")
     add_definitions(-D NO_PROXY_INTEGRATION)
 endif ()
 
@@ -37,4 +37,7 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "alex1701c")
 SET(CPACK_GENERATOR "DEB;RPM")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/postinst")
 SET(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/postinst")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "kwalletmanager")
+set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+set(CPACK_RPM_PACKAGE_REQUIRES "kwalletmanager")
 INCLUDE(CPack)

@@ -33,7 +33,8 @@ public:
                 ->group(Config::RootGroup);
         auto defaultEngines = getDefaultSearchEngines();
         const auto fallbackIcon = QIcon::fromTheme(QStringLiteral("globe"));
-        for (const auto &groupName:rootConfig.groupList().filter(QRegExp(QStringLiteral("^SearchEngine-")))) {
+        const auto filteredGroups = rootConfig.groupList().filter(QRegularExpression(QStringLiteral("^SearchEngine-")));
+        for (const auto &groupName: filteredGroups) {
             const auto config = rootConfig.group(groupName);
             SearchEngine engine;
             engine.name = config.readEntry(SearchEngineConfig::Name);

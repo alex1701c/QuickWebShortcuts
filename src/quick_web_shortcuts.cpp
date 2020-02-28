@@ -13,11 +13,12 @@ QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
         : Plasma::AbstractRunner(parent, args) {
     setObjectName(QStringLiteral("Quick Web Shortcuts"));
     setSpeed(NormalSpeed);
-    setHasRunOptions(true);
     setPriority(HighestPriority);
 }
 
 QuickWebShortcuts::~QuickWebShortcuts() {
+    wasActive = true;
+    filterHistory();
     delete requiredData.proxy;
 }
 
@@ -28,7 +29,7 @@ void QuickWebShortcuts::init() {
     // Add file watcher for config
     watcher.addPath(QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile);
     connect(&watcher, &QFileSystemWatcher::fileChanged, this, &QuickWebShortcuts::reloadPluginConfiguration);
-    connect(this, &QuickWebShortcuts::teardown, this, &QuickWebShortcuts::matchSessionFinished);
+    connect(this, &QuickWebShortcuts::teardown, this, &QuickWebShortcuts::filterHistory);
 
     reloadPluginConfiguration();
 }
@@ -49,21 +50,8 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
             watcher.addPath(configFile);
         }
     }
-    // Read entry for private browsing launch command
-    const QString browser = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.kde/share/config/kdeglobals"))
-            ->group("General").readEntry("BrowserApplication");
-    if (!browser.isEmpty()) {
-        const KSharedConfig::Ptr browserConfig = KSharedConfig::openConfig(QStringLiteral("/usr/share/applications/") + browser);
-        for (const auto &group: browserConfig->groupList()) {
-            if (group.contains(QStringLiteral("incognito"), Qt::CaseInsensitive) ||
-                group.contains(QStringLiteral("private"), Qt::CaseInsensitive)) {
-                privateBrowser = browserConfig->group(group).readEntry("Exec");
-            }
-        }
-    }
-    if (privateBrowser.isEmpty()) {
-        privateBrowser = QStringLiteral("firefox --private-window");
-    }
+
+    privateBrowser = loadPrivateBrowser();
 
     // Load search engines
     const QString searchEngineName = configGroup.readEntry(Config::SearchEngineName);
@@ -76,11 +64,7 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
 
     // If the config is empty or malformed
     if (currentSearchEngine.url.isEmpty()) {
-        SearchEngine defaultEngine;
-        defaultEngine.qIcon = QIcon::fromTheme(QStringLiteral("google"));
-        defaultEngine.name = QStringLiteral("Google");
-        defaultEngine.url = QStringLiteral("https://www.google.com/search?q=");
-        currentSearchEngine = defaultEngine;
+        currentSearchEngine = getDefaultSearchEngine();
     }
 
     // Load general settings
@@ -98,7 +82,7 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
         privateBrowserMode = privateBrowser.contains(QLatin1String("private")) ?
                              QStringLiteral(" in private window") : QStringLiteral(" in incognito mode");
     } else {
-        privateBrowserMode = "";
+        privateBrowserMode = QString();
     }
     triggerCharacter = configGroup.readEntry(Config::TriggerCharacter, Config::TriggerCharacterDefault);
     privateWindowTrigger = triggerCharacter + triggerCharacter;
@@ -138,18 +122,20 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
 
     // Initialize variables only if needed
     if (!cleanNone) {
-        generalKrunnerConfig = KSharedConfig::openConfig("krunnerrc")->group("General");
-        removeHistoryRegex = QRegExp(QStringLiteral(R"([a-z]{1,5}: ?[^,]+,?)"));
+        generalKrunnerConfig = KSharedConfig::openConfig(QStringLiteral("krunnerrc"))->group("General");
+        removeHistoryRegex = QRegularExpression(QStringLiteral(R"([a-z]{1,5}: ?[^,]+,?)"));
+        removeHistoryRegex.optimize();
     }
 
     if (openUrls) {
-        shortUrlRegex = QRegExp(QStringLiteral(R"(^.*\.[a-z]{2,5}$)"));
-        urlRegex = QRegExp(QStringLiteral(
-                                   R"(((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?))"));
+        shortUrlRegex = QRegularExpression(QStringLiteral(R"(^.*\.[a-z]{2,5}$)"));
+        shortUrlRegex.optimize();
+        urlRegex = QRegularExpression(QStringLiteral("^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$"));
+        urlRegex.optimize();
     }
 }
 
-void QuickWebShortcuts::matchSessionFinished() {
+void QuickWebShortcuts::filterHistory() {
     if (cleanNone || (cleanQuick && !wasActive)) return;
     QString history = generalKrunnerConfig.readEntry("history");
     const int initialHistorySize = history.size();

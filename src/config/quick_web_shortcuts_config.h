@@ -57,6 +57,7 @@ public Q_SLOTS:
 private:
     QuickWebShortcutsConfigForm *m_ui;
     KConfigGroup config;
+    QIcon globeIcon = QIcon::fromTheme("globe");
 #ifndef NO_PROXY_INTEGRATION
     QTime timeBeforeRequest;
     Wallet *wallet;

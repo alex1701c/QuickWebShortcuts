@@ -8,13 +8,42 @@
 void initializeConfigFile() {
     const QString configFolder = QDir::homePath() + QStringLiteral("/.config/krunnerplugins/");
     const QDir configDir(configFolder);
-    if (!configDir.exists()) configDir.mkpath(configFolder);
+    if (!configDir.exists()) { configDir.mkpath(configFolder); }
     // Create file
     QFile configFile(configFolder + Config::ConfigFile);
     if (!configFile.exists()) {
         configFile.open(QIODevice::WriteOnly);
         configFile.close();
     }
+}
+
+QString loadPrivateBrowser() {
+    // Read entry for private browsing launch command
+    QString privateBrowser;
+    QString browser = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.kde/share/config/kdeglobals"))
+        ->group("General").readEntry("BrowserApplication");
+    if (browser.isEmpty()) {
+        browser = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/./config/kdeglobals"))
+            ->group("General").readEntry("BrowserApplication");
+    }
+    if (!browser.isEmpty()) {
+        const KSharedConfig::Ptr browserConfig = KSharedConfig::openConfig(QStringLiteral("/usr/share/applications/") + browser);
+        for (const auto &group: browserConfig->groupList()) {
+            if (group.contains(QStringLiteral("incognito"), Qt::CaseInsensitive) ||
+                group.contains(QStringLiteral("private"), Qt::CaseInsensitive)) {
+                privateBrowser = browserConfig->group(group).readEntry("Exec");
+            }
+        }
+    }
+    return privateBrowser.isEmpty() ? QStringLiteral("firefox --private-window") : privateBrowser;
+}
+
+SearchEngine getDefaultSearchEngine() {
+    SearchEngine defaultEngine;
+    defaultEngine.qIcon = QIcon::fromTheme(QStringLiteral("google"));
+    defaultEngine.name = QStringLiteral("Google");
+    defaultEngine.url = QStringLiteral("https://www.google.com/search?q=");
+    return defaultEngine;
 }
 
 #ifndef NO_PROXY_INTEGRATION

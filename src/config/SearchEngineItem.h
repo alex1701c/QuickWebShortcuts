@@ -19,19 +19,13 @@ public:
     explicit SearchEngineItem(QWidget *parent);
 
 public Q_SLOTS:
-
     void extractNameFromUrl();
-
     void edited() { this->isEdited = true; }
-
     void iconPicker();
 
 Q_SIGNALS:
-
     void changed();
-
     void itemSelected();
-
     void deleteCurrentItem();
 };
 
