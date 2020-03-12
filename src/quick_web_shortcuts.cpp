@@ -91,6 +91,14 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     searchSuggestionChoice = configGroup.readEntry(Config::SearchSuggestions, Config::SearchSuggestionDisabled);
     searchSuggestions = searchSuggestionChoice != Config::SearchSuggestionDisabled;
     privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry(Config::PrivateWindowSearchSuggestions, false);
+    if (configGroup.readEntry(Config::PrivateWindowAction, true)) {
+        normalActions = {addAction(QStringLiteral("private"),
+                          QIcon::fromTheme(QStringLiteral("view-private")),
+                          QStringLiteral("launch query in private/incognito window"))
+        };
+    } else {
+        normalActions.clear();
+    }
 
     // RequiredData is for all search providers required and does not need to be updated
     // outside of the reloadConfiguration method
@@ -206,10 +214,9 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::
     QString launchCommand;
     QStringList parameters;
 
-    if (payload.contains(QStringLiteral("browser"))) {
-        const QString command = launchCommand = payload.value(QStringLiteral("browser")).toString();
+    if (payload.contains(QStringLiteral("browser")) || match.selectedAction()) {
         KShell::Errors splitArgsError;
-        QStringList arguments = KShell::splitArgs(command, KShell::AbortOnMeta, &splitArgsError);
+        QStringList arguments = KShell::splitArgs(privateBrowser, KShell::AbortOnMeta, &splitArgsError);
         // If the arguments could not be split, abort
         if (splitArgsError != KShell::Errors::NoError || arguments.isEmpty()) {
             KNotification::event(KNotification::Error,
@@ -260,6 +267,13 @@ void QuickWebShortcuts::searchSuggest(Plasma::RunnerContext &context, const QStr
         loop.exec();
     }
 
+}
+
+QList<QAction *> QuickWebShortcuts::actionsForMatch(const Plasma::QueryMatch &match) {
+    if (match.data().toMap().contains(QStringLiteral("browser"))) {
+        return privateActions;
+    }
+    return normalActions;
 }
 
 K_EXPORT_PLASMA_RUNNER(quick_web_shortcuts, QuickWebShortcuts)

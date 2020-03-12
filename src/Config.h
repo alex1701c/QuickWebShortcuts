@@ -11,6 +11,7 @@ struct Config {
     constexpr static const auto ShowSearchForNote = "show_search_for_note";
     constexpr static const auto ShowName = "show_name";
     constexpr static const auto PrivateWindowNote = "private_window_note";
+    constexpr static const auto PrivateWindowAction = "private_window_action";
     constexpr static const auto TriggerCharacter = "trigger_character";
     constexpr static const auto TriggerCharacterDefault = ":";
 

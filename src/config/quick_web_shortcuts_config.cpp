@@ -36,6 +36,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->historyQuick, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->historyNotClear, &QCheckBox::clicked, this, changedSlotPointer);
     // Search Engines
+    connect(m_ui->showPrivateActionCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->openURLS, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->showSearchEngineName, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->showPrivateNoteCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
@@ -114,6 +115,7 @@ void QuickWebShortcutsConfig::load() {
         browserItem->deletePushButton->setDisabled(item.isDefault || item.isDefaultBased);
         connectSearchEngineSignals(browserItem);
     }
+    m_ui->showPrivateActionCheckBox->setChecked(config.readEntry(Config::PrivateWindowAction, true));
     m_ui->showSearchEngineName->setChecked(config.readEntry(Config::ShowName, true));
     m_ui->openURLS->setChecked(config.readEntry(Config::OpenUrls, true));
     m_ui->showSearchForCheckBox->setChecked(config.readEntry(Config::ShowSearchForNote, true));
@@ -216,6 +218,7 @@ void QuickWebShortcutsConfig::save() {
     }
     config.writeEntry(Config::SearchSuggestions, searchSuggestionsOption);
 
+    config.writeEntry(Config::PrivateWindowAction, m_ui->showPrivateActionCheckBox->isChecked());
     config.writeEntry(Config::PrivateWindowSearchSuggestions, m_ui->privateWindowCheckBox->isChecked());
     config.writeEntry(Config::MinimumLetterCount, m_ui->minimumLetterCountSpinBox->value());
     config.writeEntry(Config::MaxSuggestionResults, m_ui->maxSearchSuggestionsSpinBox->value());
@@ -277,6 +280,7 @@ void QuickWebShortcutsConfig::defaults() {
         }
 
     }
+    m_ui->showPrivateActionCheckBox->setChecked(true);
     m_ui->showSearchEngineName->setChecked(false);
     m_ui->showPrivateNoteCheckBox->setChecked(true);
     m_ui->showSearchForCheckBox->setChecked(true);
