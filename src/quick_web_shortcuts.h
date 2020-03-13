@@ -17,6 +17,7 @@ private:
     QFileSystemWatcher watcher;
     SearchEngine currentSearchEngine;
     QList<QAction *> normalActions, privateActions;
+    bool isWebShortcut;
 
     QRegularExpression shortUrlRegex;
     QRegularExpression urlRegex;

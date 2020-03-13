@@ -30,7 +30,6 @@ Q_OBJECT
 
 public:
     explicit QuickWebShortcutsConfig(QWidget *parent = nullptr, const QVariantList &args = QVariantList());
-
     ~QuickWebShortcutsConfig() override;
 
 public Q_SLOTS:

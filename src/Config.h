@@ -14,6 +14,7 @@ struct Config {
     constexpr static const auto PrivateWindowAction = "private_window_action";
     constexpr static const auto TriggerCharacter = "trigger_character";
     constexpr static const auto TriggerCharacterDefault = ":";
+    constexpr static const auto WebShortcut = "web_shortcut";
 
     // Search suggestions
     constexpr static const auto SearchSuggestions = "search_suggestions";

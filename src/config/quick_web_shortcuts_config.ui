@@ -32,7 +32,7 @@
         <x>0</x>
         <y>0</y>
         <width>632</width>
-        <height>1192</height>
+        <height>1241</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -67,18 +67,44 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_3">
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_5">
-               <property name="topMargin">
-                <number>15</number>
-               </property>
-               <item>
-                <layout class="QVBoxLayout" name="searchEnginesItemLayout">
-                 <property name="spacing">
-                  <number>0</number>
-                 </property>
-                </layout>
-               </item>
-              </layout>
+              <widget class="QGroupBox" name="groupBox">
+               <layout class="QVBoxLayout" name="verticalLayout_5">
+                <property name="topMargin">
+                 <number>15</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_2">
+                  <item>
+                   <widget class="QRadioButton" name="useWebshortcutRadioButton">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Use exsting WebShortcut</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="webShortcutComboBox">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QVBoxLayout" name="searchEnginesItemLayout">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
              </item>
              <item>
               <widget class="QPushButton" name="addSearchEngine">

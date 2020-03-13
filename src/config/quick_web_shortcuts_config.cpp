@@ -18,7 +18,8 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     layout->addWidget(m_ui, 0, 0);
 
     initializeConfigFile();
-    config = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.config/krunnerplugins/quickwebshortcutsrunnerrc"))
+    config = KSharedConfig::openConfig(
+            QDir::homePath() + QStringLiteral("/.config/krunnerplugins/quickwebshortcutsrunnerrc"))
             ->group(Config::RootGroup);
     config.config()->reparseConfiguration();
 
@@ -36,6 +37,9 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->historyQuick, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->historyNotClear, &QCheckBox::clicked, this, changedSlotPointer);
     // Search Engines
+    connect(m_ui->useWebshortcutRadioButton, &QRadioButton::clicked, this, changedSlotPointer);
+    connect(m_ui->useWebshortcutRadioButton, &QRadioButton::clicked, this, &QuickWebShortcutsConfig::itemSelected);
+    connect(m_ui->webShortcutComboBox, comboBoxIndexChanged, this, changedSlotPointer);
     connect(m_ui->showPrivateActionCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->openURLS, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->showSearchEngineName, &QCheckBox::clicked, this, changedSlotPointer);
@@ -51,7 +55,8 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->bingRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->bingRadioButton, &QCheckBox::clicked, this, &QuickWebShortcutsConfig::validateSearchSuggestions);
     connect(m_ui->duckDuckGoRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
-    connect(m_ui->duckDuckGoRadioButton, &QCheckBox::clicked, this, &QuickWebShortcutsConfig::validateSearchSuggestions);
+    connect(m_ui->duckDuckGoRadioButton, &QCheckBox::clicked, this,
+            &QuickWebShortcutsConfig::validateSearchSuggestions);
     connect(m_ui->disableRadioButton, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->disableRadioButton, &QCheckBox::clicked, this, &QuickWebShortcutsConfig::validateSearchSuggestions);
     connect(m_ui->privateWindowCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
@@ -115,16 +120,41 @@ void QuickWebShortcutsConfig::load() {
         browserItem->deletePushButton->setDisabled(item.isDefault || item.isDefaultBased);
         connectSearchEngineSignals(browserItem);
     }
+
+    // Fill ComboBox with existing web shortcuts
+    QMap<QString, QString> availableWebShortcuts;
+    const QStringList servicesDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation,
+                                                               QStringLiteral("kservices5/searchproviders/"),
+                                                               QStandardPaths::LocateDirectory);
+    for (const QString &dirPath : servicesDirs) {
+        QDir dir(dirPath);
+        const auto files = dir.entryList({QStringLiteral("*.desktop")}, QDir::Files);
+        for (const QString &file : files) {
+            const QString filePath = dir.path() + QLatin1Char('/') + file;
+            KConfigGroup configGroup = KSharedConfig::openConfig(filePath)->group(QStringLiteral("Desktop Entry"));
+            availableWebShortcuts.insert(configGroup.readEntry("Name"), filePath);
+        }
+    }
+    for (const auto &mapEntry: availableWebShortcuts.toStdMap()) {
+        m_ui->webShortcutComboBox->addItem(mapEntry.first, mapEntry.second);
+    }
+
+    m_ui->useWebshortcutRadioButton->setChecked(!config.readEntry(Config::WebShortcut).isEmpty());
+    m_ui->webShortcutComboBox->setDisabled(config.readEntry(Config::WebShortcut).isEmpty());
+    m_ui->webShortcutComboBox->setCurrentIndex(
+            m_ui->webShortcutComboBox->findData(config.readEntry(Config::WebShortcut), Qt::UserRole));
     m_ui->showPrivateActionCheckBox->setChecked(config.readEntry(Config::PrivateWindowAction, true));
     m_ui->showSearchEngineName->setChecked(config.readEntry(Config::ShowName, true));
     m_ui->openURLS->setChecked(config.readEntry(Config::OpenUrls, true));
     m_ui->showSearchForCheckBox->setChecked(config.readEntry(Config::ShowSearchForNote, true));
     m_ui->showPrivateNoteCheckBox->setChecked(config.readEntry(Config::PrivateWindowNote, true));
-    m_ui->triggerCharacterComboBox->setCurrentText(config.readEntry(Config::TriggerCharacter, Config::TriggerCharacterDefault));
+    m_ui->triggerCharacterComboBox->setCurrentText(
+            config.readEntry(Config::TriggerCharacter, Config::TriggerCharacterDefault));
     showSearchForClicked();
 
     // Search Suggestions settings
-    const QString searchSuggestionOption = config.readEntry(Config::SearchSuggestions, Config::SearchSuggestionDisabled);
+    const QString searchSuggestionOption = config.readEntry(Config::SearchSuggestions,
+                                                            Config::SearchSuggestionDisabled);
     if (searchSuggestionOption == Config::SearchSuggestionGoogle) {
         m_ui->googleRadioButton->setChecked(true);
     } else if (searchSuggestionOption == Config::SearchSuggestionBing) {
@@ -135,8 +165,10 @@ void QuickWebShortcutsConfig::load() {
         m_ui->disableRadioButton->setChecked(true);
     }
     m_ui->privateWindowCheckBox->setChecked(config.readEntry(Config::PrivateWindowSearchSuggestions, false));
-    m_ui->minimumLetterCountSpinBox->setValue(config.readEntry(Config::MinimumLetterCount, Config::MinimumLetterCountDefault));
-    m_ui->maxSearchSuggestionsSpinBox->setValue(config.readEntry(Config::MaxSuggestionResults, Config::MaxSuggestionResultsDefault));
+    m_ui->minimumLetterCountSpinBox->setValue(
+            config.readEntry(Config::MinimumLetterCount, Config::MinimumLetterCountDefault));
+    m_ui->maxSearchSuggestionsSpinBox->setValue(
+            config.readEntry(Config::MaxSuggestionResults, Config::MaxSuggestionResultsDefault));
 
     setBingLanguages(m_ui->bingLocaleSelectComboBox);
     setGoogleLanguages(m_ui->googleLanguageComboBox);
@@ -187,7 +219,6 @@ void QuickWebShortcutsConfig::save() {
     QString selected;
     for (int i = 0; i < itemCount; ++i) {
         auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
-
         const QString itemName = item->nameLineEdit->text();
         if (item->useRadioButton->isChecked()) selected = itemName;
         if (item->isDefault && !item->isEdited) continue;
@@ -227,6 +258,12 @@ void QuickWebShortcutsConfig::save() {
     config.writeEntry(Config::GoogleLocale, m_ui->googleLanguageComboBox->itemData(
             m_ui->googleLanguageComboBox->currentIndex()));
 
+    QString webShortcut;
+    if (m_ui->useWebshortcutRadioButton->isChecked()) {
+        webShortcut = m_ui->webShortcutComboBox->currentData(Qt::UserRole).toString();
+    }
+    config.writeEntry(Config::WebShortcut, webShortcut);
+
     const char *proxy;
     if (m_ui->httpProxyRadioButton->isChecked()) {
         proxy = Config::ProxyHTTP;
@@ -265,7 +302,6 @@ void QuickWebShortcutsConfig::defaults() {
     const int itemCount = m_ui->searchEnginesItemLayout->count();
     for (int i = 0; i < itemCount; ++i) {
         auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
-
         if (item->isDefaultBased) {
             if ((item->isDefault && item->isEdited) || (!item->isDefault && item->isDefaultBased)) {
                 item->nameLineEdit->setText(item->originalName);
@@ -281,6 +317,8 @@ void QuickWebShortcutsConfig::defaults() {
 
     }
     m_ui->showPrivateActionCheckBox->setChecked(true);
+    m_ui->useWebshortcutRadioButton->setChecked(false);
+    m_ui->webShortcutComboBox->setDisabled(true);
     m_ui->showSearchEngineName->setChecked(false);
     m_ui->showPrivateNoteCheckBox->setChecked(true);
     m_ui->showSearchForCheckBox->setChecked(true);
@@ -349,11 +387,26 @@ void QuickWebShortcutsConfig::validateProxyOptions() {
     m_ui->proxyDataContainerWidget->setHidden(m_ui->noProxyRadioButton->isChecked());
 }
 
+/**
+ * This method makes sure that exactly one search engine from the radio buttons
+ * is selected. It is a bit messy but only for ui validation relevant
+ */
 void QuickWebShortcutsConfig::itemSelected() {
+    if (this->sender()->objectName() == QLatin1String("useWebshortcutRadioButton")) {
+        if (m_ui->useWebshortcutRadioButton->isChecked()) {
+            for (int i = 0; i < m_ui->searchEnginesItemLayout->count(); ++i) {
+                auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
+                item->useRadioButton->setChecked(false);
+            }
+        } else {
+            m_ui->useWebshortcutRadioButton->setChecked(true);
+        }
+        m_ui->webShortcutComboBox->setDisabled(false);
+        return;
+    }
     auto *sourceItem = reinterpret_cast<SearchEngineItem *>(this->sender());
-    const int itemCount = m_ui->searchEnginesItemLayout->count();
     int selected = 0;
-    for (int i = 0; i < itemCount; ++i) {
+    for (int i = 0; i < m_ui->searchEnginesItemLayout->count(); ++i) {
         auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
         if (item->useRadioButton->isChecked()) {
             ++selected;
@@ -361,7 +414,7 @@ void QuickWebShortcutsConfig::itemSelected() {
     }
     if (selected == 2) {
         // Another item is selected
-        for (int i = 0; i < itemCount; ++i) {
+        for (int i = 0; i < m_ui->searchEnginesItemLayout->count(); ++i) {
             auto *item = reinterpret_cast<SearchEngineItem *>(m_ui->searchEnginesItemLayout->itemAt(i)->widget());
             if (item->useRadioButton->isChecked() && item != sourceItem) {
                 item->useRadioButton->setChecked(false);
@@ -371,6 +424,8 @@ void QuickWebShortcutsConfig::itemSelected() {
         // The same item was clicked => it has to be selected, otherwise no item is checked
         sourceItem->useRadioButton->setChecked(true);
     }
+    m_ui->useWebshortcutRadioButton->setChecked(false);
+    m_ui->webShortcutComboBox->setDisabled(true);
 }
 
 void QuickWebShortcutsConfig::showSearchForClicked() {
@@ -392,7 +447,8 @@ void QuickWebShortcutsConfig::validateProxyConnection() {
     QNetworkRequest request(QUrl(QStringLiteral("https://ifconfig.me/ip")));
     timeBeforeRequest = QTime::currentTime();
     auto initialReply = manager->get(request);
-    connect(manager, &QNetworkAccessManager::finished, this, &QuickWebShortcutsConfig::showProxyConnectionValidationResults);
+    connect(manager, &QNetworkAccessManager::finished, this,
+            &QuickWebShortcutsConfig::showProxyConnectionValidationResults);
     m_ui->proxyTestResultLabel->setText(QStringLiteral("Making request..."));
 
     QTimer::singleShot(5000, initialReply, [initialReply]() {
@@ -405,13 +461,16 @@ void QuickWebShortcutsConfig::validateProxyConnection() {
 void QuickWebShortcutsConfig::showProxyConnectionValidationResults(QNetworkReply *reply) {
     if (reply->error() == QNetworkReply::NoError) {
         const int msecDuration = timeBeforeRequest.msecsTo(QTime::currentTime());
-        QString text = QStringLiteral("No Error!\nYour Ip address is: \n") + reply->readAll() + QStringLiteral("\nThe request took:\n")
+        QString text = QStringLiteral("No Error!\nYour Ip address is: \n") + reply->readAll() +
+                       QStringLiteral("\nThe request took:\n")
                        + QString::number(msecDuration) + QStringLiteral(" ms");
-        if (msecDuration >= 2000) text.append(QStringLiteral("\n Warning! A duration longer that 2000ms will result in a timeout!"));
+        if (msecDuration >= 2000)
+            text.append(QStringLiteral("\n Warning! A duration longer that 2000ms will result in a timeout!"));
         m_ui->proxyTestResultLabel->setText(text);
     } else {
         m_ui->proxyTestResultLabel->setText(
-                QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + ":\n" +
+                QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) +
+                ":\n" +
                 reply->errorString());
     }
 

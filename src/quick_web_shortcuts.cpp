@@ -35,6 +35,8 @@ void QuickWebShortcuts::init() {
 }
 
 void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
+    // To detect invalid state if config is updated
+    currentSearchEngine.url.clear();
     KConfigGroup configGroup = KSharedConfig::openConfig(
             QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile)
             ->group(Config::RootGroup);
@@ -53,18 +55,34 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
 
     privateBrowser = loadPrivateBrowser();
 
-    // Load search engines
-    const QString searchEngineName = configGroup.readEntry(Config::SearchEngineName);
-    for (auto &engine:SearchEngines::getAllSearchEngines()) {
-        if (engine.name == searchEngineName) {
-            currentSearchEngine = engine;
-            break;
+    if (configGroup.readEntry(Config::WebShortcut).isEmpty()) {
+        // Load search engines
+        const QString searchEngineName = configGroup.readEntry(Config::SearchEngineName);
+        for (auto &engine:SearchEngines::getAllSearchEngines()) {
+            if (engine.name == searchEngineName) {
+                currentSearchEngine = engine;
+                break;
+            }
         }
-    }
 
-    // If the config is empty or malformed
-    if (currentSearchEngine.url.isEmpty()) {
-        currentSearchEngine = getDefaultSearchEngine();
+        // If the config is empty or malformed
+        if (currentSearchEngine.url.isEmpty()) {
+            currentSearchEngine = getDefaultSearchEngine();
+        }
+        isWebShortcut = false;
+    } else {
+        const KConfigGroup webShortcutGroup = KSharedConfig::openConfig(configGroup.readEntry(Config::WebShortcut))->group("Desktop Entry");
+        if (webShortcutGroup.exists()) {
+            SearchEngine webShortcutEngine;
+            webShortcutEngine.qIcon = QIcon::fromTheme(QStringLiteral("globe"));
+            webShortcutEngine.name = webShortcutGroup.readEntry("Name");
+            webShortcutEngine.url = webShortcutGroup.readEntry("Query");
+            currentSearchEngine = webShortcutEngine;
+            isWebShortcut = true;
+        } else {
+            currentSearchEngine = getDefaultSearchEngine();
+            isWebShortcut = false;
+        }
     }
 
     // Load general settings
@@ -93,8 +111,8 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry(Config::PrivateWindowSearchSuggestions, false);
     if (configGroup.readEntry(Config::PrivateWindowAction, true)) {
         normalActions = {addAction(QStringLiteral("private"),
-                          QIcon::fromTheme(QStringLiteral("view-private")),
-                          QStringLiteral("launch query in private/incognito window"))
+                                   QIcon::fromTheme(QStringLiteral("view-private")),
+                                   QStringLiteral("launch query in private/incognito window"))
         };
     } else {
         normalActions.clear();
@@ -183,7 +201,12 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     if (term.startsWith(privateWindowTrigger)) {
         term = term.mid(2);
         data.insert(QStringLiteral("browser"), privateBrowser);
-        QString url = currentSearchEngine.url + QUrl::toPercentEncoding(term);
+        QString url;
+        if (isWebShortcut) {
+            url = currentSearchEngine.url.replace(QStringLiteral("\\{@}"), QUrl::toPercentEncoding(term));
+        } else {
+            url = currentSearchEngine.url + QUrl::toPercentEncoding(term);
+        }
         data.insert(QStringLiteral("url"), url);
         context.addMatch(createMatch(searchOptionTemplate.arg(term) + privateBrowserMode, data));
         if (searchSuggestions && privateWindowSearchSuggestions) {
@@ -193,7 +216,13 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         }
     } else if (term.startsWith(triggerCharacter)) {
         term = term.mid(1);
-        data.insert(QStringLiteral("url"), currentSearchEngine.url + QUrl::toPercentEncoding(term));
+        QString url;
+        if (isWebShortcut) {
+            url = QString(currentSearchEngine.url).replace(QStringLiteral("\\{@}"), QUrl::toPercentEncoding(term));
+        } else {
+            url = currentSearchEngine.url + QUrl::toPercentEncoding(term);
+        }
+        data.insert(QStringLiteral("url"), url);
         context.addMatch(createMatch(searchOptionTemplate.arg(term), data));
         if (searchSuggestions) {
             if (term.size() >= minimumLetterCount) {
