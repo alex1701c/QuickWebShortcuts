@@ -97,7 +97,13 @@ public Q_SLOTS:
                 match.setRelevance((float) (19 - i) / 20);
 
                 QMap<QString, QVariant> runData;
-                runData.insert(QStringLiteral("url"), data.searchEngine + QUrl::toPercentEncoding(suggestion));
+                QString url;
+                if (data.isWebShortcut) {
+                    url = QString(data.searchEngine).replace(QStringLiteral("\\{@}"), QUrl::toPercentEncoding(suggestion));
+                } else {
+                    url = data.searchEngine + QUrl::toPercentEncoding(suggestion);
+                }
+                runData.insert(QStringLiteral("url"), url);
                 if (!browserLaunchCommand.isEmpty()) {
                     runData.insert(QStringLiteral("browser"), browserLaunchCommand);
                 }

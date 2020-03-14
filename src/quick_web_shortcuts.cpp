@@ -129,6 +129,7 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
         requiredData.runner = this;
         requiredData.maxResults = configGroup.readEntry(Config::MaxSuggestionResults, Config::MaxSuggestionResultsDefault);
         requiredData.searchOptionTemplate = searchOptionTemplate;
+        requiredData.isWebShortcut = isWebShortcut;
     }
 
     // Proxy settings
@@ -203,7 +204,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
         data.insert(QStringLiteral("browser"), privateBrowser);
         QString url;
         if (isWebShortcut) {
-            url = currentSearchEngine.url.replace(QStringLiteral("\\{@}"), QUrl::toPercentEncoding(term));
+            url = QString(currentSearchEngine.url).replace(QStringLiteral("\\{@}"), QUrl::toPercentEncoding(term));
         } else {
             url = currentSearchEngine.url + QUrl::toPercentEncoding(term);
         }

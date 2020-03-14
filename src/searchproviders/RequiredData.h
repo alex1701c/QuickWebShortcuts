@@ -8,6 +8,7 @@ public:
     QNetworkProxy *proxy = nullptr;
     Plasma::AbstractRunner *runner;
     QString searchEngine;
+    bool isWebShortcut;
     QIcon icon;
     int maxResults;
     bool showNetworkErrors = true;
