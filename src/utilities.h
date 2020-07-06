@@ -28,7 +28,8 @@ QString loadPrivateBrowser() {
     }
     if (!browser.isEmpty()) {
         const KSharedConfig::Ptr browserConfig = KSharedConfig::openConfig(QStringLiteral("/usr/share/applications/") + browser);
-        for (const auto &group: browserConfig->groupList()) {
+        const auto groupList = browserConfig->groupList();
+        for (const auto &group: groupList) {
             if (group.contains(QStringLiteral("incognito"), Qt::CaseInsensitive) ||
                 group.contains(QStringLiteral("private"), Qt::CaseInsensitive)) {
                 privateBrowser = browserConfig->group(group).readEntry("Exec");

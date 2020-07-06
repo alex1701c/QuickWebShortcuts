@@ -33,7 +33,7 @@ void SearchEngineItem::extractNameFromUrl() {
 }
 
 void SearchEngineItem::iconPicker() {
-    const QString iconPath = QFileDialog::getOpenFileName(this, tr("Select Icon"), "",
+    const QString iconPath = QFileDialog::getOpenFileName(this, tr("Select Icon"), QString(),
                                                           tr("Images (.*.jpg *.jpeg *.png *.ico *.svg *.svgz)"));
     if (!iconPath.isEmpty()) {
         this->originalIcon = this->icon;

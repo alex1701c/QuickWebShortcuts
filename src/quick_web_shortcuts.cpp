@@ -175,9 +175,15 @@ void QuickWebShortcuts::filterHistory() {
     if (cleanAll || cleanQuick) {
         // If cleanAll is true, filtered history has already been set => read value, clear it and write the final result
         const QString toFilter = cleanAll ? filteredHistory : history;
-        if (cleanAll) filteredHistory = "";
+        if (cleanAll) filteredHistory.clear();
         const QChar sep = ',';
-        for (const auto &item : toFilter.split(sep, QString::SkipEmptyParts)) {
+        const auto items =  toFilter
+            #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+                    .split(sep, Qt::SkipEmptyParts);
+            #else
+                    .split(sep, QString::SkipEmptyParts);
+            #endif
+        for (const auto &item : items) {
             if (!item.startsWith(triggerCharacter)) {
                 filteredHistory += item + sep;
             }
@@ -196,7 +202,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     wasActive = false;
 
     // Remove escape character
-    QString term = QString(context.query()).replace(QString::fromWCharArray(L"\u001B"), " ");
+    QString term = QString(context.query()).replace(QString::fromWCharArray(L"\u001B"), QLatin1String(" "));
 
     QMap<QString, QVariant> data;
 

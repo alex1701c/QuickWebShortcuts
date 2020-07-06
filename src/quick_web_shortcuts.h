@@ -47,7 +47,7 @@ public:
 
 private:
     Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, bool useGlobe = false);
-    void searchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
+    void searchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = QString());
 
 protected Q_SLOTS:
     void init() override;

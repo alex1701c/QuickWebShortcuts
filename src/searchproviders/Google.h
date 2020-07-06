@@ -24,8 +24,8 @@ public:
     Google(Plasma::RunnerContext &context,
            QString query,
            RequiredData data,
-           QString language = "en",
-           QString browserLaunchCommand = ""
+           QString language = QStringLiteral("en"),
+           QString browserLaunchCommand = QString()
     ) : context(context), query(std::move(query)), language(std::move(language)),
         browserLaunchCommand(std::move(browserLaunchCommand)), data(std::move(data)) {
 
@@ -37,7 +37,7 @@ public:
         QUrlQuery queryParameters;
         queryParameters.addQueryItem(QStringLiteral("q"), this->query);
         queryParameters.addQueryItem(QStringLiteral("hl"), this->language);
-        queryParameters.addQueryItem(QStringLiteral("output"), "toolbar");
+        queryParameters.addQueryItem(QStringLiteral("output"), QStringLiteral("toolbar"));
 
         QNetworkRequest request(QUrl(QStringLiteral("https://clients1.google.com/complete/search?") +
                                      QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));

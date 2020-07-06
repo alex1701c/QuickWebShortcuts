@@ -23,7 +23,7 @@ private:
 
 public:
     DuckDuckGo(Plasma::RunnerContext &context, QString query, RequiredData data,
-               QString browserLaunchCommand = "") : context(context), query(std::move(query)),
+               QString browserLaunchCommand = QString()) : context(context), query(std::move(query)),
                                                     browserLaunchCommand(std::move(browserLaunchCommand)), data(std::move(data)) {
         manager = new QNetworkAccessManager(this);
         if (data.proxy) {

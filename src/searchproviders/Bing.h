@@ -25,8 +25,8 @@ private:
     QNetworkReply *reply;
 
 public:
-    Bing(Plasma::RunnerContext &context, QString query, RequiredData &data, QString market = "en-us",
-         QString browserLaunchCommand = "")
+    Bing(Plasma::RunnerContext &context, QString query, RequiredData &data,
+         QString market = QStringLiteral("en-us"), QString browserLaunchCommand = QString())
         : context(context), query(std::move(query)), market(std::move(market)),
           browserLaunchCommand(std::move(browserLaunchCommand)), data(data) {
 

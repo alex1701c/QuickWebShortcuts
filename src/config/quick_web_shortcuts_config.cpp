@@ -10,7 +10,7 @@
 #include <utilities.h>
 
 K_PLUGIN_FACTORY(QuickWebShortcutsConfigFactory,
-                 registerPlugin<QuickWebShortcutsConfig>("kcm_krunner_quickwebshortcuts");)
+                 registerPlugin<QuickWebShortcutsConfig>(QStringLiteral("kcm_krunner_quickwebshortcuts"));)
 
 QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariantList &args) : KCModule(parent, args) {
     m_ui = new QuickWebShortcutsConfigForm(this);
@@ -96,7 +96,8 @@ void QuickWebShortcutsConfig::load() {
         searchEngineName = QStringLiteral("Google");
     }
     // Load search engines
-    for (const auto &item : SearchEngines::getAllSearchEngines()) {
+    const auto allSearchEngines = SearchEngines::getAllSearchEngines();
+    for (const auto &item : allSearchEngines) {
         auto *browserItem = new SearchEngineItem(m_ui->groupBoxSearch);
         m_ui->searchEnginesItemLayout->addWidget(browserItem);
         browserItem->iconPushButton->setIcon(item.qIcon);
@@ -335,7 +336,7 @@ void QuickWebShortcutsConfig::defaults() {
     validateSearchSuggestions();
     validateProxyOptions();
 #if KCMUTILS_VERSION >= QT_VERSION_CHECK(5, 64, 0)
-    emit markAsChanged();
+    markAsChanged();
 #else
     emit changed(true);
 #endif
