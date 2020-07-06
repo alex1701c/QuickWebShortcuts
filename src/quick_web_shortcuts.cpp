@@ -5,6 +5,7 @@
 #include "searchengines/SearchEngines.h"
 #include "Config.h"
 #include "utilities.h"
+#include <krunner_version.h>
 #include <searchproviders/Bing.h>
 #include <searchproviders/Google.h>
 #include <searchproviders/DuckDuckGo.h>
@@ -306,7 +307,11 @@ QList<QAction *> QuickWebShortcuts::actionsForMatch(const Plasma::QueryMatch &ma
     return normalActions;
 }
 
+#if KRUNNER_VERSION >= QT_VERSION_CHECK(5, 72, 0)
+K_EXPORT_PLASMA_RUNNER_WITH_JSON(QuickWebShortcuts, "plasma-runner-quickwebshortcuts.json")
+#else
 K_EXPORT_PLASMA_RUNNER(quick_web_shortcuts, QuickWebShortcuts)
+#endif
 
 // needed for the QObject subclass declared as part of K_EXPORT_PLASMA_RUNNER
 #include "quick_web_shortcuts.moc"
