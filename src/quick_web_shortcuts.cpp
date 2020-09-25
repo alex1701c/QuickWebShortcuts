@@ -274,6 +274,7 @@ Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMa
     match.setText(text);
     match.setData(data);
     match.setRelevance(1);
+    match.setType(Plasma::QueryMatch::ExactMatch);
     return match;
 }
 
