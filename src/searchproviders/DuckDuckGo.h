@@ -33,7 +33,7 @@ public:
         QUrlQuery queryParameters;
         queryParameters.addQueryItem(QStringLiteral("q"), this->query);
 
-        QNetworkRequest request(QUrl(QStringLiteral("https://duckduckgo.com/lite/?") +
+        QNetworkRequest request(QUrl(QStringLiteral("https://lite.duckduckgo.com/lite/?") +
                                      QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
         request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
@@ -43,7 +43,7 @@ public:
         reply = manager->get(request);
 
         connect(manager, &QNetworkAccessManager::finished, this, &DuckDuckGo::parseResponse);
-        QTimer::singleShot(2000, reply, [this]() {
+        QTimer::singleShot(4000, reply, [this]() {
             reply->abort();
         });
     }
@@ -70,8 +70,9 @@ public Q_SLOTS:
         } else if (context.isValid()) {
             // Parse html content
             QList<QStringList> urlList;
-            QRegularExpression linkRegex(QStringLiteral("<a rel=\"nofollow\" href=\"([^\"]+)\" class='result-link'>(.*)</a>"));
-            QRegularExpressionMatchIterator it = linkRegex.globalMatch(reply->readAll());
+            QRegularExpression linkRegex(QStringLiteral("<a [^>]*rel=\"nofollow\"[^>]*href=\"([^\"]+)\"[^>]*>(.*)</a>"));
+            const QString res = reply->readAll();
+            QRegularExpressionMatchIterator it = linkRegex.globalMatch(res);
             while (it.hasNext() && urlList.size() < data.maxResults) {
                 const QRegularExpressionMatch match = it.next();
                 if (match.hasMatch()) {
