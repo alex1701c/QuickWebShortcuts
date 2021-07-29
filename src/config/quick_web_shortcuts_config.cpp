@@ -41,7 +41,6 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     connect(m_ui->useWebshortcutRadioButton, &QRadioButton::clicked, this, &QuickWebShortcutsConfig::itemSelected);
     connect(m_ui->webShortcutComboBox, comboBoxIndexChanged, this, changedSlotPointer);
     connect(m_ui->showPrivateActionCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
-    connect(m_ui->openURLS, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->showSearchEngineName, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->showPrivateNoteCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
     connect(m_ui->showSearchForCheckBox, &QCheckBox::clicked, this, changedSlotPointer);
@@ -145,7 +144,6 @@ void QuickWebShortcutsConfig::load() {
             m_ui->webShortcutComboBox->findData(config.readEntry(Config::WebShortcut), Qt::UserRole));
     m_ui->showPrivateActionCheckBox->setChecked(config.readEntry(Config::PrivateWindowAction, true));
     m_ui->showSearchEngineName->setChecked(config.readEntry(Config::ShowName, true));
-    m_ui->openURLS->setChecked(config.readEntry(Config::OpenUrls, true));
     m_ui->showSearchForCheckBox->setChecked(config.readEntry(Config::ShowSearchForNote, true));
     m_ui->showPrivateNoteCheckBox->setChecked(config.readEntry(Config::PrivateWindowNote, true));
     m_ui->triggerCharacterComboBox->setCurrentText(
@@ -289,7 +287,6 @@ void QuickWebShortcutsConfig::save() {
     }
     config.writeEntry(Config::CleanHistory, history);
     config.writeEntry(Config::ShowName, m_ui->showSearchEngineName->isChecked());
-    config.writeEntry(Config::OpenUrls, m_ui->openURLS->isChecked());
     config.writeEntry(Config::ShowSearchForNote, m_ui->showSearchForCheckBox->isChecked());
     config.writeEntry(Config::PrivateWindowNote, m_ui->showPrivateNoteCheckBox->isChecked());
     config.writeEntry(Config::TriggerCharacter, m_ui->triggerCharacterComboBox->currentText());
@@ -322,7 +319,6 @@ void QuickWebShortcutsConfig::defaults() {
     m_ui->showSearchEngineName->setChecked(false);
     m_ui->showPrivateNoteCheckBox->setChecked(true);
     m_ui->showSearchForCheckBox->setChecked(true);
-    m_ui->openURLS->setChecked(true);
     m_ui->privateWindowCheckBox->setChecked(false);
     m_ui->disableRadioButton->setChecked(true);
     m_ui->noProxyRadioButton->setChecked(true);

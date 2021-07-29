@@ -7,7 +7,6 @@ struct Config {
 
     // General config
     constexpr static const auto SearchEngineName = "search_engine_name";
-    constexpr static const auto OpenUrls = "open_urls";
     constexpr static const auto ShowSearchForNote = "show_search_for_note";
     constexpr static const auto ShowName = "show_name";
     constexpr static const auto PrivateWindowNote = "private_window_note";

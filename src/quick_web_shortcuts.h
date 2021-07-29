@@ -24,7 +24,6 @@ private:
     QRegularExpression removeHistoryRegex;
 
     QString privateBrowser, privateBrowserMode, searchOptionTemplate, searchSuggestionChoice, triggerCharacter, privateWindowTrigger;
-    bool openUrls;
     KConfigGroup generalKrunnerConfig;
 
     // Search suggestion variables

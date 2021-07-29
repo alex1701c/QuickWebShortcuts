@@ -85,7 +85,6 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     }
 
     // Load general settings
-    openUrls = configGroup.readEntry(Config::OpenUrls, true);
     if (!configGroup.readEntry(Config::ShowSearchForNote, true)) {
         searchOptionTemplate = QStringLiteral("%1");
     } else if (configGroup.readEntry(Config::ShowName, false)) {
@@ -151,13 +150,6 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
         generalKrunnerConfig = KSharedConfig::openConfig(QStringLiteral("krunnerrc"))->group("General");
         removeHistoryRegex = QRegularExpression(QStringLiteral(R"([a-z]{1,5}: ?[^,]+,?)"));
         removeHistoryRegex.optimize();
-    }
-
-    if (openUrls) {
-        shortUrlRegex = QRegularExpression(QStringLiteral(R"(^.*\.[a-z]{2,5}$)"));
-        shortUrlRegex.optimize();
-        urlRegex = QRegularExpression(QStringLiteral("^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+$"));
-        urlRegex.optimize();
     }
 }
 
@@ -229,9 +221,6 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
                 searchSuggest(context, term);
             }
         }
-    } else if (openUrls && (term.contains(shortUrlRegex) || term.contains(urlRegex))) {
-        data.insert(QStringLiteral("url"), !term.startsWith(QLatin1String("http")) ? QStringLiteral("https://") + term : term);
-        context.addMatch(createMatch(QStringLiteral("Go To  ") + term, data, true));
     }
 }
 

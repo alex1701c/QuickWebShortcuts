@@ -142,13 +142,6 @@
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="openURLS">
-               <property name="text">
-                <string>Open URLs</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item alignment="Qt::AlignLeft">
                 <widget class="QLabel" name="label">
