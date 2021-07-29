@@ -3,7 +3,7 @@ add_definitions(-DTRANSLATION_DOMAIN=\"plasma_runner_org.kde.quickwebshortcuts\"
 set(quickwebshortcuts_SRCS quick_web_shortcuts.h quick_web_shortcuts.cpp searchproviders/Bing.h
         searchproviders/Google.h searchproviders/DuckDuckGo.h)
 
-add_library(krunner_quickwebshortcuts MODULE ${quickwebshortcuts_SRCS})
+kcoreaddons_add_plugin(krunner_quickwebshortcuts SOURCES ${quickwebshortcuts_SRCS} INSTALL_NAMESPACE "kf5/krunner")
 target_link_libraries(krunner_quickwebshortcuts KF5::Runner KF5::Notifications Qt5::Core Qt5::Network)
 
 if (${KF5Wallet_FOUND})
@@ -45,6 +45,6 @@ add_dependencies(krunner_quickwebshortcuts kcm_krunner_quickwebshortcuts)
 
 set(SEARCH_ENGINE_ICON_DIR "/usr/share/pixmaps" CACHE STRING "Default icon directory")
 
-install(TARGETS krunner_quickwebshortcuts kcm_krunner_quickwebshortcuts DESTINATION ${KDE_INSTALL_QTPLUGINDIR})
-install(FILES plasma-runner-quickwebshortcuts.desktop config/plasma-runner-quickwebshortcuts_config.desktop DESTINATION ${KDE_INSTALL_KSERVICES5DIR})
+install(TARGETS kcm_krunner_quickwebshortcuts DESTINATION ${KDE_INSTALL_QTPLUGINDIR})
+install(FILES config/plasma-runner-quickwebshortcuts_config.desktop DESTINATION ${KDE_INSTALL_KSERVICES5DIR})
 install(FILES icons/bing.svg icons/duckduckgo.svg icons/github.svg icons/google.svg icons/stackoverflow.svg icons/youtube.svg DESTINATION ${SEARCH_ENGINE_ICON_DIR})
