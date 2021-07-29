@@ -7,3 +7,5 @@ src/config/ui_*.h
 *.swap
 src/*.swap
 /src/CMakeFiles/
+compile_commands.json
+.cache
