@@ -57,26 +57,19 @@ sudo pacman -S cmake extra-cmake-modules knotifications kwallet kcmutils
 
 ## Installation Method
 
-<details>
-<summary><b>Option A: Easy oneliner method</b></summary>  
+### Option A: Easy oneliner method  
 
 ```bash
 curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install.sh | bash
 ```
-  
-</details>
 
-<details>
-<summary><b>Option B: Easy oneliner method (without admin privileges)</b></summary>  
+### Option B: Easy oneliner method (without admin privileges)
 
 ```bash
 curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install-user.sh | bash
 ```
-  
-</details>
 
-<details>
-<summary><b>Option C: Manual method</b></summary>  
+### Option C: Manual method
 
 ```bash
 git clone https://github.com/alex1701c/QuickWebShortcuts.git  
@@ -88,8 +81,6 @@ make
 sudo make install
 kquitapp5 krunner 2> /dev/null; kstart5 --windowclass krunner krunner > /dev/null 2>&1 &
 ```
-  
-</details>
 
 **Note**: KWallet is not required for building this project but without it the proxy feature for the 
 search suggestions are disabled, if you install it after building the plugin you have to recompile it.  
