@@ -4,17 +4,17 @@ This plugin allows you to use search engines inside Krunner. But instead of spec
 engine every time can set one you want to use. Additionally it provides search suggestions and direct 
 links. These can be configured in the config dialog, by default they are disabled.
 
-The default search engine is Google. If you type ":example query" it will open your 
-browser with the google search results for "example query". The default options are Bing, DuckDuckGo,
+The default search engine is Google. If you type `:example query` it will open your 
+browser with the google search results for `example query`. The default options are Bing, DuckDuckGo,
 Github, Google, Stackoverflow and Youtube and you can add custom ones.
 
 Additionally you can use this plugin to open search results in private/incognito mode. 
-This feature gets activated by typing "::example query".
+This feature gets activated by typing `::example query`.
 It has been tested with Firefox, Chromium, Google Chrome and Epiphany.
 But you have to manually select one of these as your default browser, otherwise Firefox is used as default.
 
 Furthermore you can customize the letter that is used to trigger the plugin in the config,
-for instance you can use '!', '?', '#' or '<'.
+for instance you can use `!`, `?`, `#` or `<`.
 
 ### Build Instructions
 ## Required Dependencies
