@@ -41,7 +41,7 @@ private:
     RequiredData requiredData;
 
 public:
-    QuickWebShortcuts(QObject *parent, const QVariantList &args);
+    QuickWebShortcuts(QObject *parent, const KPluginMetaData &pluginMetaData, const QVariantList &args);
     ~QuickWebShortcuts() override;
 
 private:

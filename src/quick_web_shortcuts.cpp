@@ -1,5 +1,6 @@
 #include "quick_web_shortcuts.h"
 #include <QtGui/QtGui>
+#include <QAction>
 #include <KShell>
 #include <KNotifications/KNotification>
 #include "searchengines/SearchEngines.h"
@@ -9,8 +10,8 @@
 #include <searchproviders/Google.h>
 #include <searchproviders/DuckDuckGo.h>
 
-QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const QVariantList &args)
-        : Plasma::AbstractRunner(parent, args) {
+QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const KPluginMetaData &pluginMetaData, const QVariantList &args)
+        : Plasma::AbstractRunner(parent, pluginMetaData, args) {
     setObjectName(QStringLiteral("Quick Web Shortcuts"));
     setPriority(HighestPriority);
 }
@@ -108,9 +109,9 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     searchSuggestions = searchSuggestionChoice != Config::SearchSuggestionDisabled;
     privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry(Config::PrivateWindowSearchSuggestions, false);
     if (configGroup.readEntry(Config::PrivateWindowAction, true)) {
-        normalActions = {addAction(QStringLiteral("private"),
-                                   QIcon::fromTheme(QStringLiteral("view-private")),
-                                   QStringLiteral("launch query in private/incognito window"))
+        normalActions = {new QAction(QIcon::fromTheme(QStringLiteral("view-private")),
+                                   QStringLiteral("launch query in private/incognito window"),
+                                   this)
         };
     } else {
         normalActions.clear();
@@ -167,7 +168,7 @@ void QuickWebShortcuts::filterHistory() {
         const QString toFilter = cleanAll ? filteredHistory : history;
         if (cleanAll) filteredHistory = "";
         const QChar sep = ',';
-        for (const auto &item : toFilter.split(sep, QString::SkipEmptyParts)) {
+        for (const auto &item : toFilter.split(sep, Qt::SkipEmptyParts)) {
             if (!item.startsWith(triggerCharacter)) {
                 filteredHistory += item + sep;
             }
