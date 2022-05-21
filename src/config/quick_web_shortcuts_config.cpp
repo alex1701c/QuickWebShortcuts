@@ -6,7 +6,6 @@
 #include <QtDebug>
 #include <QtWidgets/QFileDialog>
 
-#include "kcmutils_version.h"
 #include <utilities.h>
 
 K_PLUGIN_FACTORY(QuickWebShortcutsConfigFactory,
@@ -24,11 +23,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariant
     config.config()->reparseConfiguration();
 
     // Initialize function pointers that require method overloading
-#if KCMUTILS_VERSION >= QT_VERSION_CHECK(5, 64, 0)
     const auto changedSlotPointer = &QuickWebShortcutsConfig::markAsChanged;
-#else
-    const auto changedSlotPointer = static_cast<void (QuickWebShortcutsConfig::*)()>(&QuickWebShortcutsConfig::changed);
-#endif
     const auto comboBoxIndexChanged = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
     const auto spinBoxValueChanged = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
 
@@ -330,11 +325,7 @@ void QuickWebShortcutsConfig::defaults() {
     showSearchForClicked();
     validateSearchSuggestions();
     validateProxyOptions();
-#if KCMUTILS_VERSION >= QT_VERSION_CHECK(5, 64, 0)
     emit markAsChanged();
-#else
-    emit changed(true);
-#endif
 }
 
 void QuickWebShortcutsConfig::addSearchEngine() {
@@ -345,11 +336,7 @@ void QuickWebShortcutsConfig::addSearchEngine() {
 }
 
 void QuickWebShortcutsConfig::connectSearchEngineSignals(SearchEngineItem *item) {
-#if KCMUTILS_VERSION >= QT_VERSION_CHECK(5, 64, 0)
     const auto changedSlotPointer = &QuickWebShortcutsConfig::markAsChanged;
-#else
-    const auto changedSlotPointer = static_cast<void (QuickWebShortcutsConfig::*)()>(&QuickWebShortcutsConfig::changed);
-#endif
     connect(item, &SearchEngineItem::changed, this, changedSlotPointer);
     connect(item, &SearchEngineItem::itemSelected, this, &QuickWebShortcutsConfig::itemSelected);
     connect(item, &SearchEngineItem::itemSelected, this, changedSlotPointer);
