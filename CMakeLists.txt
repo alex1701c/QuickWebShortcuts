@@ -7,6 +7,7 @@ set(KF5_MIN_VERSION "5.90.0")
 
 find_package(ECM 5.12.0 REQUIRED NO_MODULE)
 find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
+add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_MODULE_PATH})
 
 # Find the required Libaries
@@ -27,7 +28,7 @@ include(KDECompilerSettings NO_POLICY_SCOPE)
 include(FeatureSummary)
 
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050f02)
-add_definitions(-DKF_DISABLE_DEPRECATED_BEFORE_AND_AT=0x055500)
+add_definitions(-DKF_DISABLE_DEPRECATED_BEFORE_AND_AT=0x056700)
 
 add_subdirectory(src)
 

@@ -6,6 +6,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QFileSystemWatcher>
 #include <KSharedConfig>
+#include <KConfigGroup>
 #include <QRegularExpression>
 #include "searchengines/SearchEngine.h"
 

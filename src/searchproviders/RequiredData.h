@@ -1,7 +1,8 @@
 #ifndef QUICKWEBSHORTCUTS_REQUIREDDATA_H
 #define QUICKWEBSHORTCUTS_REQUIREDDATA_H
 
-#include <QtNetwork/QNetworkAccessManager>
+#include <QNetworkAccessManager>
+#include <QIcon>
 
 class RequiredData {
 public:

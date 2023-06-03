@@ -196,7 +196,7 @@ void QuickWebShortcutsConfig::load() {
         m_ui->historyNotClear->setChecked(true);
     }
 
-    emit changed(false);
+    Q_EMIT changed(false);
 }
 
 
@@ -324,7 +324,7 @@ void QuickWebShortcutsConfig::defaults() {
     showSearchForClicked();
     validateSearchSuggestions();
     validateProxyOptions();
-    emit markAsChanged();
+    Q_EMIT markAsChanged();
 }
 
 void QuickWebShortcutsConfig::addSearchEngine() {

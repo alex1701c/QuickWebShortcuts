@@ -66,11 +66,11 @@ public Q_SLOTS:
     void parseResponse() {
 #ifdef TEST_PROXY
         qInfo() << reply->readAll();
-        emit finished();
+        Q_EMIT finished();
         return;
 #endif
         if (reply->error() == QNetworkReply::OperationCanceledError) {
-            emit finished();
+            Q_EMIT finished();
             return;
         }
         if (reply->error() != QNetworkReply::NoError) {
@@ -114,7 +114,7 @@ public Q_SLOTS:
                 }
             }
         }
-        emit finished();
+        Q_EMIT finished();
     }
 
 Q_SIGNALS:

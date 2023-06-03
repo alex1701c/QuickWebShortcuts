@@ -60,7 +60,7 @@ public Q_SLOTS:
 
     void parseResponse() {
         if (reply->error() == QNetworkReply::OperationCanceledError) {
-            emit finished();
+            Q_EMIT finished();
             return;
         }
         if (reply->error() != QNetworkReply::NoError) {
@@ -112,7 +112,7 @@ public Q_SLOTS:
             }
 
         }
-        emit finished();
+        Q_EMIT finished();
     }
 
 Q_SIGNALS:
