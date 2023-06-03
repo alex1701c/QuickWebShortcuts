@@ -13,5 +13,6 @@
         "License": "LGPL 2.1+",
         "Name": "Quick Web Shortcuts",
         "Version": "2.3"
-    }
+    },
+    "X-KDE-ConfigModule": "kcm_krunner_quickwebshortcuts"
 }

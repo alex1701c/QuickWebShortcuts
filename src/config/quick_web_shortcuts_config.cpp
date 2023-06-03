@@ -8,8 +8,7 @@
 
 #include <utilities.h>
 
-K_PLUGIN_FACTORY(QuickWebShortcutsConfigFactory,
-                 registerPlugin<QuickWebShortcutsConfig>();)
+K_PLUGIN_CLASS(QuickWebShortcutsConfig)
 
 QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariantList &args) : KCModule(parent, args) {
     m_ui = new QuickWebShortcutsConfigForm(this);

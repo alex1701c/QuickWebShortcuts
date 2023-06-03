@@ -19,15 +19,15 @@ ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/quick_web_shortcuts_conf
 ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/search_engine_item.ui)
 add_library(kcm_krunner_quickwebshortcuts MODULE ${kcm_krunner_quickwebshortcuts_SRCS})
 target_link_libraries(kcm_krunner_quickwebshortcuts
-        Qt5::Core
-        Qt5::Network
-        Qt5::Gui
-        KF5::CoreAddons
-        KF5::ConfigCore
-        KF5::I18n
-        KF5::ConfigWidgets
-        KF5::Notifications
-        )
+    Qt5::Core
+    Qt5::Network
+    Qt5::Gui
+    KF5::CoreAddons
+    KF5::ConfigCore
+    KF5::I18n
+    KF5::ConfigWidgets
+    KF5::Notifications
+)
 
 if (${KF5Wallet_FOUND})
     target_link_libraries(kcm_krunner_quickwebshortcuts KF5::Wallet)
@@ -46,5 +46,4 @@ add_dependencies(krunner_quickwebshortcuts kcm_krunner_quickwebshortcuts)
 set(SEARCH_ENGINE_ICON_DIR "/usr/share/pixmaps" CACHE STRING "Default icon directory")
 
 install(TARGETS kcm_krunner_quickwebshortcuts DESTINATION ${KDE_INSTALL_QTPLUGINDIR})
-install(FILES config/plasma-runner-quickwebshortcuts_config.desktop DESTINATION ${KDE_INSTALL_KSERVICES5DIR})
 install(FILES icons/bing.svg icons/duckduckgo.svg icons/github.svg icons/google.svg icons/stackoverflow.svg icons/youtube.svg DESTINATION ${SEARCH_ENGINE_ICON_DIR})

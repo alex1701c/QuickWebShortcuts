@@ -296,8 +296,6 @@ QList<QAction *> QuickWebShortcuts::actionsForMatch(const Plasma::QueryMatch &ma
     return normalActions;
 }
 
-K_EXPORT_PLASMA_RUNNER_WITH_JSON(QuickWebShortcuts, "quick_web_shortcuts.json")
+K_PLUGIN_CLASS_WITH_JSON(QuickWebShortcuts, "quick_web_shortcuts.json")
 
-// needed for the QObject subclass declared as part of K_EXPORT_PLASMA_RUNNER
 #include "quick_web_shortcuts.moc"
-
