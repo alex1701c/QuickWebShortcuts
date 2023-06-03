@@ -221,9 +221,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     }
 }
 
-void QuickWebShortcuts::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) {
-    Q_UNUSED(context)
-
+void QuickWebShortcuts::run(const Plasma::RunnerContext &/*context*/, const Plasma::QueryMatch &match) {
     const QMap<QString, QVariant> payload = match.data().toMap();
     const QString url = payload.value(QStringLiteral("url")).toString();
     QString launchCommand;

@@ -494,7 +494,7 @@ void QuickWebShortcutsConfig::saveKWalletEntries() {
 // For internal qt calls
 void QuickWebShortcutsConfig::validateProxyConnection() {}
 
-void QuickWebShortcutsConfig::showProxyConnectionValidationResults(QNetworkReply *reply) { Q_UNUSED(reply) }
+void QuickWebShortcutsConfig::showProxyConnectionValidationResults(QNetworkReply *) {}
 
 void QuickWebShortcutsConfig::readKWalletEntries() {}
 

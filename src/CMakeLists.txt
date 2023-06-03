@@ -1,27 +1,20 @@
 add_definitions(-DTRANSLATION_DOMAIN=\"plasma_runner_org.kde.quickwebshortcuts\")
 
-set(quickwebshortcuts_SRCS quick_web_shortcuts.h quick_web_shortcuts.cpp searchproviders/Bing.h
-        searchproviders/Google.h searchproviders/DuckDuckGo.h)
-
-kcoreaddons_add_plugin(krunner_quickwebshortcuts SOURCES ${quickwebshortcuts_SRCS} INSTALL_NAMESPACE "kf5/krunner")
-target_link_libraries(krunner_quickwebshortcuts KF5::Runner KF5::Notifications Qt5::Core Qt5::Network)
+kcoreaddons_add_plugin(krunner_quickwebshortcuts INSTALL_NAMESPACE "kf5/krunner")
+target_sources(krunner_quickwebshortcuts PRIVATE quick_web_shortcuts.cpp searchproviders/Bing.h searchproviders/Google.h searchproviders/DuckDuckGo.h)
+target_link_libraries(krunner_quickwebshortcuts KF5::Runner KF5::Notifications Qt::Core Qt::Network)
 
 if (${KF5Wallet_FOUND})
     target_link_libraries(krunner_quickwebshortcuts KF5::Wallet)
 endif ()
 
-
-set(kcm_krunner_quickwebshortcuts_SRCS
-        config/quick_web_shortcuts_config.cpp
-        config/SearchEngineItem.cpp)
-
-ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/quick_web_shortcuts_config.ui)
-ki18n_wrap_ui(kcm_krunner_quickwebshortcuts_SRCS config/search_engine_item.ui)
-add_library(kcm_krunner_quickwebshortcuts MODULE ${kcm_krunner_quickwebshortcuts_SRCS})
+add_library(kcm_krunner_quickwebshortcuts MODULE config/quick_web_shortcuts_config.cpp config/SearchEngineItem.cpp)
+ki18n_wrap_ui(kcm_krunner_quickwebshortcuts config/quick_web_shortcuts_config.ui)
+ki18n_wrap_ui(kcm_krunner_quickwebshortcuts config/search_engine_item.ui)
 target_link_libraries(kcm_krunner_quickwebshortcuts
-    Qt5::Core
-    Qt5::Network
-    Qt5::Gui
+    Qt::Core
+    Qt::Network
+    Qt::Gui
     KF5::CoreAddons
     KF5::ConfigCore
     KF5::I18n
