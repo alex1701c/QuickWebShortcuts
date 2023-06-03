@@ -15,7 +15,6 @@ QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const KPluginMetaData &plu
 }
 
 QuickWebShortcuts::~QuickWebShortcuts() {
-    wasActive = true;
     filterHistory();
     delete requiredData.proxy;
 }
