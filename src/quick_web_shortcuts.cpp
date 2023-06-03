@@ -12,8 +12,6 @@
 
 QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const KPluginMetaData &pluginMetaData, const QVariantList &args)
         : Plasma::AbstractRunner(parent, pluginMetaData, args) {
-    setObjectName(QStringLiteral("Quick Web Shortcuts"));
-    setPriority(HighestPriority);
 }
 
 QuickWebShortcuts::~QuickWebShortcuts() {
@@ -21,7 +19,6 @@ QuickWebShortcuts::~QuickWebShortcuts() {
     filterHistory();
     delete requiredData.proxy;
 }
-
 
 void QuickWebShortcuts::init() {
     initializeConfigFile();
