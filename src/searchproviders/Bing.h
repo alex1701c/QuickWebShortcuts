@@ -17,7 +17,7 @@ Q_OBJECT
 
 private:
     QNetworkAccessManager *manager;
-    Plasma::RunnerContext context;
+    KRunner::RunnerContext context;
     const QString query;
     const QString market;
     const QString browserLaunchCommand;
@@ -25,7 +25,7 @@ private:
     QNetworkReply *reply;
 
 public:
-    Bing(Plasma::RunnerContext &context, QString query, RequiredData &data, QString market = "en-us",
+    Bing(KRunner::RunnerContext &context, QString query, RequiredData &data, QString market = "en-us",
          QString browserLaunchCommand = "")
         : context(context), query(std::move(query)), market(std::move(market)),
           browserLaunchCommand(std::move(browserLaunchCommand)), data(data) {
@@ -94,7 +94,7 @@ public Q_SLOTS:
                             ++data.maxResults;
                             continue;
                         }
-                        Plasma::QueryMatch match(data.runner);
+                        KRunner::QueryMatch match(data.runner);
                         match.setIcon(data.icon);
                         match.setText(data.searchOptionTemplate.arg(suggestion));
                         match.setRelevance((float) (19 - i) / 20);

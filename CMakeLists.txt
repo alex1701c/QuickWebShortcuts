@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(quickwebshortcuts)
 
 set(QT_MIN_VERSION "5.15.0")
-set(KF5_MIN_VERSION "5.90.0")
+set(KF5_MIN_VERSION "5.91.0")
 
 find_package(ECM 5.12.0 REQUIRED NO_MODULE)
 find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)

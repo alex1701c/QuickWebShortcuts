@@ -11,7 +11,7 @@
 #include <searchproviders/DuckDuckGo.h>
 
 QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const KPluginMetaData &pluginMetaData, const QVariantList &args)
-        : Plasma::AbstractRunner(parent, pluginMetaData, args) {
+        : KRunner::AbstractRunner(parent, pluginMetaData, args) {
 }
 
 QuickWebShortcuts::~QuickWebShortcuts() {
@@ -178,7 +178,7 @@ void QuickWebShortcuts::filterHistory() {
     generalKrunnerConfig.sync();
 }
 
-void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
+void QuickWebShortcuts::match(KRunner::RunnerContext &context) {
     if (!context.isValid()) return;
     wasActive = false;
 
@@ -221,7 +221,7 @@ void QuickWebShortcuts::match(Plasma::RunnerContext &context) {
     }
 }
 
-void QuickWebShortcuts::run(const Plasma::RunnerContext &/*context*/, const Plasma::QueryMatch &match) {
+void QuickWebShortcuts::run(const KRunner::RunnerContext &/*context*/, const KRunner::QueryMatch &match) {
     const QMap<QString, QVariant> payload = match.data().toMap();
     const QString url = payload.value(QStringLiteral("url")).toString();
     QString launchCommand;
@@ -251,18 +251,18 @@ void QuickWebShortcuts::run(const Plasma::RunnerContext &/*context*/, const Plas
     wasActive = true;
 }
 
-Plasma::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMap<QString, QVariant> &data, const bool useGlobe) {
-    Plasma::QueryMatch match(this);
+KRunner::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMap<QString, QVariant> &data, const bool useGlobe) {
+    KRunner::QueryMatch match(this);
     match.setIcon(useGlobe ? globeIcon : currentSearchEngine.qIcon);
     match.setText(text);
     match.setData(data);
     match.setRelevance(1);
-    match.setType(Plasma::QueryMatch::ExactMatch);
+    match.setType(KRunner::QueryMatch::ExactMatch);
     return match;
 }
 
 
-void QuickWebShortcuts::searchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser) {
+void QuickWebShortcuts::searchSuggest(KRunner::RunnerContext &context, const QString &term, const QString &browser) {
 
     if (searchSuggestionChoice == Config::SearchSuggestionBing) {
         QEventLoop loop;
@@ -283,7 +283,7 @@ void QuickWebShortcuts::searchSuggest(Plasma::RunnerContext &context, const QStr
 
 }
 
-QList<QAction *> QuickWebShortcuts::actionsForMatch(const Plasma::QueryMatch &match) {
+QList<QAction *> QuickWebShortcuts::actionsForMatch(const KRunner::QueryMatch &match) {
     if (match.data().toMap().contains(QStringLiteral("browser"))) {
         return privateActions;
     }

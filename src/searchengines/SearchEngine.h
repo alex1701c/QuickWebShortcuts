@@ -1,6 +1,8 @@
 #ifndef QUICKWEBSHORTCUTS_SEARCHENGINE_H
 #define QUICKWEBSHORTCUTS_SEARCHENGINE_H
 
+#include <QString>
+#include <QIcon>
 
 class SearchEngine {
 public:

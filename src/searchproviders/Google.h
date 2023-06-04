@@ -5,6 +5,9 @@
 #include <QtCore>
 #include <KNotifications/KNotification>
 #include <utility>
+#include <KRunner/QueryMatch>
+#include <KRunner/RunnerContext>
+
 #include "RequiredData.h"
 
 class Google : public QObject {
@@ -13,7 +16,7 @@ Q_OBJECT
 
 private:
     QNetworkAccessManager *manager;
-    Plasma::RunnerContext context;
+    KRunner::RunnerContext context;
     const QString query;
     const QString language;
     const QString browserLaunchCommand;
@@ -21,7 +24,7 @@ private:
     QNetworkReply *reply;
 
 public:
-    Google(Plasma::RunnerContext &context,
+    Google(KRunner::RunnerContext &context,
            QString query,
            RequiredData data,
            QString language = "en",
@@ -91,7 +94,7 @@ public Q_SLOTS:
             const int suggestionCount = suggestions.count();
             for (int i = 0; i < suggestionCount && i < data.maxResults; ++i) {
                 const QString &suggestion = suggestions.at(i);
-                Plasma::QueryMatch match(data.runner);
+                KRunner::QueryMatch match(data.runner);
                 match.setIcon(data.icon);
                 match.setText(data.searchOptionTemplate.arg(suggestion));
                 match.setRelevance((float) (19 - i) / 20);

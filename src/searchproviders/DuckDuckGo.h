@@ -6,8 +6,10 @@
 #include <QtCore>
 #include <utility>
 #include <QTextDocument>
+#include <QNetworkAccessManager>
 #include <KNotifications/KNotification>
 #include "RequiredData.h"
+#include <KRunner/RunnerContext>
 
 class DuckDuckGo : public QObject {
 
@@ -15,14 +17,14 @@ Q_OBJECT
 
 private:
     QNetworkAccessManager *manager;
-    Plasma::RunnerContext context;
+    KRunner::RunnerContext context;
     const QString query;
     const QString browserLaunchCommand;
     RequiredData data;
     QNetworkReply *reply;
 
 public:
-    DuckDuckGo(Plasma::RunnerContext &context, QString query, RequiredData data,
+    DuckDuckGo(KRunner::RunnerContext &context, QString query, RequiredData data,
                QString browserLaunchCommand = "") : context(context), query(std::move(query)),
                                                     browserLaunchCommand(std::move(browserLaunchCommand)), data(std::move(data)) {
         manager = new QNetworkAccessManager(this);
@@ -83,7 +85,7 @@ public Q_SLOTS:
             const int listCount = urlList.count();
             for (int i = 0; i < listCount; ++i) {
                 const QStringList &currentList = urlList.at(i);
-                Plasma::QueryMatch match(data.runner);
+                KRunner::QueryMatch match(data.runner);
                 match.setIcon(data.icon);
                 match.setText(QString(currentList.at(1))
                                       .remove(QLatin1String("http://"))

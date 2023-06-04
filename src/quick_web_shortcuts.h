@@ -10,7 +10,7 @@
 #include <QRegularExpression>
 #include "searchengines/SearchEngine.h"
 
-class QuickWebShortcuts : public Plasma::AbstractRunner {
+class QuickWebShortcuts : public KRunner::AbstractRunner {
 Q_OBJECT
 
 private:
@@ -46,16 +46,16 @@ public:
     ~QuickWebShortcuts() override;
 
 private:
-    Plasma::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, bool useGlobe = false);
-    void searchSuggest(Plasma::RunnerContext &context, const QString &term, const QString &browser = "");
+    KRunner::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, bool useGlobe = false);
+    void searchSuggest(KRunner::RunnerContext &context, const QString &term, const QString &browser = "");
 
 protected Q_SLOTS:
     void init() override;
     void filterHistory();
     void reloadPluginConfiguration(const QString &file = QString());
-    void match(Plasma::RunnerContext &context) override;
-    QList<QAction *> actionsForMatch(const Plasma::QueryMatch &match) override;
-    void run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) override;
+    void match(KRunner::RunnerContext &context) override;
+    QList<QAction *> actionsForMatch(const KRunner::QueryMatch &match) override;
+    void run(const KRunner::RunnerContext &context, const KRunner::QueryMatch &match) override;
 };
 
 #endif

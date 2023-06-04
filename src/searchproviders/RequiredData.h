@@ -3,11 +3,12 @@
 
 #include <QNetworkAccessManager>
 #include <QIcon>
+#include <KRunner/AbstractRunner>
 
 class RequiredData {
 public:
     QNetworkProxy *proxy = nullptr;
-    Plasma::AbstractRunner *runner;
+    KRunner::AbstractRunner *runner;
     QString searchEngine;
     bool isWebShortcut;
     QIcon icon;

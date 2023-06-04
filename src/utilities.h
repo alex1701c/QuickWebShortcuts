@@ -3,6 +3,8 @@
 
 #include <QtCore>
 #include <QNetworkProxy>
+#include <KSharedConfig>
+#include <KConfigGroup>
 #include "Config.h"
 
 void initializeConfigFile() {
