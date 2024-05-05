@@ -1,17 +1,18 @@
 #ifndef QUICKWEBSHORTCUTS_H
 #define QUICKWEBSHORTCUTS_H
 
-#include <KRunner/AbstractRunner>
-#include <searchproviders/RequiredData.h>
-#include <QtNetwork/QNetworkAccessManager>
-#include <QFileSystemWatcher>
-#include <KSharedConfig>
-#include <KConfigGroup>
-#include <QRegularExpression>
 #include "searchengines/SearchEngine.h"
+#include <KConfigGroup>
+#include <KRunner/AbstractRunner>
+#include <KSharedConfig>
+#include <QFileSystemWatcher>
+#include <QRegularExpression>
+#include <QtNetwork/QNetworkAccessManager>
+#include <searchproviders/RequiredData.h>
 
-class QuickWebShortcuts : public KRunner::AbstractRunner {
-Q_OBJECT
+class QuickWebShortcuts : public KRunner::AbstractRunner
+{
+    Q_OBJECT
 
 private:
     // General variables

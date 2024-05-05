@@ -1,9 +1,11 @@
+#include "SearchEngineItem.h"
+#include <QCheckBox>
 #include <QFileDialog>
 #include <QRegularExpression>
-#include <QCheckBox>
-#include "SearchEngineItem.h"
 
-SearchEngineItem::SearchEngineItem(QWidget *parent) : QWidget(parent) {
+SearchEngineItem::SearchEngineItem(QWidget *parent)
+    : QWidget(parent)
+{
     setupUi(this);
     connect(this->useRadioButton, &QRadioButton::clicked, this, &SearchEngineItem::changed);
     connect(this->useRadioButton, &QRadioButton::clicked, this, &SearchEngineItem::itemSelected);
@@ -20,8 +22,10 @@ SearchEngineItem::SearchEngineItem(QWidget *parent) : QWidget(parent) {
     connect(this->urlLineEdit, &QLineEdit::textChanged, this, &SearchEngineItem::extractNameFromUrl);
 }
 
-void SearchEngineItem::extractNameFromUrl() {
-    if (!this->nameLineEdit->text().isEmpty()) return;
+void SearchEngineItem::extractNameFromUrl()
+{
+    if (!this->nameLineEdit->text().isEmpty())
+        return;
     QRegularExpression exp(QStringLiteral(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)"));
     if (this->urlLineEdit->text().contains(exp)) {
         const auto regexMatch = exp.match(this->urlLineEdit->text());
@@ -33,9 +37,9 @@ void SearchEngineItem::extractNameFromUrl() {
     }
 }
 
-void SearchEngineItem::iconPicker() {
-    const QString iconPath = QFileDialog::getOpenFileName(this, tr("Select Icon"), "",
-                                                          tr("Images (.*.jpg *.jpeg *.png *.ico *.svg *.svgz)"));
+void SearchEngineItem::iconPicker()
+{
+    const QString iconPath = QFileDialog::getOpenFileName(this, tr("Select Icon"), "", tr("Images (.*.jpg *.jpeg *.png *.ico *.svg *.svgz)"));
     if (!iconPath.isEmpty()) {
         this->originalIcon = this->icon;
         this->icon = iconPath;

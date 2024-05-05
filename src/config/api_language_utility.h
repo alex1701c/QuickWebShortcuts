@@ -5,7 +5,8 @@
 // Shorter syntax for macro
 #define s(str) QStringLiteral(str)
 
-void setBingLanguages(QComboBox *box) {
+void setBingLanguages(QComboBox *box)
+{
     box->clear();
     box->addItem(s("ar-sa (Arabic)"), s("ar-sa"));
     box->addItem(s("da-dk (Danish)"), s("da-dk"));
@@ -51,7 +52,8 @@ void setBingLanguages(QComboBox *box) {
     box->addItem(s("zh-tw (Traditional Chinese-Taiwan)"), s("zh-tw"));
 }
 
-void setGoogleLanguages(QComboBox *box) {
+void setGoogleLanguages(QComboBox *box)
+{
     box->clear();
     // https://sites.google.com/site/tomihasa/google-language-codes
     box->addItem(s("Afrikaans"), s("af"));
@@ -205,4 +207,4 @@ void setGoogleLanguages(QComboBox *box) {
     box->addItem(s("Zulu"), s("zu"));
 }
 
-#endif //QUICKWEBSHORTCUTS_API_LANGUAGE_UTILITY_H
+#endif // QUICKWEBSHORTCUTS_API_LANGUAGE_UTILITY_H

@@ -1,24 +1,23 @@
 #ifndef QUICKWEBSHORTCUTS_BING_H
 #define QUICKWEBSHORTCUTS_BING_H
 
-
-#include <QTimer>
-#include <QMetaEnum>
-#include <QNetworkReply>
-#include <QNetworkAccessManager>
-#include <KRunner/AbstractRunner>
-#include <QUrlQuery>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <KNotifications/KNotification>
-#include <utility>
 #include "RequiredData.h"
+#include <KNotifications/KNotification>
+#include <KRunner/AbstractRunner>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QMetaEnum>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QTimer>
+#include <QUrlQuery>
+#include <utility>
 
-//#define TEST_PROXY
+// #define TEST_PROXY
 
-class Bing: public QObject {
-
-Q_OBJECT
+class Bing : public QObject
+{
+    Q_OBJECT
 
 private:
     QNetworkAccessManager *manager;
@@ -30,16 +29,18 @@ private:
     QNetworkReply *reply;
 
 public:
-    Bing(KRunner::RunnerContext &context, QString query, RequiredData &data, QString market = "en-us",
-         QString browserLaunchCommand = "")
-        : context(context), query(std::move(query)), market(std::move(market)),
-          browserLaunchCommand(std::move(browserLaunchCommand)), data(data) {
-
+    Bing(KRunner::RunnerContext &context, QString query, RequiredData &data, QString market = "en-us", QString browserLaunchCommand = "")
+        : context(context)
+        , query(std::move(query))
+        , market(std::move(market))
+        , browserLaunchCommand(std::move(browserLaunchCommand))
+        , data(data)
+    {
         manager = new QNetworkAccessManager(this);
         if (data.proxy) {
             manager->setProxy(*this->data.proxy);
         }
-#ifdef  TEST_PROXY
+#ifdef TEST_PROXY
         QNetworkRequest request(QUrl("https://ifconfig.me/ip"));
         m_manager->get(request);
         connect(manager, &QNetworkAccessManager::finished, this, &Bing::parseResponse);
@@ -48,8 +49,8 @@ public:
         queryParameters.addQueryItem(QStringLiteral("query"), this->query);
         queryParameters.addQueryItem(QStringLiteral("market"), this->market);
 
-        QNetworkRequest request(QUrl(QStringLiteral("https://api.bing.com/osjson.aspx?") +
-            QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
+        QNetworkRequest request(
+            QUrl(QStringLiteral("https://api.bing.com/osjson.aspx?") + QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
         request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
 
@@ -62,13 +63,15 @@ public:
         });
 #endif
     }
-    virtual ~Bing() {
+    virtual ~Bing()
+    {
         delete reply;
     }
 
 public Q_SLOTS:
 
-    void parseResponse() {
+    void parseResponse()
+    {
 #ifdef TEST_PROXY
         qInfo() << reply->readAll();
         Q_EMIT finished();
@@ -82,9 +85,9 @@ public Q_SLOTS:
             if (data.showNetworkErrors) {
                 KNotification::event(KNotification::Error,
                                      QStringLiteral("Krunner-QuickWebShortcuts"),
-                                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) +
-                                     QStringLiteral(":\n") +
-                                     reply->errorString(), QStringLiteral("globe"));
+                                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + QStringLiteral(":\n")
+                                         + reply->errorString(),
+                                     QStringLiteral("globe"));
             }
         } else if (context.isValid()) {
             const auto suggestionsObject = QJsonDocument::fromJson(reply->readAll());
@@ -102,7 +105,7 @@ public Q_SLOTS:
                         KRunner::QueryMatch match(data.runner);
                         match.setIcon(data.icon);
                         match.setText(data.searchOptionTemplate.arg(suggestion));
-                        match.setRelevance((float) (19 - i) / 20);
+                        match.setRelevance((float)(19 - i) / 20);
 
                         QMap<QString, QVariant> runData;
                         QString url;
@@ -112,7 +115,9 @@ public Q_SLOTS:
                             url = data.searchEngine + QUrl::toPercentEncoding(suggestion);
                         }
                         runData.insert(QStringLiteral("url"), url);
-                        if (!browserLaunchCommand.isEmpty()) { runData.insert(QStringLiteral("browser"), browserLaunchCommand); }
+                        if (!browserLaunchCommand.isEmpty()) {
+                            runData.insert(QStringLiteral("browser"), browserLaunchCommand);
+                        }
                         match.setData(runData);
                         context.addMatch(match);
                     }

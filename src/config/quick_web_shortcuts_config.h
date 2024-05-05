@@ -1,11 +1,11 @@
 #ifndef QUICKWEBSHORTCUTSCONFIG_H
 #define QUICKWEBSHORTCUTSCONFIG_H
 
+#include "SearchEngineItem.h"
 #include "ui_quick_web_shortcuts_config.h"
 #include <KCModule>
 #include <KConfigGroup>
 #include <QNetworkReply>
-#include "SearchEngineItem.h"
 
 #ifndef NO_PROXY_INTEGRATION
 
@@ -15,18 +15,21 @@ using KWallet::Wallet;
 
 #endif
 
-class QuickWebShortcutsConfigForm : public QWidget, public Ui::QuickWebShortcutsConfigUi {
-Q_OBJECT
+class QuickWebShortcutsConfigForm : public QWidget, public Ui::QuickWebShortcutsConfigUi
+{
+    Q_OBJECT
 
 public:
-    explicit QuickWebShortcutsConfigForm(QWidget *parent) : QWidget(parent) {
+    explicit QuickWebShortcutsConfigForm(QWidget *parent)
+        : QWidget(parent)
+    {
         setupUi(this);
     }
-
 };
 
-class QuickWebShortcutsConfig : public KCModule {
-Q_OBJECT
+class QuickWebShortcutsConfig : public KCModule
+{
+    Q_OBJECT
 
 public:
     explicit QuickWebShortcutsConfig(QWidget *parent = nullptr, const QVariantList &args = QVariantList());
@@ -51,7 +54,6 @@ public Q_SLOTS:
 
     void readKWalletEntries();
     void saveKWalletEntries();
-
 
 private:
     QuickWebShortcutsConfigForm *m_ui;

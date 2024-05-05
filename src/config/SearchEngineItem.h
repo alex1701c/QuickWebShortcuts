@@ -5,8 +5,9 @@
 
 #include <QWidget>
 
-class SearchEngineItem : public QWidget, public Ui::SearchEngineItemUi {
-Q_OBJECT
+class SearchEngineItem : public QWidget, public Ui::SearchEngineItemUi
+{
+    Q_OBJECT
 
 public:
     QString originalName, originalURL, originalIcon, icon;
@@ -18,7 +19,10 @@ public:
 
 public Q_SLOTS:
     void extractNameFromUrl();
-    void edited() { this->isEdited = true; }
+    void edited()
+    {
+        this->isEdited = true;
+    }
     void iconPicker();
 
 Q_SIGNALS:
@@ -27,4 +31,4 @@ Q_SIGNALS:
     void deleteCurrentItem();
 };
 
-#endif //QUICKWEBSHORTCUTS_SEARCHENGINEITEM_H
+#endif // QUICKWEBSHORTCUTS_SEARCHENGINEITEM_H

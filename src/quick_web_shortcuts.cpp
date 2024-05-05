@@ -1,26 +1,29 @@
 #include "quick_web_shortcuts.h"
+#include "Config.h"
+#include "searchengines/SearchEngines.h"
+#include "utilities.h"
+#include <KNotifications/KNotification>
+#include <KShell>
 #include <QAction>
 #include <QEventLoop>
 #include <QProcess>
-#include <KShell>
-#include <KNotifications/KNotification>
-#include "searchengines/SearchEngines.h"
-#include "Config.h"
-#include "utilities.h"
 #include <searchproviders/Bing.h>
-#include <searchproviders/Google.h>
 #include <searchproviders/DuckDuckGo.h>
+#include <searchproviders/Google.h>
 
 QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const KPluginMetaData &pluginMetaData, const QVariantList &args)
-        : KRunner::AbstractRunner(parent, pluginMetaData, args) {
+    : KRunner::AbstractRunner(parent, pluginMetaData, args)
+{
 }
 
-QuickWebShortcuts::~QuickWebShortcuts() {
+QuickWebShortcuts::~QuickWebShortcuts()
+{
     filterHistory();
     delete requiredData.proxy;
 }
 
-void QuickWebShortcuts::init() {
+void QuickWebShortcuts::init()
+{
     initializeConfigFile();
 
     // Add file watcher for config
@@ -31,12 +34,12 @@ void QuickWebShortcuts::init() {
     reloadPluginConfiguration();
 }
 
-void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
+void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile)
+{
     // To detect invalid state if config is updated
     currentSearchEngine.url.clear();
-    KConfigGroup configGroup = KSharedConfig::openConfig(
-            QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile)
-            ->group(Config::RootGroup);
+    KConfigGroup configGroup =
+        KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile)->group(Config::RootGroup);
     // Force sync from file
     if (!configFile.isEmpty()) {
         configGroup.config()->reparseConfiguration();
@@ -55,7 +58,7 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     if (configGroup.readEntry(Config::WebShortcut).isEmpty()) {
         // Load search engines
         const QString searchEngineName = configGroup.readEntry(Config::SearchEngineName);
-        for (auto &engine:SearchEngines::getAllSearchEngines()) {
+        for (auto &engine : SearchEngines::getAllSearchEngines()) {
             if (engine.name == searchEngineName) {
                 currentSearchEngine = engine;
                 break;
@@ -93,8 +96,7 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
 
     // Display text for private browser option
     if (configGroup.readEntry(Config::PrivateWindowNote, true)) {
-        privateBrowserMode = privateBrowser.contains(QLatin1String("private")) ?
-                             QStringLiteral(" in private window") : QStringLiteral(" in incognito mode");
+        privateBrowserMode = privateBrowser.contains(QLatin1String("private")) ? QStringLiteral(" in private window") : QStringLiteral(" in incognito mode");
     } else {
         privateBrowserMode = QString();
     }
@@ -106,10 +108,7 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     searchSuggestions = searchSuggestionChoice != Config::SearchSuggestionDisabled;
     privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry(Config::PrivateWindowSearchSuggestions, false);
     if (configGroup.readEntry(Config::PrivateWindowAction, true)) {
-        normalActions = {new QAction(QIcon::fromTheme(QStringLiteral("view-private")),
-                                   QStringLiteral("launch query in private/incognito window"),
-                                   this)
-        };
+        normalActions = {new QAction(QIcon::fromTheme(QStringLiteral("view-private")), QStringLiteral("launch query in private/incognito window"), this)};
     } else {
         normalActions.clear();
     }
@@ -151,8 +150,10 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile) {
     }
 }
 
-void QuickWebShortcuts::filterHistory() {
-    if (cleanNone || (cleanQuick && !wasActive)) return;
+void QuickWebShortcuts::filterHistory()
+{
+    if (cleanNone || (cleanQuick && !wasActive))
+        return;
     QString history = generalKrunnerConfig.readEntry("history");
     const int initialHistorySize = history.size();
     QString filteredHistory;
@@ -163,7 +164,8 @@ void QuickWebShortcuts::filterHistory() {
     if (cleanAll || cleanQuick) {
         // If cleanAll is true, filtered history has already been set => read value, clear it and write the final result
         const QString toFilter = cleanAll ? filteredHistory : history;
-        if (cleanAll) filteredHistory = "";
+        if (cleanAll)
+            filteredHistory = "";
         const QChar sep = ',';
         for (const auto &item : toFilter.split(sep, Qt::SkipEmptyParts)) {
             if (!item.startsWith(triggerCharacter)) {
@@ -172,14 +174,16 @@ void QuickWebShortcuts::filterHistory() {
         }
     }
     // No changes have been made, exit function
-    if (filteredHistory.size() == initialHistorySize) return;
+    if (filteredHistory.size() == initialHistorySize)
+        return;
 
     // Write changes and make sure that the config gets synced
     generalKrunnerConfig.writeEntry("history", filteredHistory);
     generalKrunnerConfig.sync();
 }
 
-void QuickWebShortcuts::match(KRunner::RunnerContext &context) {
+void QuickWebShortcuts::match(KRunner::RunnerContext &context)
+{
     wasActive = false;
 
     // Remove escape character
@@ -221,7 +225,8 @@ void QuickWebShortcuts::match(KRunner::RunnerContext &context) {
     }
 }
 
-void QuickWebShortcuts::run(const KRunner::RunnerContext &/*context*/, const KRunner::QueryMatch &match) {
+void QuickWebShortcuts::run(const KRunner::RunnerContext & /*context*/, const KRunner::QueryMatch &match)
+{
     const QMap<QString, QVariant> payload = match.data().toMap();
     const QString url = payload.value(QStringLiteral("url")).toString();
     QString launchCommand;
@@ -235,8 +240,7 @@ void QuickWebShortcuts::run(const KRunner::RunnerContext &/*context*/, const KRu
             KNotification::event(KNotification::Error,
                                  QStringLiteral("Krunner-QuickWebShortcuts"),
                                  QStringLiteral("Error when parsing command browser arguments"),
-                                 QStringLiteral("globe")
-            );
+                                 QStringLiteral("globe"));
             return;
         }
         launchCommand = arguments.takeAt(0);
@@ -251,7 +255,8 @@ void QuickWebShortcuts::run(const KRunner::RunnerContext &/*context*/, const KRu
     wasActive = true;
 }
 
-KRunner::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMap<QString, QVariant> &data, const bool useGlobe) {
+KRunner::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMap<QString, QVariant> &data, const bool useGlobe)
+{
     KRunner::QueryMatch match(this);
     match.setIcon(useGlobe ? globeIcon : currentSearchEngine.qIcon);
     match.setText(text);
@@ -261,9 +266,8 @@ KRunner::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QM
     return match;
 }
 
-
-void QuickWebShortcuts::searchSuggest(KRunner::RunnerContext &context, const QString &term, const QString &browser) {
-
+void QuickWebShortcuts::searchSuggest(KRunner::RunnerContext &context, const QString &term, const QString &browser)
+{
     if (searchSuggestionChoice == Config::SearchSuggestionBing) {
         QEventLoop loop;
         Bing bing(context, term, requiredData, bingMarket, browser);
@@ -280,10 +284,10 @@ void QuickWebShortcuts::searchSuggest(KRunner::RunnerContext &context, const QSt
         connect(&duckDuckGo, &DuckDuckGo::finished, &loop, &QEventLoop::quit);
         loop.exec();
     }
-
 }
 
-QList<QAction *> QuickWebShortcuts::actionsForMatch(const KRunner::QueryMatch &match) {
+QList<QAction *> QuickWebShortcuts::actionsForMatch(const KRunner::QueryMatch &match)
+{
     if (match.data().toMap().contains(QStringLiteral("browser"))) {
         return privateActions;
     }

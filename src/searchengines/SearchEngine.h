@@ -1,10 +1,11 @@
 #ifndef QUICKWEBSHORTCUTS_SEARCHENGINE_H
 #define QUICKWEBSHORTCUTS_SEARCHENGINE_H
 
-#include <QString>
 #include <QIcon>
+#include <QString>
 
-class SearchEngine {
+class SearchEngine
+{
 public:
     QString name;
     QString url;
@@ -17,5 +18,4 @@ public:
     bool isDefaultBased = false;
 };
 
-
-#endif //QUICKWEBSHORTCUTS_SEARCHENGINE_H
+#endif // QUICKWEBSHORTCUTS_SEARCHENGINE_H

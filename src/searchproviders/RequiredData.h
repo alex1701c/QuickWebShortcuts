@@ -1,11 +1,12 @@
 #ifndef QUICKWEBSHORTCUTS_REQUIREDDATA_H
 #define QUICKWEBSHORTCUTS_REQUIREDDATA_H
 
-#include <QNetworkAccessManager>
-#include <QIcon>
 #include <KRunner/AbstractRunner>
+#include <QIcon>
+#include <QNetworkAccessManager>
 
-class RequiredData {
+class RequiredData
+{
 public:
     QNetworkProxy *proxy = nullptr;
     KRunner::AbstractRunner *runner;
@@ -17,4 +18,4 @@ public:
     QString searchOptionTemplate;
 };
 
-#endif //QUICKWEBSHORTCUTS_REQUIREDDATA_H
+#endif // QUICKWEBSHORTCUTS_REQUIREDDATA_H

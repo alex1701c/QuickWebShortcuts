@@ -1,21 +1,20 @@
 #ifndef QUICKWEBSHORTCUTS_DUCKDUCKGO_H
 #define QUICKWEBSHORTCUTS_DUCKDUCKGO_H
 
-
-#include <utility>
-#include <QTextDocument>
-#include <QUrlQuery>
-#include <QTimer>
+#include "RequiredData.h"
+#include <KNotifications/KNotification>
+#include <KRunner/RunnerContext>
+#include <QMetaEnum>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QMetaEnum>
-#include <KNotifications/KNotification>
-#include "RequiredData.h"
-#include <KRunner/RunnerContext>
+#include <QTextDocument>
+#include <QTimer>
+#include <QUrlQuery>
+#include <utility>
 
-class DuckDuckGo : public QObject {
-
-Q_OBJECT
+class DuckDuckGo : public QObject
+{
+    Q_OBJECT
 
 private:
     QNetworkAccessManager *manager;
@@ -26,9 +25,12 @@ private:
     QNetworkReply *reply;
 
 public:
-    DuckDuckGo(KRunner::RunnerContext &context, QString query, RequiredData data,
-               QString browserLaunchCommand = "") : context(context), query(std::move(query)),
-                                                    browserLaunchCommand(std::move(browserLaunchCommand)), data(std::move(data)) {
+    DuckDuckGo(KRunner::RunnerContext &context, QString query, RequiredData data, QString browserLaunchCommand = "")
+        : context(context)
+        , query(std::move(query))
+        , browserLaunchCommand(std::move(browserLaunchCommand))
+        , data(std::move(data))
+    {
         manager = new QNetworkAccessManager(this);
         if (data.proxy) {
             manager->setProxy(*this->data.proxy);
@@ -37,8 +39,8 @@ public:
         QUrlQuery queryParameters;
         queryParameters.addQueryItem(QStringLiteral("q"), this->query);
 
-        QNetworkRequest request(QUrl(QStringLiteral("https://lite.duckduckgo.com/lite/?") +
-                                     QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
+        QNetworkRequest request(
+            QUrl(QStringLiteral("https://lite.duckduckgo.com/lite/?") + QUrl(queryParameters.query(QUrl::FullyEncoded).toUtf8()).toEncoded()));
         request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
         request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
         request.setHeader(QNetworkRequest::KnownHeaders::UserAgentHeader,
@@ -52,13 +54,15 @@ public:
         });
     }
 
-    virtual ~DuckDuckGo() {
+    virtual ~DuckDuckGo()
+    {
         delete reply;
     }
 
 public Q_SLOTS:
 
-    void parseResponse() {
+    void parseResponse()
+    {
         if (reply->error() == QNetworkReply::OperationCanceledError) {
             Q_EMIT finished();
             return;
@@ -67,9 +71,9 @@ public Q_SLOTS:
             if (data.showNetworkErrors) {
                 KNotification::event(KNotification::Error,
                                      QStringLiteral("Krunner-QuickWebShortcuts"),
-                                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) +
-                                     QStringLiteral(":\n") +
-                                     reply->errorString(), QStringLiteral("globe"));
+                                     QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(int(reply->error()))) + QStringLiteral(":\n")
+                                         + reply->errorString(),
+                                     QStringLiteral("globe"));
             }
         } else if (context.isValid()) {
             // Parse html content
@@ -89,15 +93,13 @@ public Q_SLOTS:
                 const QStringList &currentList = urlList.at(i);
                 KRunner::QueryMatch match(data.runner);
                 match.setIcon(data.icon);
-                match.setText(QString(currentList.at(1))
-                                      .remove(QLatin1String("http://"))
-                                      .remove(QLatin1String("https://"))
-                                      .remove(QLatin1String("www.")));
-                match.setRelevance((float) (19 - i) / 20);
+                match.setText(QString(currentList.at(1)).remove(QLatin1String("http://")).remove(QLatin1String("https://")).remove(QLatin1String("www.")));
+                match.setRelevance((float)(19 - i) / 20);
 
                 QMap<QString, QVariant> runData;
                 runData.insert(QStringLiteral("url"), currentList.at(1));
-                if (!browserLaunchCommand.isEmpty()) runData.insert(QStringLiteral("browser"), browserLaunchCommand);
+                if (!browserLaunchCommand.isEmpty())
+                    runData.insert(QStringLiteral("browser"), browserLaunchCommand);
                 match.setData(runData);
                 context.addMatch(match);
             }
@@ -111,4 +113,4 @@ Q_SIGNALS:
     void finished();
 };
 
-#endif //QUICKWEBSHORTCUTS_DUCKDUCKGO_H
+#endif // QUICKWEBSHORTCUTS_DUCKDUCKGO_H

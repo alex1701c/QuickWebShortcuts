@@ -65,4 +65,4 @@ struct KWalletConfig {
     constexpr static const auto ProxyPassword = "Krunner-QuickWebShortcuts-proxy_password";
 };
 #endif
-#endif //QUICKWEBSHORTCUTS_CONFIG_H
+#endif // QUICKWEBSHORTCUTS_CONFIG_H

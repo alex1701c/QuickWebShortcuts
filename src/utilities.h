@@ -1,18 +1,21 @@
 #ifndef QUICKWEBSHORTCUTS_UTILITIES_H
 #define QUICKWEBSHORTCUTS_UTILITIES_H
 
+#include "Config.h"
+#include "searchengines/SearchEngine.h"
+#include <KConfigGroup>
+#include <KSharedConfig>
 #include <QDir>
 #include <QIcon>
 #include <QNetworkProxy>
-#include <KSharedConfig>
-#include <KConfigGroup>
-#include "Config.h"
-#include "searchengines/SearchEngine.h"
 
-inline void initializeConfigFile() {
+inline void initializeConfigFile()
+{
     const QString configFolder = QDir::homePath() + QStringLiteral("/.config/krunnerplugins/");
     const QDir configDir(configFolder);
-    if (!configDir.exists()) { configDir.mkpath(configFolder); }
+    if (!configDir.exists()) {
+        configDir.mkpath(configFolder);
+    }
     // Create file
     QFile configFile(configFolder + Config::ConfigFile);
     if (!configFile.exists()) {
@@ -21,20 +24,19 @@ inline void initializeConfigFile() {
     }
 }
 
-inline QString loadPrivateBrowser() {
+inline QString loadPrivateBrowser()
+{
     // Read entry for private browsing launch command
     QString privateBrowser;
-    QString browser = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.kde/share/config/kdeglobals"))
-        ->group("General").readEntry("BrowserApplication");
+    QString browser =
+        KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.kde/share/config/kdeglobals"))->group("General").readEntry("BrowserApplication");
     if (browser.isEmpty()) {
-        browser = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/./config/kdeglobals"))
-            ->group("General").readEntry("BrowserApplication");
+        browser = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/./config/kdeglobals"))->group("General").readEntry("BrowserApplication");
     }
     if (!browser.isEmpty()) {
         const KSharedConfig::Ptr browserConfig = KSharedConfig::openConfig(QStringLiteral("/usr/share/applications/") + browser);
-        for (const auto &group: browserConfig->groupList()) {
-            if (group.contains(QStringLiteral("incognito"), Qt::CaseInsensitive) ||
-                group.contains(QStringLiteral("private"), Qt::CaseInsensitive)) {
+        for (const auto &group : browserConfig->groupList()) {
+            if (group.contains(QStringLiteral("incognito"), Qt::CaseInsensitive) || group.contains(QStringLiteral("private"), Qt::CaseInsensitive)) {
                 privateBrowser = browserConfig->group(group).readEntry("Exec");
             }
         }
@@ -42,7 +44,8 @@ inline QString loadPrivateBrowser() {
     return privateBrowser.isEmpty() ? QStringLiteral("firefox --private-window") : privateBrowser;
 }
 
-inline SearchEngine getDefaultSearchEngine() {
+inline SearchEngine getDefaultSearchEngine()
+{
     SearchEngine defaultEngine;
     defaultEngine.qIcon = QIcon::fromTheme(QStringLiteral("google"));
     defaultEngine.name = QStringLiteral("Google");
@@ -52,12 +55,13 @@ inline SearchEngine getDefaultSearchEngine() {
 
 #ifndef NO_PROXY_INTEGRATION
 
-#include <KWallet/KWallet>
 #include <KNotifications/KNotification>
+#include <KWallet/KWallet>
 
 using KWallet::Wallet;
 
-inline QNetworkProxy *getProxyFromConfig(const QString &proxyChoice) {
+inline QNetworkProxy *getProxyFromConfig(const QString &proxyChoice)
+{
     if (proxyChoice != Config::ProxyDisabled) {
         auto *wallet = Wallet::openWallet(Wallet::LocalWallet(), 0, Wallet::Synchronous);
         auto *proxy = new QNetworkProxy();
@@ -87,7 +91,8 @@ inline QNetworkProxy *getProxyFromConfig(const QString &proxyChoice) {
         if (!port.isEmpty() && !hostName.isEmpty()) {
             return proxy;
         } else {
-            KNotification::event(KNotification::Error, QStringLiteral("Krunner-QuickWebShortcuts"),
+            KNotification::event(KNotification::Error,
+                                 QStringLiteral("Krunner-QuickWebShortcuts"),
                                  QStringLiteral("The Proxy credentials require at least a Hostname and Port, proceeding without!"),
                                  QStringLiteral("globe"));
         }
@@ -98,4 +103,4 @@ inline QNetworkProxy *getProxyFromConfig(const QString &proxyChoice) {
 }
 
 #endif
-#endif //QUICKWEBSHORTCUTS_UTILITIES_H
+#endif // QUICKWEBSHORTCUTS_UTILITIES_H
