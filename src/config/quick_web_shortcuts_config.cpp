@@ -1,4 +1,6 @@
 #include "quick_web_shortcuts_config.h"
+
+#include "Config.h"
 #include "searchengines/SearchEngines.h"
 #include "api_language_utility.h"
 #include <KSharedConfig>
@@ -198,7 +200,7 @@ void QuickWebShortcutsConfig::load() {
         m_ui->historyNotClear->setChecked(true);
     }
 
-    Q_EMIT changed(false);
+    Q_EMIT changed(false); // NOLINT(readability-misleading-indentation)
 }
 
 

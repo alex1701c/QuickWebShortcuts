@@ -4,7 +4,6 @@
 #include "ui_search_engine_item.h"
 
 #include <QWidget>
-#include <KConfigWidgets/KCModule>
 
 class SearchEngineItem : public QWidget, public Ui::SearchEngineItemUi {
 Q_OBJECT

@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QDir>
 #include <KSharedConfig>
+#include <KConfigGroup>
 #include <QComboBox>
 #include <Config.h>
 #include "SearchEngine.h"

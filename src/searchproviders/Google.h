@@ -2,6 +2,7 @@
 #define QUICKWEBSHORTCUTS_GOOGLE_H
 
 #include <QNetworkReply>
+#include <QUrlQuery>
 #include <QXmlStreamReader>
 #include <KNotifications/KNotification>
 #include <utility>

@@ -1,12 +1,15 @@
 #ifndef QUICKWEBSHORTCUTS_UTILITIES_H
 #define QUICKWEBSHORTCUTS_UTILITIES_H
 
+#include <QDir>
+#include <QIcon>
 #include <QNetworkProxy>
 #include <KSharedConfig>
 #include <KConfigGroup>
 #include "Config.h"
+#include "searchengines/SearchEngine.h"
 
-void initializeConfigFile() {
+inline void initializeConfigFile() {
     const QString configFolder = QDir::homePath() + QStringLiteral("/.config/krunnerplugins/");
     const QDir configDir(configFolder);
     if (!configDir.exists()) { configDir.mkpath(configFolder); }
@@ -18,7 +21,7 @@ void initializeConfigFile() {
     }
 }
 
-QString loadPrivateBrowser() {
+inline QString loadPrivateBrowser() {
     // Read entry for private browsing launch command
     QString privateBrowser;
     QString browser = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.kde/share/config/kdeglobals"))
@@ -39,7 +42,7 @@ QString loadPrivateBrowser() {
     return privateBrowser.isEmpty() ? QStringLiteral("firefox --private-window") : privateBrowser;
 }
 
-SearchEngine getDefaultSearchEngine() {
+inline SearchEngine getDefaultSearchEngine() {
     SearchEngine defaultEngine;
     defaultEngine.qIcon = QIcon::fromTheme(QStringLiteral("google"));
     defaultEngine.name = QStringLiteral("Google");
@@ -54,7 +57,7 @@ SearchEngine getDefaultSearchEngine() {
 
 using KWallet::Wallet;
 
-QNetworkProxy *getProxyFromConfig(const QString &proxyChoice) {
+inline QNetworkProxy *getProxyFromConfig(const QString &proxyChoice) {
     if (proxyChoice != Config::ProxyDisabled) {
         auto *wallet = Wallet::openWallet(Wallet::LocalWallet(), 0, Wallet::Synchronous);
         auto *proxy = new QNetworkProxy();

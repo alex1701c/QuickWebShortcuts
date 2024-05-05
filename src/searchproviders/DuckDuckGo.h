@@ -4,7 +4,10 @@
 
 #include <utility>
 #include <QTextDocument>
+#include <QUrlQuery>
+#include <QTimer>
 #include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QMetaEnum>
 #include <KNotifications/KNotification>
 #include "RequiredData.h"

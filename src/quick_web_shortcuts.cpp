@@ -180,7 +180,6 @@ void QuickWebShortcuts::filterHistory() {
 }
 
 void QuickWebShortcuts::match(KRunner::RunnerContext &context) {
-    if (!context.isValid()) return;
     wasActive = false;
 
     // Remove escape character

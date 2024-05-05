@@ -47,8 +47,8 @@ struct Config {
     constexpr static const auto CleanHistoryDefault = CleanHistoryQuick;
 };
 
-const int Config::MinimumLetterCountDefault = 3;
-const int Config::MaxSuggestionResultsDefault = 10;
+const int Config::MinimumLetterCountDefault = 3; // NOLINT
+const int Config::MaxSuggestionResultsDefault = 10; // NOLINT
 
 struct SearchEngineConfig {
     constexpr static const auto Name = "name";

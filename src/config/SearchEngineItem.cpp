@@ -1,4 +1,5 @@
-#include <QtWidgets/QFileDialog>
+#include <QFileDialog>
+#include <QRegularExpression>
 #include <QCheckBox>
 #include "SearchEngineItem.h"
 
