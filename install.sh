@@ -7,12 +7,23 @@ fi
 
 mkdir -p build
 cd build
+krunner_version=$(krunner --version | grep -oP "(?<=krunner )\d+")
+if [[ "$krunner_version" == "6" ]]; then
+    echo "Building for Plasma6"
+    BUILD_QT6_OPTION="-DBUILD_WITH_QT6=ON"
+else
+    echo "Building for Plasma5"
+    BUILD_QT6_OPTION=""
+fi
 
-cmake -DKDE_INSTALL_QTPLUGINDIR=$(kf5-config --qt-plugins) -DCMAKE_BUILD_TYPE=Release ..
+cmake .. -DCMAKE_BUILD_TYPE=Release -DKDE_INSTALL_USE_QT_SYS_PATHS=ON -DBUILD_TESTING=OFF $BUILD_QT6_OPTION
 make -j$(nproc)
 sudo make install
 
-quitapp5 krunner 2> /dev/null
-kstart5 --windowclass krunner krunner > /dev/null 2>&1 &
+# KRunner needs to be restarted for the changes to be applied
+if pgrep -x krunner > /dev/null
+then
+    kquitapp5 krunner
+fi
 
-echo "Installation finished !";
+echo "Installation finished!";

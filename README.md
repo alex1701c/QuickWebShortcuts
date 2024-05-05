@@ -57,29 +57,16 @@ sudo pacman -S cmake extra-cmake-modules knotifications kwallet kcmutils
 
 ## Installation Method
 
-### Option A: Easy oneliner method  
-
+Easy oneliner method:  
 ```bash
 curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install.sh | bash
 ```
 
-### Option B: Easy oneliner method (without admin privileges)
-
-```bash
-curl https://raw.githubusercontent.com/alex1701c/QuickWebShortcuts/master/install-user.sh | bash
-```
-
-### Option C: Manual method
-
+Alternatively, you can clone the repo and run the install.sh script
 ```bash
 git clone https://github.com/alex1701c/QuickWebShortcuts.git  
 cd QuickWebShortcuts/
-mkdir build
-cd build
-cmake -DKDE_INSTALL_QTPLUGINDIR=$(kf5-config --qt-plugins) -DCMAKE_BUILD_TYPE=Release ..
-make
-sudo make install
-kquitapp5 krunner 2> /dev/null; kstart5 --windowclass krunner krunner > /dev/null 2>&1 &
+./install.sh
 ```
 
 **Note**: KWallet is not required for building this project but without it the proxy feature for the 
