@@ -26,43 +26,17 @@ QuickWebShortcuts::~QuickWebShortcuts()
     delete requiredData.proxy;
 }
 
-void QuickWebShortcuts::init()
-{
-    initializeConfigFile();
-
-    // Add file watcher for config
-    watcher.addPath(QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile);
-    connect(&watcher, &QFileSystemWatcher::fileChanged, this, &QuickWebShortcuts::reloadPluginConfiguration);
-    connect(this, &QuickWebShortcuts::teardown, this, &QuickWebShortcuts::filterHistory);
-
-    reloadPluginConfiguration();
-}
-
-void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile)
+void QuickWebShortcuts::reloadConfiguration()
 {
     // To detect invalid state if config is updated
     currentSearchEngine.url.clear();
-    KConfigGroup configGroup =
-        KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile)->group(Config::RootGroup);
-    // Force sync from file
-    if (!configFile.isEmpty()) {
-        configGroup.config()->reparseConfiguration();
-    }
-
-    // If the file gets edited with a text editor, it often gets replaced by the edited version
-    // https://stackoverflow.com/a/30076119/9342842
-    if (!configFile.isEmpty()) {
-        if (QFile::exists(configFile)) {
-            watcher.addPath(configFile);
-        }
-    }
-
+    KConfigGroup configGroup = config();
     privateBrowser = loadPrivateBrowser();
 
     if (configGroup.readEntry(Config::WebShortcut).isEmpty()) {
         // Load search engines
         const QString searchEngineName = configGroup.readEntry(Config::SearchEngineName);
-        for (auto &engine : SearchEngines::getAllSearchEngines()) {
+        for (auto &engine : SearchEngines::getAllSearchEngines(configGroup)) {
             if (engine.name == searchEngineName) {
                 currentSearchEngine = engine;
                 break;

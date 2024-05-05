@@ -27,16 +27,14 @@ public:
         };
     }
 
-    static QList<SearchEngine> getAllSearchEngines()
+    static QList<SearchEngine> getAllSearchEngines(const KConfigGroup &grp)
     {
         QList<SearchEngine> searchEngines;
-        const auto rootConfig =
-            KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.config/krunnerplugins/") + Config::ConfigFile)->group(Config::RootGroup);
         auto defaultEngines = getDefaultSearchEngines();
         const auto fallbackIcon = QIcon::fromTheme(QStringLiteral("globe"));
-        const auto filteredGroups = rootConfig.groupList().filter(QRegularExpression(QStringLiteral("^SearchEngine-")));
+        const auto filteredGroups = grp.groupList().filter(QRegularExpression(QStringLiteral("^SearchEngine-")));
         for (const auto &groupName : filteredGroups) {
-            const auto config = rootConfig.group(groupName);
+            const auto config = grp.group(groupName);
             SearchEngine engine;
             engine.name = config.readEntry(SearchEngineConfig::Name);
             engine.url = config.readEntry(SearchEngineConfig::Url);

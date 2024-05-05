@@ -9,21 +9,6 @@
 #include <QIcon>
 #include <QNetworkProxy>
 
-inline void initializeConfigFile()
-{
-    const QString configFolder = QDir::homePath() + QStringLiteral("/.config/krunnerplugins/");
-    const QDir configDir(configFolder);
-    if (!configDir.exists()) {
-        configDir.mkpath(configFolder);
-    }
-    // Create file
-    QFile configFile(configFolder + Config::ConfigFile);
-    if (!configFile.exists()) {
-        configFile.open(QIODevice::WriteOnly);
-        configFile.close();
-    }
-}
-
 inline QString loadPrivateBrowser()
 {
     // Read entry for private browsing launch command

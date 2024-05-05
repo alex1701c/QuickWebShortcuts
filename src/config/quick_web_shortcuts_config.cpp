@@ -21,9 +21,7 @@ QuickWebShortcutsConfig::QuickWebShortcutsConfig(QObject *parent, const QVariant
     auto *layout = new QGridLayout(widget());
     layout->addWidget(m_ui, 0, 0);
 
-    initializeConfigFile();
-    config = KSharedConfig::openConfig(QDir::homePath() + QStringLiteral("/.config/krunnerplugins/quickwebshortcutsrunnerrc"))->group(Config::RootGroup);
-    config.config()->reparseConfiguration();
+    config = KSharedConfig::openConfig("krunnerrc")->group("Runners").group("krunner_quickwebshortcuts");
 
     // Initialize function pointers that require method overloading
     const auto changedSlotPointer = &QuickWebShortcutsConfig::markAsChanged;
@@ -94,7 +92,7 @@ void QuickWebShortcutsConfig::load()
         searchEngineName = QStringLiteral("Google");
     }
     // Load search engines
-    for (const auto &item : SearchEngines::getAllSearchEngines()) {
+    for (const auto &item : SearchEngines::getAllSearchEngines(config)) {
         auto *browserItem = new SearchEngineItem(m_ui->groupBoxSearch);
         m_ui->searchEnginesItemLayout->addWidget(browserItem);
         browserItem->iconPushButton->setIcon(resolveIcon(item.icon));

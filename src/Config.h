@@ -2,9 +2,6 @@
 #define QUICKWEBSHORTCUTS_CONFIG_H
 
 struct Config {
-    constexpr static const auto RootGroup = "Config";
-    constexpr static const auto ConfigFile = "quickwebshortcutsrunnerrc";
-
     // General config
     constexpr static const auto SearchEngineName = "search_engine_name";
     constexpr static const auto ShowSearchForNote = "show_search_for_note";

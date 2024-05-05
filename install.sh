@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [[ $(basename "$PWD") != "QuickWebShortcuts"* ]];then
     git clone https://github.com/alex1701c/QuickWebShortcuts
     cd QuickWebShortcuts/
