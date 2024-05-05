@@ -44,19 +44,24 @@ inline QString loadPrivateBrowser()
     return privateBrowser.isEmpty() ? QStringLiteral("firefox --private-window") : privateBrowser;
 }
 
+inline QIcon resolveIcon(const QString &filename)
+{
+    const QString path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("krunner_quickwebshortcuts/") + filename + ".svg");
+    return path.isEmpty() ? QIcon::fromTheme(QStringLiteral("globe")) : QIcon(path);
+}
+
 inline SearchEngine getDefaultSearchEngine()
 {
     SearchEngine defaultEngine;
-    defaultEngine.qIcon = QIcon::fromTheme(QStringLiteral("google"));
+    defaultEngine.qIcon = resolveIcon(QStringLiteral("google"));
     defaultEngine.name = QStringLiteral("Google");
     defaultEngine.url = QStringLiteral("https://www.google.com/search?q=");
     return defaultEngine;
 }
-
 #ifndef NO_PROXY_INTEGRATION
 
-#include <KNotifications/KNotification>
-#include <KWallet/KWallet>
+#include <KNotification>
+#include <KWallet>
 
 using KWallet::Wallet;
 

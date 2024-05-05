@@ -2,7 +2,7 @@
 #define QUICKWEBSHORTCUTS_BING_H
 
 #include "RequiredData.h"
-#include <KNotifications/KNotification>
+#include <KNotification>
 #include <KRunner/AbstractRunner>
 #include <QJsonArray>
 #include <QJsonDocument>

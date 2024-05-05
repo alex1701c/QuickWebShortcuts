@@ -1,7 +1,7 @@
 #ifndef QUICKWEBSHORTCUTS_GOOGLE_H
 #define QUICKWEBSHORTCUTS_GOOGLE_H
 
-#include <KNotifications/KNotification>
+#include <KNotification>
 #include <KRunner/QueryMatch>
 #include <KRunner/RunnerContext>
 #include <QMetaEnum>

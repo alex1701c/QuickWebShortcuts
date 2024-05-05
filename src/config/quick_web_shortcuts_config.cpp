@@ -14,11 +14,11 @@
 
 K_PLUGIN_CLASS(QuickWebShortcutsConfig)
 
-QuickWebShortcutsConfig::QuickWebShortcutsConfig(QWidget *parent, const QVariantList &args)
-    : KCModule(parent, args)
+QuickWebShortcutsConfig::QuickWebShortcutsConfig(QObject *parent, const QVariantList &)
+    : KCModule(parent)
 {
-    m_ui = new QuickWebShortcutsConfigForm(this);
-    auto *layout = new QGridLayout(this);
+    m_ui = new QuickWebShortcutsConfigForm(widget());
+    auto *layout = new QGridLayout(widget());
     layout->addWidget(m_ui, 0, 0);
 
     initializeConfigFile();
@@ -88,6 +88,7 @@ QuickWebShortcutsConfig::~QuickWebShortcutsConfig()
 
 void QuickWebShortcutsConfig::load()
 {
+    KCModule::load();
     QString searchEngineName = config.readEntry(Config::SearchEngineName);
     if (searchEngineName.isEmpty()) {
         searchEngineName = QStringLiteral("Google");
@@ -96,7 +97,7 @@ void QuickWebShortcutsConfig::load()
     for (const auto &item : SearchEngines::getAllSearchEngines()) {
         auto *browserItem = new SearchEngineItem(m_ui->groupBoxSearch);
         m_ui->searchEnginesItemLayout->addWidget(browserItem);
-        browserItem->iconPushButton->setIcon(item.qIcon);
+        browserItem->iconPushButton->setIcon(resolveIcon(item.icon));
         browserItem->nameLineEdit->setText(item.name);
         browserItem->urlLineEdit->setText(item.url);
         browserItem->useRadioButton->setChecked(item.name == searchEngineName);
@@ -104,7 +105,7 @@ void QuickWebShortcutsConfig::load()
         browserItem->isDefaultBased = item.isDefaultBased;
         browserItem->isEdited = false;
         browserItem->icon = item.icon;
-        browserItem->iconPushButton->setIcon(QIcon::fromTheme(item.icon, globeIcon));
+        browserItem->iconPushButton->setIcon(resolveIcon(item.icon));
         if (item.isDefault) {
             browserItem->originalName = item.name;
             browserItem->originalURL = item.url;
@@ -194,12 +195,11 @@ void QuickWebShortcutsConfig::load()
     } else {
         m_ui->historyNotClear->setChecked(true);
     }
-
-    Q_EMIT changed(false); // NOLINT(readability-misleading-indentation)
 }
 
 void QuickWebShortcutsConfig::save()
 {
+    KCModule::save();
     // Remove old groups
     const int itemCount = m_ui->searchEnginesItemLayout->count();
     const auto filteredGroups = config.groupList().filter(QRegularExpression(QStringLiteral("^SearchEngine-")));

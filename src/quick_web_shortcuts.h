@@ -10,6 +10,12 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <searchproviders/RequiredData.h>
 
+#if KRUNNER_VERSION_MAJOR == 5
+#include <QAction>
+#else
+#include <KRunner/Action>
+#endif
+
 class QuickWebShortcuts : public KRunner::AbstractRunner
 {
     Q_OBJECT
@@ -18,7 +24,11 @@ private:
     // General variables
     QFileSystemWatcher watcher;
     SearchEngine currentSearchEngine;
+#if KRUNNER_VERSION_MAJOR == 5
     QList<QAction *> normalActions, privateActions;
+#else
+    KRunner::Actions normalActions, privateActions;
+#endif
     bool isWebShortcut;
 
     QRegularExpression shortUrlRegex;
@@ -43,11 +53,11 @@ private:
     RequiredData requiredData;
 
 public:
-    QuickWebShortcuts(QObject *parent, const KPluginMetaData &pluginMetaData, const QVariantList &args);
+    QuickWebShortcuts(QObject *parent, const KPluginMetaData &data, const QVariantList &args);
     ~QuickWebShortcuts() override;
 
 private:
-    KRunner::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data, bool useGlobe = false);
+    KRunner::QueryMatch createMatch(const QString &text, const QMap<QString, QVariant> &data);
     void searchSuggest(KRunner::RunnerContext &context, const QString &term, const QString &browser = "");
 
 protected Q_SLOTS:
@@ -55,7 +65,6 @@ protected Q_SLOTS:
     void filterHistory();
     void reloadPluginConfiguration(const QString &file = QString());
     void match(KRunner::RunnerContext &context) override;
-    QList<QAction *> actionsForMatch(const KRunner::QueryMatch &match) override;
     void run(const KRunner::RunnerContext &context, const KRunner::QueryMatch &match) override;
 };
 

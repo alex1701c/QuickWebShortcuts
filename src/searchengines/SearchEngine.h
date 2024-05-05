@@ -4,9 +4,7 @@
 #include <QIcon>
 #include <QString>
 
-class SearchEngine
-{
-public:
+struct SearchEngine {
     QString name;
     QString url;
     QString icon;

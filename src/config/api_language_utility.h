@@ -206,5 +206,6 @@ inline void setGoogleLanguages(QComboBox *box)
     box->addItem(s("Yoruba"), s("yo"));
     box->addItem(s("Zulu"), s("zu"));
 }
+#undef s
 
 #endif // QUICKWEBSHORTCUTS_API_LANGUAGE_UTILITY_H

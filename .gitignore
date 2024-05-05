@@ -1,4 +1,4 @@
-/build
+/build*
 *kdev4
 /.idea
 /.vscode
@@ -9,3 +9,4 @@ src/*.swap
 /src/CMakeFiles/
 compile_commands.json
 .cache
+/.clang-format

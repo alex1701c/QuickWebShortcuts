@@ -2,7 +2,7 @@
 #include "Config.h"
 #include "searchengines/SearchEngines.h"
 #include "utilities.h"
-#include <KNotifications/KNotification>
+#include <KNotification>
 #include <KShell>
 #include <QAction>
 #include <QEventLoop>
@@ -11,8 +11,12 @@
 #include <searchproviders/DuckDuckGo.h>
 #include <searchproviders/Google.h>
 
-QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const KPluginMetaData &pluginMetaData, const QVariantList &args)
-    : KRunner::AbstractRunner(parent, pluginMetaData, args)
+QuickWebShortcuts::QuickWebShortcuts(QObject *parent, const KPluginMetaData &data, const QVariantList &)
+#if QT_VERSION_MAJOR == 5
+    : KRunner::AbstractRunner(parent, data, QVariantList{})
+#else
+    : KRunner::AbstractRunner(parent, data)
+#endif
 {
 }
 
@@ -108,7 +112,11 @@ void QuickWebShortcuts::reloadPluginConfiguration(const QString &configFile)
     searchSuggestions = searchSuggestionChoice != Config::SearchSuggestionDisabled;
     privateWindowSearchSuggestions = searchSuggestions && configGroup.readEntry(Config::PrivateWindowSearchSuggestions, false);
     if (configGroup.readEntry(Config::PrivateWindowAction, true)) {
+#if QT_VERSION_MAJOR == 5
         normalActions = {new QAction(QIcon::fromTheme(QStringLiteral("view-private")), QStringLiteral("launch query in private/incognito window"), this)};
+#else
+        normalActions = {KRunner::Action("private", QStringLiteral("view-private"), QStringLiteral("launch query in private/incognito window"))};
+#endif
     } else {
         normalActions.clear();
     }
@@ -194,6 +202,7 @@ void QuickWebShortcuts::match(KRunner::RunnerContext &context)
     if (term.startsWith(privateWindowTrigger)) {
         term = term.mid(2);
         data.insert(QStringLiteral("browser"), privateBrowser);
+
         QString url;
         if (isWebShortcut) {
             url = QString(currentSearchEngine.url).replace(QStringLiteral("\\{@}"), QUrl::toPercentEncoding(term));
@@ -255,14 +264,21 @@ void QuickWebShortcuts::run(const KRunner::RunnerContext & /*context*/, const KR
     wasActive = true;
 }
 
-KRunner::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMap<QString, QVariant> &data, const bool useGlobe)
+KRunner::QueryMatch QuickWebShortcuts::createMatch(const QString &text, const QMap<QString, QVariant> &data)
 {
     KRunner::QueryMatch match(this);
-    match.setIcon(useGlobe ? globeIcon : currentSearchEngine.qIcon);
+    match.setIcon(currentSearchEngine.qIcon);
     match.setText(text);
     match.setData(data);
     match.setRelevance(1);
+#if QT_VERSION_MAJOR == 5
     match.setType(KRunner::QueryMatch::ExactMatch);
+#else
+    match.setCategoryRelevance(KRunner::QueryMatch::CategoryRelevance::Highest);
+#endif
+
+    match.setActions(data.contains(QStringLiteral("browser")) ? privateActions : normalActions);
+
     return match;
 }
 
@@ -284,14 +300,6 @@ void QuickWebShortcuts::searchSuggest(KRunner::RunnerContext &context, const QSt
         connect(&duckDuckGo, &DuckDuckGo::finished, &loop, &QEventLoop::quit);
         loop.exec();
     }
-}
-
-QList<QAction *> QuickWebShortcuts::actionsForMatch(const KRunner::QueryMatch &match)
-{
-    if (match.data().toMap().contains(QStringLiteral("browser"))) {
-        return privateActions;
-    }
-    return normalActions;
 }
 
 K_PLUGIN_CLASS_WITH_JSON(QuickWebShortcuts, "quick_web_shortcuts.json")

@@ -9,7 +9,7 @@
 
 #ifndef NO_PROXY_INTEGRATION
 
-#include <KWallet/KWallet>
+#include <KWallet>
 
 using KWallet::Wallet;
 
@@ -32,7 +32,7 @@ class QuickWebShortcutsConfig : public KCModule
     Q_OBJECT
 
 public:
-    explicit QuickWebShortcutsConfig(QWidget *parent = nullptr, const QVariantList &args = QVariantList());
+    explicit QuickWebShortcutsConfig(QObject *parent, const QVariantList &);
     ~QuickWebShortcutsConfig() override;
 
 public Q_SLOTS:

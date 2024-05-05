@@ -2,12 +2,13 @@
 #define QUICKWEBSHORTCUTS_SEARCHENGINES_H
 
 #include "SearchEngine.h"
+#include "utilities.h"
 #include <Config.h>
 #include <KConfigGroup>
 #include <KSharedConfig>
-#include <QComboBox>
 #include <QDir>
 #include <QMap>
+#include <QRegularExpression>
 
 class SearchEngines
 {
@@ -50,7 +51,7 @@ public:
                 }
                 defaultEngines.remove(engine.originalName);
             }
-            engine.qIcon = QIcon::fromTheme(engine.icon, fallbackIcon);
+            engine.qIcon = resolveIcon(engine.icon);
             searchEngines.append(engine);
         }
         // If a default engine got edited they are already removed from the map
@@ -59,7 +60,7 @@ public:
             engine.name = item.first;
             engine.url = item.second;
             engine.icon = item.first.toLower();
-            engine.qIcon = QIcon::fromTheme(engine.icon);
+            engine.qIcon = resolveIcon(engine.icon);
             engine.isDefault = true;
             engine.isDefaultBased = true;
             searchEngines.append(engine);
