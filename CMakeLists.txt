@@ -3,31 +3,36 @@ cmake_minimum_required(VERSION 3.16)
 project(quickwebshortcuts)
 
 set(QT_MIN_VERSION "5.15.0")
-set(KF5_MIN_VERSION "5.91.0")
+set(KF_MIN_VERSION "5.91.0")
 
-find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
+find_package(ECM ${KF_MIN_VERSION} REQUIRED NO_MODULE)
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_MODULE_PATH})
 
-# Find the required Libaries
-find_package(Qt5 ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Widgets Core Quick QuickWidgets Network)
-find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS I18n Service Runner ConfigWidgets Notifications)
-feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
-
-# KWallet is used for storing the proxy credentials, but it is not for the core functionallity required
-find_package(KF5 ${KF5_MIN_VERSION} COMPONENTS Wallet)
-if (NOT ${KF5Wallet_FOUND})
-    message(WARNING "Could not find Wallet component, disabling proxy feature!")
-    add_definitions(-D NO_PROXY_INTEGRATION)
-endif ()
-
+include(QtVersionOption)
 include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
+include(ECMDeprecationSettings)
 include(FeatureSummary)
 
-add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050f02)
-add_definitions(-DKF_DISABLE_DEPRECATED_BEFORE_AND_AT=0x056700)
+
+# Find the required Libaries
+find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Widgets Core Network)
+find_package(KF${QT_MAJOR_VERSION} ${KF_MIN_VERSION} REQUIRED COMPONENTS I18n Service Runner KCMUtils Notifications)
+feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
+
+# KWallet is used for storing the proxy credentials, but it is not for the core functionallity required
+find_package(KF${QT_MAJOR_VERSION} ${KF5_MIN_VERSION} COMPONENTS Wallet)
+if (NOT ${KF${QT_MAJOR_VERSION}Wallet_FOUND})
+    message(WARNING "Could not find Wallet component, disabling proxy feature!")
+    add_definitions(-DNO_PROXY_INTEGRATION)
+endif ()
+
+ecm_set_disabled_deprecation_versions(
+	QT 6.0.0
+	KF ${KF_MIN_VERSION}
+)
 
 add_subdirectory(src)
 
