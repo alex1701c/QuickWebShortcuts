@@ -1,6 +1,7 @@
 #include "quick_web_shortcuts.h"
-#include <QtGui/QtGui>
 #include <QAction>
+#include <QEventLoop>
+#include <QProcess>
 #include <KShell>
 #include <KNotifications/KNotification>
 #include "searchengines/SearchEngines.h"

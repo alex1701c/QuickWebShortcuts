@@ -3,7 +3,6 @@
 
 #include "ui_search_engine_item.h"
 
-#include <QtCore>
 #include <QWidget>
 #include <KConfigWidgets/KCModule>
 

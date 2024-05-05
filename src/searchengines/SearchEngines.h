@@ -2,10 +2,10 @@
 #define QUICKWEBSHORTCUTS_SEARCHENGINES_H
 
 
-#include <QtCore/QString>
 #include <QMap>
+#include <QDir>
 #include <KSharedConfig>
-#include <QtWidgets/QComboBox>
+#include <QComboBox>
 #include <Config.h>
 #include "SearchEngine.h"
 

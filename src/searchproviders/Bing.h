@@ -2,10 +2,15 @@
 #define QUICKWEBSHORTCUTS_BING_H
 
 
-#include <QtNetwork/QNetworkReply>
+#include <QTimer>
+#include <QMetaEnum>
+#include <QNetworkReply>
+#include <QNetworkAccessManager>
 #include <KRunner/AbstractRunner>
+#include <QUrlQuery>
+#include <QJsonDocument>
+#include <QJsonArray>
 #include <KNotifications/KNotification>
-#include <QtCore>
 #include <utility>
 #include "RequiredData.h"
 

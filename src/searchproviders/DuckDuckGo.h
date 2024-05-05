@@ -2,11 +2,10 @@
 #define QUICKWEBSHORTCUTS_DUCKDUCKGO_H
 
 
-#include <QtNetwork>
-#include <QtCore>
 #include <utility>
 #include <QTextDocument>
 #include <QNetworkAccessManager>
+#include <QMetaEnum>
 #include <KNotifications/KNotification>
 #include "RequiredData.h"
 #include <KRunner/RunnerContext>

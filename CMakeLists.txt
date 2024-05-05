@@ -4,6 +4,7 @@ project(quickwebshortcuts)
 
 set(QT_MIN_VERSION "5.15.0")
 set(KF_MIN_VERSION "5.91.0")
+set(KDE_COMPILERSETTINGS_LEVEL "5.82.0")
 
 find_package(ECM ${KF_MIN_VERSION} REQUIRED NO_MODULE)
 add_definitions(-DQT_NO_KEYWORDS)

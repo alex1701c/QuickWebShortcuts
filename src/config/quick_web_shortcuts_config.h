@@ -3,9 +3,9 @@
 
 #include "ui_quick_web_shortcuts_config.h"
 #include <KCModule>
-#include <KConfigCore/KConfigGroup>
+#include <KConfigGroup>
+#include <QNetworkReply>
 #include "SearchEngineItem.h"
-#include <QtNetwork>
 
 #ifndef NO_PROXY_INTEGRATION
 

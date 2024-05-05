@@ -3,8 +3,10 @@
 #include "api_language_utility.h"
 #include <KSharedConfig>
 #include <KPluginFactory>
-#include <QtDebug>
-#include <QtWidgets/QFileDialog>
+#include <QDebug>
+#include <QTimer>
+#include <QMetaEnum>
+#include <QFileDialog>
 
 #include <utilities.h>
 

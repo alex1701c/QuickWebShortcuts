@@ -1,8 +1,8 @@
 #ifndef QUICKWEBSHORTCUTS_GOOGLE_H
 #define QUICKWEBSHORTCUTS_GOOGLE_H
 
-#include <QtNetwork/QNetworkReply>
-#include <QtCore>
+#include <QNetworkReply>
+#include <QXmlStreamReader>
 #include <KNotifications/KNotification>
 #include <utility>
 #include <KRunner/QueryMatch>

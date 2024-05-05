@@ -1,7 +1,6 @@
 #ifndef QUICKWEBSHORTCUTS_UTILITIES_H
 #define QUICKWEBSHORTCUTS_UTILITIES_H
 
-#include <QtCore>
 #include <QNetworkProxy>
 #include <KSharedConfig>
 #include <KConfigGroup>
