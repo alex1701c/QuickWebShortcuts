@@ -1,11 +1,11 @@
 #ifndef QUICKWEBSHORTCUTS_API_LANGUAGE_UTILITY_H
 #define QUICKWEBSHORTCUTS_API_LANGUAGE_UTILITY_H
 
-#include <QtWidgets/QComboBox>
+#include <QComboBox>
 // Shorter syntax for macro
 #define s(str) QStringLiteral(str)
 
-void setBingLanguages(QComboBox *box)
+inline void setBingLanguages(QComboBox *box)
 {
     box->clear();
     box->addItem(s("ar-sa (Arabic)"), s("ar-sa"));
@@ -52,7 +52,7 @@ void setBingLanguages(QComboBox *box)
     box->addItem(s("zh-tw (Traditional Chinese-Taiwan)"), s("zh-tw"));
 }
 
-void setGoogleLanguages(QComboBox *box)
+inline void setGoogleLanguages(QComboBox *box)
 {
     box->clear();
     // https://sites.google.com/site/tomihasa/google-language-codes

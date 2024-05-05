@@ -4,7 +4,9 @@
 #include <KNotifications/KNotification>
 #include <KRunner/QueryMatch>
 #include <KRunner/RunnerContext>
+#include <QMetaEnum>
 #include <QNetworkReply>
+#include <QTimer>
 #include <QUrlQuery>
 #include <QXmlStreamReader>
 #include <utility>
@@ -116,7 +118,7 @@ public Q_SLOTS:
                 context.addMatch(match);
             }
         }
-        Q_EMIT finished();
+        Q_EMIT finished(); // NOLINT
     }
 
 Q_SIGNALS:

@@ -105,7 +105,7 @@ public Q_SLOTS:
             }
         }
 
-        Q_EMIT finished();
+        Q_EMIT finished(); // NOLINT
     }
 
 Q_SIGNALS:
