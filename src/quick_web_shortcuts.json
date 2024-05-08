@@ -9,7 +9,6 @@
         "Description": "Search the web",
         "EnabledByDefault": true,
         "Icon": "globe",
-        "Id": "QuickWebShortcuts",
         "License": "LGPL 2.1+",
         "Name": "Quick Web Shortcuts",
         "Version": "2.3"
