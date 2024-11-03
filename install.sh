@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Exit immediately if something fails
 set -e
 
 if [[ $(basename "$PWD") != "QuickWebShortcuts"* ]];then
@@ -25,7 +26,7 @@ sudo make install
 # KRunner needs to be restarted for the changes to be applied
 if pgrep -x krunner > /dev/null
 then
-    kquitapp5 krunner
+    kquitapp$krunner_version krunner
 fi
 
 echo "Installation finished!";
