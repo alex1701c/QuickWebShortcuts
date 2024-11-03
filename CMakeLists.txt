@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(quickwebshortcuts)
+set(CMAKE_PROJECT_VERSION "3.0.0")
+set(CMAKE_PROJECT_HOMEPAGE_URL "https://github.com/alex1701c/QuickWebShortcuts")
+set(CMAKE_PROJECT_AUTHOR "alex1701c")
+set(CMAKE_PROJECT_AUTHOR_EMAIL "alex1701c.dev@gmx.net")
 
 set(QT_MIN_VERSION "5.15.0")
 set(KF_MIN_VERSION "5.91.0")
