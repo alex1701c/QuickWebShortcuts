@@ -6,6 +6,7 @@
 #include <KRunner/AbstractRunner>
 #include <QNetworkAccessManager>
 #include <QRegularExpression>
+#include <krunner_version.h>
 #include <searchproviders/RequiredData.h>
 
 #if KRUNNER_VERSION_MAJOR == 5
