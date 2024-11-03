@@ -51,11 +51,11 @@ sudo zypper install git cmake extra-cmake-modules kf6-ki18n-devel kf6-krunner-de
 <summary><b>Fedora</b></summary>
 
 Plasma5:
-```bash
+```bash install-fedora-plasma5
 sudo dnf install git cmake extra-cmake-modules kf5-ki18n-devel gettext kf5-krunner-devel kf5-knotifications-devel kf5-kwallet-devel kf5-kcmutils-devel
 ```
 Plasma6:
-```bash
+```bash install-fedora-plasma6
 sudo dnf install git cmake extra-cmake-modules kf6-ki18n-devel gettext kf6-krunner-devel kf6-knotifications-devel kf6-kwallet-devel kf6-kcmutils-devel
 ```
 
