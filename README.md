@@ -22,8 +22,13 @@ for instance you can use `!`, `?`, `#` or `<`.
 <details>
 <summary><b>Debian/Ubuntu</b></summary>
 
-```bash
-sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext libkf5notifications-dev libkf5wallet-dev libkf5kcmutils-dev
+Plasma5:
+```bash install-ubuntu-plasma5
+sudo apt install cmake extra-cmake-modules build-essential libkf5i18n-dev gettext libkf5runner-dev libkf5notifications-dev libkf5wallet-dev libkf5kcmutils-dev
+```
+Plasma6:
+```bash install-ubuntu-plasma6
+sudo apt install cmake extra-cmake-modules build-essential libkf6i18n-dev gettext libkf6runner-dev libkf6notifications-dev libkf6wallet-dev libkf6kcmutils-dev
 ```
 
 </details>
@@ -31,8 +36,13 @@ sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libk
 <details>
 <summary><b>OpenSUSE</b></summary>
 
-```bash
-sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel kservice-devel krunner-devel gettext-tools kconfigwidgets-devel knotifications-devel kwallet-devel kcmutils-devel
+Plasma5:  
+```bash install-opensuse-plasma5
+sudo zypper install cmake extra-cmake-modules ki18n-devel krunner-devel gettext-tools knotifications-devel kwallet-devel kcmutils-devel
+```
+Plasma6:  
+```bash install-opensuse-plasma6
+sudo zypper install cmake extra-cmake-modules kf6-ki18n-devel kf6-krunner-devel gettext-tools kf6-knotifications-devel kf6-kwallet-devel kf6-kcmutils-devel
 ```
 
 </details>
@@ -40,19 +50,15 @@ sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-
 <details>
 <summary><b>Fedora</b></summary>
 
+Plasma5:
 ```bash
-sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext kf5-knotifications-devel kf5-kwallet-devel kf5-kcmutils-devel
+sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel gettext kf5-krunner-devel kf5-knotifications-devel kf5-kwallet-devel kf5-kcmutils-devel
+```
+Plasma6:
+```bash
+sudo dnf install cmake extra-cmake-modules kf6-ki18n-devel gettext kf6-krunner-devel kf6-knotifications-devel kf6-kwallet-devel kf6-kcmutils-devel
 ```
 
-</details>
-
-<details>
-<summary><b>Arch (Manjaro)</b></summary>
-
-```bash
-sudo pacman -S cmake extra-cmake-modules knotifications kwallet kcmutils
-```
-  
 </details>
 
 ## Installation Method

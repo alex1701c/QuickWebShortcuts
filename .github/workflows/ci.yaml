@@ -1,0 +1,23 @@
+name: Build KRunner Plugins
+
+on:
+  push:
+    branches:
+      - master
+      - github_actions
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      publish-version:
+        description: "new version that should get published"
+        required: true
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    uses: alex1701c/actions/.github/workflows/plugin_ci_publish.yaml@main
+    with:
+      publish-version: ${{ inputs.publish-version }}
