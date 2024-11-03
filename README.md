@@ -24,11 +24,11 @@ for instance you can use `!`, `?`, `#` or `<`.
 
 Plasma5:
 ```bash install-ubuntu-plasma5
-sudo apt install cmake extra-cmake-modules build-essential libkf5i18n-dev gettext libkf5runner-dev libkf5notifications-dev libkf5wallet-dev libkf5kcmutils-dev
+sudo apt install git cmake extra-cmake-modules build-essential libkf5i18n-dev gettext libkf5runner-dev libkf5notifications-dev libkf5wallet-dev libkf5kcmutils-dev
 ```
 Plasma6:
 ```bash install-ubuntu-plasma6
-sudo apt install cmake extra-cmake-modules build-essential libkf6i18n-dev gettext libkf6runner-dev libkf6notifications-dev libkf6wallet-dev libkf6kcmutils-dev
+sudo apt install git cmake extra-cmake-modules build-essential libkf6i18n-dev gettext libkf6runner-dev libkf6notifications-dev libkf6wallet-dev libkf6kcmutils-dev
 ```
 
 </details>
@@ -38,11 +38,11 @@ sudo apt install cmake extra-cmake-modules build-essential libkf6i18n-dev gettex
 
 Plasma5:  
 ```bash install-opensuse-plasma5
-sudo zypper install cmake extra-cmake-modules ki18n-devel krunner-devel gettext-tools knotifications-devel kwallet-devel kcmutils-devel
+sudo zypper install git cmake extra-cmake-modules ki18n-devel krunner-devel gettext-tools knotifications-devel kwallet-devel kcmutils-devel
 ```
 Plasma6:  
 ```bash install-opensuse-plasma6
-sudo zypper install cmake extra-cmake-modules kf6-ki18n-devel kf6-krunner-devel gettext-tools kf6-knotifications-devel kf6-kwallet-devel kf6-kcmutils-devel
+sudo zypper install git cmake extra-cmake-modules kf6-ki18n-devel kf6-krunner-devel gettext-tools kf6-knotifications-devel kf6-kwallet-devel kf6-kcmutils-devel
 ```
 
 </details>
@@ -52,11 +52,11 @@ sudo zypper install cmake extra-cmake-modules kf6-ki18n-devel kf6-krunner-devel 
 
 Plasma5:
 ```bash
-sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel gettext kf5-krunner-devel kf5-knotifications-devel kf5-kwallet-devel kf5-kcmutils-devel
+sudo dnf install git cmake extra-cmake-modules kf5-ki18n-devel gettext kf5-krunner-devel kf5-knotifications-devel kf5-kwallet-devel kf5-kcmutils-devel
 ```
 Plasma6:
 ```bash
-sudo dnf install cmake extra-cmake-modules kf6-ki18n-devel gettext kf6-krunner-devel kf6-knotifications-devel kf6-kwallet-devel kf6-kcmutils-devel
+sudo dnf install git cmake extra-cmake-modules kf6-ki18n-devel gettext kf6-krunner-devel kf6-knotifications-devel kf6-kwallet-devel kf6-kcmutils-devel
 ```
 
 </details>
