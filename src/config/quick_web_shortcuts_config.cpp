@@ -322,7 +322,7 @@ void QuickWebShortcutsConfig::defaults()
     showSearchForClicked();
     validateSearchSuggestions();
     validateProxyOptions();
-    Q_EMIT markAsChanged();
+    markAsChanged();
 }
 
 void QuickWebShortcutsConfig::addSearchEngine()

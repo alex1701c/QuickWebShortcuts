@@ -31,7 +31,6 @@ public:
     {
         QList<SearchEngine> searchEngines;
         auto defaultEngines = getDefaultSearchEngines();
-        const auto fallbackIcon = QIcon::fromTheme(QStringLiteral("globe"));
         const auto filteredGroups = grp.groupList().filter(QRegularExpression(QStringLiteral("^SearchEngine-")));
         for (const auto &groupName : filteredGroups) {
             const auto config = grp.group(groupName);

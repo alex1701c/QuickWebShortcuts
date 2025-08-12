@@ -1,7 +1,6 @@
 #ifndef QUICKWEBSHORTCUTS_UTILITIES_H
 #define QUICKWEBSHORTCUTS_UTILITIES_H
 
-#include "Config.h"
 #include "searchengines/SearchEngine.h"
 #include <KConfigGroup>
 #include <KSharedConfig>
@@ -20,8 +19,9 @@ inline QString loadPrivateBrowser()
     }
     if (!browser.isEmpty()) {
         const KSharedConfig::Ptr browserConfig = KSharedConfig::openConfig(QStringLiteral("/usr/share/applications/") + browser);
-        for (const auto &group : browserConfig->groupList()) {
-            if (group.contains(QStringLiteral("incognito"), Qt::CaseInsensitive) || group.contains(QStringLiteral("private"), Qt::CaseInsensitive)) {
+        const QStringList groupList = browserConfig->groupList();
+        for (const auto &group : groupList) {
+            if (group.contains(QLatin1String("incognito"), Qt::CaseInsensitive) || group.contains(QLatin1String("private"), Qt::CaseInsensitive)) {
                 privateBrowser = browserConfig->group(group).readEntry("Exec");
             }
         }

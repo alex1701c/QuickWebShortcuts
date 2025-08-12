@@ -26,7 +26,7 @@ void SearchEngineItem::extractNameFromUrl()
 {
     if (!this->nameLineEdit->text().isEmpty())
         return;
-    QRegularExpression exp(QStringLiteral(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)"));
+    const static QRegularExpression exp(QStringLiteral(R"(^(?:https?://)(www\.)?([^/]+)\.(?:\.?[\w]{2,})+/?)"));
     if (this->urlLineEdit->text().contains(exp)) {
         const auto regexMatch = exp.match(this->urlLineEdit->text());
         QString res = regexMatch.captured(2);

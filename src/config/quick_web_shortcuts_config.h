@@ -9,11 +9,8 @@
 #include <krunner_version.h>
 
 #ifndef NO_PROXY_INTEGRATION
-
 #include <KWallet>
-
 using KWallet::Wallet;
-
 #endif
 
 class QuickWebShortcutsConfigForm : public QWidget, public Ui::QuickWebShortcutsConfigUi
