@@ -15,7 +15,7 @@
 K_PLUGIN_CLASS(QuickWebShortcutsConfig)
 
 QuickWebShortcutsConfig::QuickWebShortcutsConfig(QObject *parent, const QVariantList &)
-    : KCModule(parent)
+    : KCModule(qobject_cast<QWidget *>(parent))
 {
     m_ui = new QuickWebShortcutsConfigForm(widget());
     auto *layout = new QGridLayout(widget());

@@ -23,6 +23,7 @@ target_link_libraries(kcm_krunner_quickwebshortcuts
     KF${QT_MAJOR_VERSION}::I18n
     KF${QT_MAJOR_VERSION}::KCMUtils
     KF${QT_MAJOR_VERSION}::Notifications
+    KF${QT_MAJOR_VERSION}::Runner
 )
 
 if (${KF${QT_MAJOR_VERSION}Wallet_FOUND})

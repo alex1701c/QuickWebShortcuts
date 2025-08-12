@@ -6,6 +6,7 @@
 #include <KCModule>
 #include <KConfigGroup>
 #include <QNetworkReply>
+#include <krunner_version.h>
 
 #ifndef NO_PROXY_INTEGRATION
 
@@ -54,6 +55,13 @@ public Q_SLOTS:
 
     void readKWalletEntries();
     void saveKWalletEntries();
+
+#if KRUNNER_VERSION_MAJOR == 5
+    inline QWidget *widget()
+    {
+        return this;
+    }
+#endif
 
 private:
     QuickWebShortcutsConfigForm *m_ui;
